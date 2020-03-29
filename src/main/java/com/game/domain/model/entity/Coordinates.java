@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class Coordinates {
 
-	private int absciss, ordinate;
+	private int abscissa, ordinate;
 
 	public Coordinates(int x, int y) {
-		this.absciss = x;
+		this.abscissa = x;
 		this.ordinate = y;
 	}
 
@@ -20,7 +20,7 @@ public class Coordinates {
 		
 		if (obj instanceof Coordinates) {
 			Coordinates other = (Coordinates)obj;
-			return Objects.equals(absciss, other.getAbsciss()) && Objects.equals(ordinate, other.getOrdinate());
+			return Objects.equals(abscissa, other.getAbscissa()) && Objects.equals(ordinate, other.getOrdinate());
 		}
 		
 		return false;
@@ -28,17 +28,17 @@ public class Coordinates {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getAbsciss(), getOrdinate());
+		return Objects.hash(getAbscissa(), getOrdinate());
 	}
 	
 	public int[] getCoordinates() {
-		return new int[] {getAbsciss(), getOrdinate()};
+		return new int[] {getAbscissa(), getOrdinate()};
 	}
 	
 	
 
-	public int getAbsciss() {
-		return absciss;
+	public int getAbscissa() {
+		return abscissa;
 	}
 
 	public int getOrdinate() {
@@ -47,7 +47,7 @@ public class Coordinates {
 	
 	@Override
 	public String toString() {
-		return String.format("Coordinates [absciss = %s, ordinate = %s]", getAbsciss(), getOrdinate());
+		return String.format("Coordinates [abscissa = %s, ordinate = %s]", getAbscissa(), getOrdinate());
 	}
 
 }

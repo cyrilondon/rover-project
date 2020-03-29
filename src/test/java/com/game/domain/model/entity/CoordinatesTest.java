@@ -9,7 +9,7 @@ public class CoordinatesTest {
 	@Test
 	public void testCoordinatesConstructor() {
 		Coordinates coordinates = new Coordinates(3, 4);
-		assertThat(coordinates.getAbsciss()).isEqualTo(3);
+		assertThat(coordinates.getAbscissa()).isEqualTo(3);
 		assertThat(coordinates.getOrdinate()).isEqualTo(4);
 	}
 	
