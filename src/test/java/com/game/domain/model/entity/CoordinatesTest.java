@@ -30,7 +30,7 @@ public class CoordinatesTest {
 	@Test
 	public void testToString() {
 		Coordinates coordinates = new Coordinates(3, 4);
-		assertThat(coordinates.toString()).isEqualTo("Coordinates [absciss = 3, ordinate =4]");
+		assertThat(coordinates.toString()).isEqualTo("Coordinates [absciss = 3, ordinate = 4]");
 	}
 
 }

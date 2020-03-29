@@ -47,7 +47,7 @@ public class Coordinates {
 	
 	@Override
 	public String toString() {
-		return String.format("Coordinates [absciss = %s, ordinate =%s]", getAbsciss(), getOrdinate());
+		return String.format("Coordinates [absciss = %s, ordinate = %s]", getAbsciss(), getOrdinate());
 	}
 
 }
