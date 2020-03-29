@@ -23,7 +23,7 @@ public class OrientationTest {
 	}
 	
 	@Test
-	public void testTurnRight() {
+	public void testTurnEight() {
 		assertThat(NORTH.turnRight()).isEqualTo(EAST);
 		assertThat(WEST.turnRight()).isEqualTo(NORTH);
 		assertThat(SOUTH.turnRight()).isEqualTo(WEST);
@@ -41,6 +41,11 @@ public class OrientationTest {
 	@Test
 	public void testAllValues() {
 		assertThat(Orientation.allValues()).containsExactlyInAnyOrder("N", "E", "W", "S");
+	}
+	
+	@Test
+	public void testToString() {
+		assertThat(Orientation.NORTH.toString()).isEqualTo("Orientation [NORTH]");
 	}
 
 }

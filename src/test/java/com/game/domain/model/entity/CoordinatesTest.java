@@ -27,10 +27,20 @@ public class CoordinatesTest {
 		assertThat(coordinates.hashCode()).isEqualTo(otherCoordinates.hashCode());
 	}
 	
+	
+	@Test
+	public void testAnyShiftOnCoordinates() {
+		Coordinates coordinates = new Coordinates(3, 4);
+		coordinates.shiftMinusOneAlongAbscissa();
+		coordinates.shiftMinusOneAlongOrdinate();
+		assertThat(coordinates.getAbscissa()).isEqualTo(2);
+		assertThat(coordinates.getOrdinate()).isEqualTo(3);
+	}
+	
 	@Test
 	public void testToString() {
 		Coordinates coordinates = new Coordinates(3, 4);
-		assertThat(coordinates.toString()).isEqualTo("Coordinates [absciss = 3, ordinate = 4]");
+		assertThat(coordinates.toString()).isEqualTo("Coordinates [abscissa = 3, ordinate = 4]");
 	}
 
 }

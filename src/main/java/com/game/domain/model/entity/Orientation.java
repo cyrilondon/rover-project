@@ -88,5 +88,10 @@ public enum Orientation implements GameEnum<String> {
 	public static List<String> allValues() {
 		return Stream.of(Orientation.values()).map(orientation -> orientation.getValue()).collect(Collectors.toList());
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Orientation [%s]", super.toString());
+	}
 
 }
