@@ -23,7 +23,7 @@ public class OrientationTest {
 	}
 	
 	@Test
-	public void testTurnEight() {
+	public void testTurnRight() {
 		assertThat(NORTH.turnRight()).isEqualTo(EAST);
 		assertThat(WEST.turnRight()).isEqualTo(NORTH);
 		assertThat(SOUTH.turnRight()).isEqualTo(WEST);
