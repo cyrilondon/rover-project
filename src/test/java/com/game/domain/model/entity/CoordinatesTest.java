@@ -21,12 +21,25 @@ public class CoordinatesTest {
 	}
 	
 	@Test
+	public void testCoordinatesNotEqualsEquals() {
+		Coordinates coordinates = new Coordinates(3, 4);
+		Orientation orientation = Orientation.EAST;
+		assertThat(coordinates).isNotEqualTo(orientation);
+	}
+	
+	@Test
 	public void testCoordinatesHashCode() {
 		Coordinates coordinates = new Coordinates(3, 4);
 		Coordinates otherCoordinates = new Coordinates(3, 4);
 		assertThat(coordinates.hashCode()).isEqualTo(otherCoordinates.hashCode());
 	}
 	
+	
+	@Test
+	public void testGetCoordinates() {
+		Coordinates coordinates = new Coordinates(3, 4);
+		assertThat(coordinates.getCoordinates()).containsExactly(3,4);
+	}
 	
 	@Test
 	public void testAnyShiftOnCoordinates() {

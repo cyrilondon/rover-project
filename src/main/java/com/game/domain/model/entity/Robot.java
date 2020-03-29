@@ -2,6 +2,9 @@ package com.game.domain.model.entity;
 
 import java.util.Objects;
 
+import com.game.domain.core.util.ArgumentCheck;
+import com.game.domain.model.exception.GameExceptionLabels;
+
 public class Robot {
 
 	/**
@@ -17,14 +20,15 @@ public class Robot {
 	/**
 	 * The normal way the Robot should be instantiated via the File adapter as each
 	 * line initializes a anonymous Robot with coordinates and orientation
+	 * But we will used rather the below one {@link Robot#Robot(String, Coordinates, Orientation)}
 	 * 
 	 * @param name
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public Robot(Coordinates coordinates, Orientation orientation) {
-		this.position = coordinates;
-		this.orientation = orientation;
+	private Robot(Coordinates coordinates, Orientation orientation) {		
+		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROBOT_POSITION);
+		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROBOT_ORIENTATION);
 	}
 
 	/**
@@ -39,7 +43,7 @@ public class Robot {
 	 */
 	public Robot(String name, Coordinates coordinates, Orientation orientation) {
 		this(coordinates, orientation);
-		this.name = name;
+		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROBOT_NAME);
 	}
 
 	/**
