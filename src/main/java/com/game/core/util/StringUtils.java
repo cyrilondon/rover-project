@@ -1,4 +1,4 @@
-package com.game.domain.core.util;
+package com.game.core.util;
 
 public class StringUtils {
 	

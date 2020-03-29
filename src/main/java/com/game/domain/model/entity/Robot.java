@@ -2,7 +2,7 @@ package com.game.domain.model.entity;
 
 import java.util.Objects;
 
-import com.game.domain.core.util.ArgumentCheck;
+import com.game.core.util.ArgumentCheck;
 import com.game.domain.model.exception.GameExceptionLabels;
 
 public class Robot {

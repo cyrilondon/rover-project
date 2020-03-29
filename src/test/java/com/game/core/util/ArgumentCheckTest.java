@@ -1,11 +1,11 @@
-package com.game.domain.core.util;
+package com.game.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.testng.annotations.Test;
 
-import com.game.domain.core.util.ArgumentCheck;
+import com.game.core.util.ArgumentCheck;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;

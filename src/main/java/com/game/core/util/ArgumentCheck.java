@@ -1,4 +1,4 @@
-package com.game.domain.core.util;
+package com.game.core.util;
 
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
