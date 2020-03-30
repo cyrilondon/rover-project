@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
@@ -18,6 +19,13 @@ public class BoardTest {
 		Board board = new Board(dimensions);
 		assertThat(board.getWidth()).isEqualTo(dimensions.getWidth());
 		assertThat(board.getHeight()).isEqualTo(dimensions.getHeight());
+	}
+	
+	@Test
+	public void testDefaultInitialization() {
+		Board board = new Board();
+		assertThat(board.getWidth()).isEqualTo(TwoDimensionalSpace.DEFAULT_WIDTH);
+		assertThat(board.getHeight()).isEqualTo(TwoDimensionalSpace.DEFAULT_HEIGHT);
 	}
 	
 	@Test

@@ -23,6 +23,8 @@ public class GameExceptionLabels {
 	public static final String MISSING_ROBOT_NAME = "Missing Robot name";
 
 	public static final String MISSING_BOARD_DIMENSIONS = "Missing Board dimensions";
+
+	public static final String ILLEGAL_ORIENTATION_VALUE = "Orientation value not allowed";
 	
 
 }

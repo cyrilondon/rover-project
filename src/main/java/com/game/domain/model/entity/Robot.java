@@ -10,7 +10,8 @@ public class Robot {
 
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
-	 * given Robot {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
+	 * given Robot
+	 * {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
 	 */
 	private String name;
 
@@ -20,14 +21,14 @@ public class Robot {
 
 	/**
 	 * The normal way the Robot should be instantiated via the File adapter as each
-	 * line initializes a anonymous Robot with coordinates and orientation
-	 * But we will used rather the below one {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
+	 * line initializes a anonymous Robot with coordinates and orientation 
+	 * {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
 	 * 
 	 * @param name
 	 * @param coordinates
 	 * @param orientation
 	 */
-	private Robot(TwoDimensionalCoordinates coordinates, Orientation orientation) {		
+	public Robot(TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROBOT_POSITION);
 		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROBOT_ORIENTATION);
 	}
@@ -75,6 +76,8 @@ public class Robot {
 		case SOUTH:
 			moveSouth();
 			break;
+		default:
+			throw new IllegalArgumentException(GameExceptionLabels.ILLEGAL_ORIENTATION_VALUE);
 		}
 	}
 
