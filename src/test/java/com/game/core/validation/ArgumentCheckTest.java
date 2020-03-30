@@ -1,4 +1,4 @@
-package com.game.core.util;
+package com.game.core.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

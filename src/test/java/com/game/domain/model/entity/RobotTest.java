@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.testng.annotations.Test;
 
+import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
@@ -14,9 +15,9 @@ public class RobotTest {
 
 	@Test
 	public void testConstructorWithName() {
-		Coordinates coordinates = new Coordinates(3, 4);
+		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 4);
 		Robot robot = new Robot(ROBOT_NAME, coordinates, Orientation.SOUTH);
-		assertThat(robot.getCoordinates()).isEqualTo(new Coordinates(3, 4));
+		assertThat(robot.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(robot.getOrientation()).isEqualTo(Orientation.SOUTH);
 		assertThat(robot.getName()).isEqualTo(ROBOT_NAME);
 	}
@@ -81,7 +82,7 @@ public class RobotTest {
 	@Test
 	public void testEqualsWithDifferentInstance() {
 		Robot robot = initializeDefaultRobot();
-		assertThat(robot).isNotEqualTo(new Coordinates(3, 4));
+		assertThat(robot).isNotEqualTo(new TwoDimensionalCoordinates(3, 4));
 	}
 
 	@Test
@@ -106,7 +107,7 @@ public class RobotTest {
 
 	@Test
 	public void testToString() {
-		Robot robot = new Robot(ROBOT_NAME, new Coordinates(3, 4), Orientation.SOUTH);
+		Robot robot = new Robot(ROBOT_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 		assertThat(robot.toString()).isEqualTo(
 				"Robot [Robot_test] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
 	}
@@ -123,7 +124,7 @@ public class RobotTest {
 
 	@Test
 	public void testRobotWithNullOrientation() {
-		Throwable thrown = catchThrowable(() -> new Robot(ROBOT_NAME, new Coordinates(3, 4), null));
+		Throwable thrown = catchThrowable(() -> new Robot(ROBOT_NAME, new TwoDimensionalCoordinates(3, 4), null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 		.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 				GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -134,7 +135,7 @@ public class RobotTest {
 
 	@Test
 	public void testRobotWithNullName() {
-		Throwable thrown = catchThrowable(() -> new Robot(null, new Coordinates(3, 4), Orientation.EAST));
+		Throwable thrown = catchThrowable(() -> new Robot(null, new TwoDimensionalCoordinates(3, 4), Orientation.EAST));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 		.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 				GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -143,11 +144,11 @@ public class RobotTest {
 	}
 
 	private Robot initializeDefaultRobot() {
-		return new Robot(ROBOT_NAME, new Coordinates(3, 4), Orientation.SOUTH);
+		return new Robot(ROBOT_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 	}
 
 	private Robot initializeRobot(Orientation orientation) {
-		return new Robot(ROBOT_NAME, new Coordinates(3, 4), orientation);
+		return new Robot(ROBOT_NAME, new TwoDimensionalCoordinates(3, 4), orientation);
 	}
 
 }

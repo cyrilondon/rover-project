@@ -1,12 +1,12 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.dimensions;
 
 import java.util.Objects;
 
-public class Coordinates {
+public class TwoDimensionalCoordinates implements TwoDimensionalSpace {
 
 	private int abscissa, ordinate;
 
-	public Coordinates(int x, int y) {
+	public TwoDimensionalCoordinates(int x, int y) {
 		this.abscissa = x;
 		this.ordinate = y;
 	}
@@ -18,8 +18,8 @@ public class Coordinates {
 			return true;
 		}
 
-		if (obj instanceof Coordinates) {
-			Coordinates other = (Coordinates) obj;
+		if (obj instanceof TwoDimensionalCoordinates) {
+			TwoDimensionalCoordinates other = (TwoDimensionalCoordinates) obj;
 			return Objects.equals(abscissa, other.getAbscissa()) && Objects.equals(ordinate, other.getOrdinate());
 		}
 
@@ -51,24 +51,35 @@ public class Coordinates {
 		ordinate += step;
 	}
 	
-	void shiftPlusOneAlongAbscissa() {
+	public void shiftPlusOneAlongAbscissa() {
 		shitAlongAbscissa(1);
 	}
 	
-	void shiftMinusOneAlongAbscissa() {
+	public void shiftMinusOneAlongAbscissa() {
 		shitAlongAbscissa(-1);
 	}
-	void shiftPlusOneAlongOrdinate() {
+	
+	public void shiftPlusOneAlongOrdinate() {
 		shiftAlongOrdinate(1);
 	}
 	
-	void shiftMinusOneAlongOrdinate() {
+	public void shiftMinusOneAlongOrdinate() {
 		shiftAlongOrdinate(-1);
 	}
 	
 	@Override
 	public String toString() {
 		return String.format("Coordinates [abscissa = %s, ordinate = %s]", getAbscissa(), getOrdinate());
+	}
+
+	@Override
+   public int getWidth() {
+		return getAbscissa();
+	}
+
+	@Override
+	public int getHeight() {
+		return getOrdinate();
 	}
 
 }

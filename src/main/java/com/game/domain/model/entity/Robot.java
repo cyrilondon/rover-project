@@ -3,30 +3,31 @@ package com.game.domain.model.entity;
 import java.util.Objects;
 
 import com.game.core.validation.ArgumentCheck;
+import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 
 public class Robot {
 
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
-	 * given Robot {@link Robot#Robot(String, Coordinates, Orientation)}
+	 * given Robot {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
 	 */
 	private String name;
 
 	private Orientation orientation;
 
-	private Coordinates position;
+	private TwoDimensionalCoordinates position;
 
 	/**
 	 * The normal way the Robot should be instantiated via the File adapter as each
 	 * line initializes a anonymous Robot with coordinates and orientation
-	 * But we will used rather the below one {@link Robot#Robot(String, Coordinates, Orientation)}
+	 * But we will used rather the below one {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
 	 * 
 	 * @param name
 	 * @param coordinates
 	 * @param orientation
 	 */
-	private Robot(Coordinates coordinates, Orientation orientation) {		
+	private Robot(TwoDimensionalCoordinates coordinates, Orientation orientation) {		
 		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROBOT_POSITION);
 		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROBOT_ORIENTATION);
 	}
@@ -41,7 +42,7 @@ public class Robot {
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public Robot(String name, Coordinates coordinates, Orientation orientation) {
+	public Robot(String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		this(coordinates, orientation);
 		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROBOT_NAME);
 	}
@@ -101,7 +102,7 @@ public class Robot {
 		return orientation;
 	}
 
-	public Coordinates getCoordinates() {
+	public TwoDimensionalCoordinates getCoordinates() {
 		return position;
 	}
 

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.game.domain.model.entity.enums.GameEnum;
+
 public enum Orientation implements GameEnum<String> {
 
 	NORTH("N") {
