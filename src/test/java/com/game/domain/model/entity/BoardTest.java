@@ -21,8 +21,16 @@ public class BoardTest {
 	}
 	
 	@Test
+	public void testInitialisationWithCoordinatesIsOk() {
+		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
+		Board board = new Board(coordinates);
+		assertThat(board.getWidth()).isEqualTo(coordinates.getWidth());
+		assertThat(board.getHeight()).isEqualTo(coordinates.getHeight());
+	}
+	
+	@Test
 	public void testMissingDimensions() {
-		Throwable thrown = catchThrowable(() -> new Board(null));
+		Throwable thrown = catchThrowable(() -> new Board((TwoDimensions)null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
