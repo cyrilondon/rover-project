@@ -1,5 +1,6 @@
-package com.game.core.util;
+package com.game.core.validation;
 
+import com.game.core.util.StringUtils;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
