@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -7,12 +7,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.game.domain.model.GameContext;
+import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Orientation;
+import com.game.domain.model.entity.Robot;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
-public class GameTest {
+public class GameContextTest {
 
 	private GameContext gameContext = GameContext.getInstance();
 
