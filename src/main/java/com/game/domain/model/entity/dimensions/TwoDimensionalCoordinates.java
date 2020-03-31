@@ -43,28 +43,12 @@ public class TwoDimensionalCoordinates implements TwoDimensionalSpace {
 		return ordinate;
 	}
 
-	private void shitAlongAbscissa(int step) {
+	public void shiftAlongAbscissa(int step) {
 		abscissa += step;
 	}
 
-	private void shiftAlongOrdinate(int step) {
+	public void shiftAlongOrdinate(int step) {
 		ordinate += step;
-	}
-	
-	public void shiftPlusOneAlongAbscissa() {
-		shitAlongAbscissa(1);
-	}
-	
-	public void shiftMinusOneAlongAbscissa() {
-		shitAlongAbscissa(-1);
-	}
-	
-	public void shiftPlusOneAlongOrdinate() {
-		shiftAlongOrdinate(1);
-	}
-	
-	public void shiftMinusOneAlongOrdinate() {
-		shiftAlongOrdinate(-1);
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package com.game.domain.model.entity;
 import java.util.Objects;
 
 import com.game.core.validation.ArgumentCheck;
+import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 
@@ -18,6 +19,8 @@ public class Robot {
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
+	
+	private int step = GameContext.getInstance().getStep_length();
 
 	/**
 	 * The normal way the Robot should be instantiated via the File adapter as each
@@ -82,19 +85,23 @@ public class Robot {
 	}
 
 	private void moveNorth() {
-		getCoordinates().shiftPlusOneAlongOrdinate();
+		getCoordinates().shiftAlongOrdinate(step);
 	}
 
 	private void moveWest() {
-		getCoordinates().shiftMinusOneAlongAbscissa();
+		getCoordinates().shiftAlongAbscissa(-1*step);
 	}
 
 	private void moveEast() {
-		getCoordinates().shiftPlusOneAlongAbscissa();
+		getCoordinates().shiftAlongAbscissa(step);
 	}
 
 	private void moveSouth() {
-		getCoordinates().shiftMinusOneAlongOrdinate();
+		getCoordinates().shiftAlongOrdinate(-1*step);
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getName() {
