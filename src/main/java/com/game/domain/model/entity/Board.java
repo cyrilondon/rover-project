@@ -5,8 +5,9 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Board implements TwoDimensionalSpace {
+public class Board implements TwoDimensionalSpace, Entity {
 	
 	private TwoDimensionalSpace dimensions;
 	
@@ -19,12 +20,18 @@ public class Board implements TwoDimensionalSpace {
 		this.dimensions = new TwoDimensions(new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
 	
-	public int getWidth() {
+	 public int getWidth() {
 		return dimensions.getWidth();
 	}
 	
-	public int getHeight() {
+	 public int getHeight() {
 		return dimensions.getHeight();
+	}
+
+	@Override
+	public void validate(ValidationNotificationHandler handler) {
+		// we use the default GameDefaultValidationNotificationHandler for now
+		new BoardValidator(this, handler).validate();
 	}
 
 }

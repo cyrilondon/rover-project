@@ -47,7 +47,7 @@ public class RelativisticTwoDimensions implements TwoDimensionalSpace {
 	 * @return Lorentz factor
 	 */
 	private double calculateLorentzFactor(double observerSpeed) {
-		MathContext precision = new MathContext(2); // e
+		MathContext precision = new MathContext(2); 
 		return Math.sqrt(new BigDecimal(1)
 				.subtract(
 						new BigDecimal(Math.pow(observerSpeed, 2), precision).divide(new BigDecimal(Math.pow(SPEED_OF_LIGHT, 2)), precision))
