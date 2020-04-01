@@ -71,6 +71,7 @@ public class GameContext {
 		GAME.board = null;
 		GAME.rovers.clear();
 		counter.set(0);
+		rover_step_length = 1;
 	}
 
 	public Board getBoard() {

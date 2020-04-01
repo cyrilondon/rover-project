@@ -33,6 +33,12 @@ public class GameContextTest {
 		assertThat(gameContext.getBoard()).isNull();
 		assertThat(gameContext.getNumberOfRovers()).isEqualTo(0);
 	}
+	
+	@Test
+	public void testGetGameInstanceWithStep() {
+		GameContext gameContextWithStep = GameContext.getInstance(5);
+		assertThat(gameContextWithStep.getRover_step_length()).isEqualTo(5);
+	}
 
 
 	@Test
