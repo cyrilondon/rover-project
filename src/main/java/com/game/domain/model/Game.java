@@ -4,42 +4,41 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.game.domain.model.entity.Board;
-import com.game.domain.model.entity.Robot;
+import com.game.domain.model.entity.Rover;
 
 public class Game {
 
 	Game() {
 	}
 
-    Board board;
+	Board board;
 
-    Map<String, Robot> robots = new ConcurrentHashMap<>();
+	Map<String, Rover> rovers = new ConcurrentHashMap<>();
 
 	public Board getBoard() {
 		return board;
 	}
 
-	public Robot getRobot(String name) {
-		return robots.get(name);
+	public Rover getRover(String name) {
+		return rovers.get(name);
 	}
-	
-	public void addRobot(Robot robot) {
-		robots.putIfAbsent(robot.getName(), robot);
+
+	public void addRover(Rover rover) {
+		rovers.putIfAbsent(rover.getName(), rover);
 	}
-	
+
 	/**
-	 * In case for example of a robot moving out of the board, it will be removed
+	 * In case for example of a rover moving out of the board, it will be removed
 	 * from the game
 	 * 
-	 * @param robot
+	 * @param roverName
 	 */
-	public void removeRobot(String robotName) {
-		robots.remove(robotName);
+	public void removeRover(String roverName) {
+		rovers.remove(roverName);
 	}
 
-	public int getNumberOfRobots() {
-		return robots.size();
+	public int getNumberOfRovers() {
+		return rovers.size();
 	}
 
-	
 }

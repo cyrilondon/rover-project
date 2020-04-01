@@ -5,9 +5,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.cyrilus</groupId>
-	<artifactId>robot-project</artifactId>
+	<artifactId>rover-project</artifactId>
 	<version>HEAD</version>
-	<name>Robot game </name>
+	<name>Rover game </name>
 
 	<dependencies>
 		<dependency>

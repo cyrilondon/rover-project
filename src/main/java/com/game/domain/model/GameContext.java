@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.Board;
-import com.game.domain.model.entity.Robot;
+import com.game.domain.model.entity.Rover;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
@@ -14,12 +14,9 @@ import com.game.domain.model.exception.IllegalArgumentGameException;
  */
 public class GameContext {
 
-	/**
-	 * @Todo To add in Robot entity or leave here?
-	 */
-	public static final String ROBOT_NAME_PREFIX = "ROBOT_";
+	public static final String ROVER_NAME_PREFIX = "ROVER_";
 
-	private static final int STEP_LENGTH = 1;
+	private int rover_step_length = 1;
 
 	private GameContext() {
 
@@ -39,34 +36,40 @@ public class GameContext {
 	public static GameContext getInstance() {
 		return GAME_CONTEXT;
 	}
+	
+	public static GameContext getInstance(int step) {
+		 GAME_CONTEXT.rover_step_length = step;
+		 return GAME_CONTEXT;
+	}
+
+	public int getRover_step_length() {
+		return rover_step_length;
+	}
 
 	public void configureBoard(Board board) {
 		GAME.board = ArgumentCheck.preNotNull(board, GameExceptionLabels.MISSING_BOARD_CONFIGURATION);
 		initialized = true;
 	}
 
-	public void addRobot(Robot robot) {
+	public void addRover(Rover robot) {
 		if (!isInitialized())
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_BOARD_CONFIGURATION,
-					GameExceptionLabels.NOT_ALLOWED_ADDING_ROBOT_ERROR));
+					GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR));
 		int robotNumber = counter.addAndGet(1);
-		robot.setName(ROBOT_NAME_PREFIX + robotNumber);
-		GAME.addRobot(robot);
+		robot.setName(ROVER_NAME_PREFIX + robotNumber);
+		GAME.addRover(robot);
 	}
 
 	public boolean isInitialized() {
 		return initialized;
 	}
 
-	public int getStep_length() {
-		return STEP_LENGTH;
-	}
 
 	public void reset() {
 		initialized = false;
 		GAME.board = null;
-		GAME.robots.clear();
+		GAME.rovers.clear();
 		counter.set(0);
 	}
 
@@ -74,16 +77,16 @@ public class GameContext {
 		return GAME.getBoard();
 	}
 
-	public Robot getRobot(String name) {
-		return GAME.getRobot(name);
+	public Rover getRover(String name) {
+		return GAME.getRover(name);
 	}
 
-	public int getNumberOfRobots() {
-		return GAME.getNumberOfRobots();
+	public int getNumberOfRovers() {
+		return GAME.getNumberOfRovers();
 	}
 
-	public void removeRobot(String robotName) {
-		GAME.removeRobot(robotName);
+	public void removeRover(String roverName) {
+		GAME.removeRover(roverName);
 	}
 
 }

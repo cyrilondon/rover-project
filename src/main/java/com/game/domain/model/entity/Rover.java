@@ -7,12 +7,12 @@ import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 
-public class Robot {
+public class Rover {
 
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
-	 * given Robot
-	 * {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
+	 * given Rover
+	 * {@link Rover#Rover(String, TwoDimensionalCoordinates, Orientation)}
 	 */
 	private String name;
 
@@ -20,35 +20,35 @@ public class Robot {
 
 	private TwoDimensionalCoordinates position;
 	
-	private int step = GameContext.getInstance().getStep_length();
+	private int step = GameContext.getInstance().getRover_step_length();
 
 	/**
-	 * The normal way the Robot should be instantiated via the File adapter as each
-	 * line initializes a anonymous Robot with coordinates and orientation 
-	 * {@link Robot#Robot(String, TwoDimensionalCoordinates, Orientation)}
+	 * The normal way the Rover should be instantiated via the File adapter as each
+	 * line initializes a anonymous Rover with coordinates and orientation 
+	 * {@link Rover#Rover(String, TwoDimensionalCoordinates, Orientation)}
 	 * 
 	 * @param name
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public Robot(TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROBOT_POSITION);
-		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROBOT_ORIENTATION);
+	public Rover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROVER_POSITION);
+		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROVER_ORIENTATION);
 	}
 
 	/**
-	 * We add this constructor with a name parameter to keep track of a given Robot
+	 * We add this constructor with a name parameter to keep track of a given Rover
 	 * if we send commands other than from the file ( where the explore command
 	 * follows immediately the initialize command) By example, it could be make the
-	 * Robot 2 turn left or turn right well after Robot 2 has been initialized
+	 * Rover 2 turn left or turn right well after Rover 2 has been initialized
 	 * 
 	 * @param name
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public Robot(String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+	public Rover(String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		this(coordinates, orientation);
-		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROBOT_NAME);
+		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROVER_NAME);
 	}
 
 	/**
@@ -131,8 +131,8 @@ public class Robot {
 			return true;
 		}
 
-		if (obj instanceof Robot) {
-			Robot other = (Robot) obj;
+		if (obj instanceof Rover) {
+			Rover other = (Rover) obj;
 			return Objects.equals(name, other.getName()) && Objects.equals(getCoordinates(), other.getCoordinates())
 					&& Objects.equals(getOrientation(), other.getOrientation());
 		}
@@ -147,7 +147,7 @@ public class Robot {
 
 	@Override
 	public String toString() {
-		return String.format("Robot [%s] with [%s] and [%s]", this.getName(), this.getCoordinates(),
+		return String.format("Rover [%s] with [%s] and [%s]", this.getName(), this.getCoordinates(),
 				this.getOrientation());
 	}
 

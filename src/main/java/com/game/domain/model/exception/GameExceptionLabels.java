@@ -8,7 +8,7 @@ package com.game.domain.model.exception;
 public class GameExceptionLabels {
 	
 	/**
-	 * Final error message example:  [ERR-000] Broken precondition: Missing Robot name
+	 * Final error message example:  [ERR-000] Broken precondition: Missing Rover name
 	 */
 	public static final String ERROR_CODE_AND_MESSAGE_PATTERN = "[%s] %s";
 	
@@ -18,11 +18,11 @@ public class GameExceptionLabels {
 
 	public static String PRE_CHECK_ERROR_MESSAGE = "Broken precondition: %s";
 	
-	public static final String MISSING_ROBOT_POSITION = "Missing Robot position";
+	public static final String MISSING_ROVER_POSITION = "Missing Rover position";
 
-	public static final String MISSING_ROBOT_ORIENTATION = "Missing Robot orientation";
+	public static final String MISSING_ROVER_ORIENTATION = "Missing Rover orientation";
 
-	public static final String MISSING_ROBOT_NAME = "Missing Robot name";
+	public static final String MISSING_ROVER_NAME = "Missing Rover name";
 
 	public static final String MISSING_BOARD_DIMENSIONS = "Missing Board dimensions";
 
@@ -30,7 +30,7 @@ public class GameExceptionLabels {
 
 	public static final String MISSING_BOARD_CONFIGURATION = "Missing Board configuration";
 
-	public static final Object NOT_ALLOWED_ADDING_ROBOT_ERROR = "It is not allowed to add a Robot";
+	public static final Object NOT_ALLOWED_ADDING_ROVER_ERROR = "It is not allowed to add a Rover";
 	
 
 }
