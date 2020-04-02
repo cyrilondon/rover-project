@@ -16,7 +16,7 @@ public class GameContext {
 
 	public static final String ROVER_NAME_PREFIX = "ROVER_";
 
-	private int rover_step_length = 1;
+	private int roverStepLength = 1;
 
 	private GameContext() {
 
@@ -38,12 +38,12 @@ public class GameContext {
 	}
 	
 	public static GameContext getInstance(int step) {
-		 GAME_CONTEXT.rover_step_length = step;
+		 GAME_CONTEXT.roverStepLength = step;
 		 return GAME_CONTEXT;
 	}
 
-	public int getRover_step_length() {
-		return rover_step_length;
+	public int getRoverStepLength() {
+		return roverStepLength;
 	}
 
 	public void configureBoard(Board board) {
@@ -71,7 +71,7 @@ public class GameContext {
 		GAME.board = null;
 		GAME.rovers.clear();
 		counter.set(0);
-		rover_step_length = 1;
+		roverStepLength = 1;
 	}
 
 	public Board getBoard() {

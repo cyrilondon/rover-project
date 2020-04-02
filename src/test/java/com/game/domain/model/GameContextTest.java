@@ -37,7 +37,7 @@ public class GameContextTest {
 	@Test
 	public void testGetGameInstanceWithStep() {
 		GameContext gameContextWithStep = GameContext.getInstance(5);
-		assertThat(gameContextWithStep.getRover_step_length()).isEqualTo(5);
+		assertThat(gameContextWithStep.getRoverStepLength()).isEqualTo(5);
 	}
 
 

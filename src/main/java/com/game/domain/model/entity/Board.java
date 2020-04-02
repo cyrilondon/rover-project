@@ -8,29 +8,28 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Board implements TwoDimensionalSpace, Entity {
-	
+
 	private TwoDimensionalSpace dimensions;
-	
+
 	public Board(TwoDimensionalSpace dimensions) {
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_BOARD_DIMENSIONS);
 	}
-	
+
 	public Board() {
-		// default initialization
-		this.dimensions = new TwoDimensions(new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
+		this.dimensions = new TwoDimensions(
+				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
-	
-	 public int getWidth() {
+
+	public int getWidth() {
 		return dimensions.getWidth();
 	}
-	
-	 public int getHeight() {
+
+	public int getHeight() {
 		return dimensions.getHeight();
 	}
 
 	@Override
 	public void validate(ValidationNotificationHandler handler) {
-		// we use the default GameDefaultValidationNotificationHandler for now
 		new BoardValidator(this, handler).validate();
 	}
 

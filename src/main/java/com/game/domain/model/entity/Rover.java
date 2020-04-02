@@ -6,8 +6,9 @@ import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Rover {
+public class Rover implements Entity {
 
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
@@ -19,12 +20,12 @@ public class Rover {
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
-	
-	private int step = GameContext.getInstance().getRover_step_length();
+
+	private int step = GameContext.getInstance().getRoverStepLength();
 
 	/**
 	 * The normal way the Rover should be instantiated via the File adapter as each
-	 * line initializes a anonymous Rover with coordinates and orientation 
+	 * line initializes a anonymous Rover with coordinates and orientation
 	 * {@link Rover#Rover(String, TwoDimensionalCoordinates, Orientation)}
 	 * 
 	 * @param name
@@ -89,7 +90,7 @@ public class Rover {
 	}
 
 	private void moveWest() {
-		getCoordinates().shiftAlongAbscissa(-1*step);
+		getCoordinates().shiftAlongAbscissa(-1 * step);
 	}
 
 	private void moveEast() {
@@ -97,9 +98,22 @@ public class Rover {
 	}
 
 	private void moveSouth() {
-		getCoordinates().shiftAlongOrdinate(-1*step);
+		getCoordinates().shiftAlongOrdinate(-1 * step);
 	}
-	
+
+	public void setPosition(TwoDimensionalCoordinates position) {
+		this.position = position;
+	}
+
+	public TwoDimensionalCoordinates getPosition() {
+		return position;
+	}
+
+	@Override
+	public void validate(ValidationNotificationHandler handler) {
+		new RoverValidator(this, handler).validate();
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}

@@ -2,7 +2,7 @@ package com.game.domain.model.validation;
 
 import com.game.domain.model.exception.EntityValidationException;
 
-public class GameDefaultValidationNotificationHandler implements ValidationNotificationHandler {
+public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
 
 	private ValidationResult validationResult = new ValidationResult();
 

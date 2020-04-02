@@ -17,7 +17,7 @@ public class GameExceptionLabels {
 
 	public static final String ILLEGAL_ARGUMENT_CODE = "ERR-000";
 
-	public static String PRE_CHECK_ERROR_MESSAGE = "Broken precondition: %s";
+	public static final String PRE_CHECK_ERROR_MESSAGE = "Broken precondition: %s";
 
 	public static final String MISSING_ROVER_POSITION = "Missing Rover position";
 
@@ -31,12 +31,20 @@ public class GameExceptionLabels {
 
 	public static final String MISSING_BOARD_CONFIGURATION = "Missing Board configuration";
 
-	public static final Object NOT_ALLOWED_ADDING_ROVER_ERROR = "It is not allowed to add a Rover";
+	public static final Object NOT_ALLOWED_ADDING_ROVER_ERROR = "It is not allowed to add a Rover. Please initialize the Board first.";
 
 	public static final String ENTITY_VALIDATION_ERROR_CODE = "ERR-001";
 
 	public static final String BOARD_NEGATIVE_WIDTH = "Board width [%d] should be strictly positive";
 
 	public static final String BOARD_NEGATIVE_HEIGHT = "Board height [%d] should strictly positive";
+
+	public static final String ROVER_NEGATIVE_X = "Rover X-position [%d] should be strictly positive";
+	
+	public static final String ROVER_NEGATIVE_Y = "Rover Y-position [%d] should be strictly positive";
+
+	public static final String ROVER_X_OUT_OF_BOARD = "Rover with X-position [%d] is out of the board with width [%d]";
+
+	public static final String ROVER_Y_OUT_OF_BOARD = "Rover with Y-position [%d] is out of the board with height [%d]";
 
 }

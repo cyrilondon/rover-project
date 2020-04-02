@@ -9,7 +9,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
-import com.game.domain.model.validation.GameDefaultValidationNotificationHandler;
+import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class BoardValidatorTest {
@@ -29,7 +29,7 @@ public class BoardValidatorTest {
 	@Test
 	public void testValidatorNegativeWidth() {
 
-		ValidationNotificationHandler errorHandler = new GameDefaultValidationNotificationHandler();
+		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT));
 		Board board = new Board(dimensions);
@@ -47,7 +47,7 @@ public class BoardValidatorTest {
 	@Test
 	public void testValidatorNegativeHeight() {
 
-		ValidationNotificationHandler errorHandler = new GameDefaultValidationNotificationHandler();
+		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, NEGATIVE_HEIGHT));
 		Board board = new Board(dimensions);
@@ -66,7 +66,7 @@ public class BoardValidatorTest {
 	@Test
 	public void testValidatorWithNegativeWidthAndHeight() {
 
-		ValidationNotificationHandler errorHandler = new GameDefaultValidationNotificationHandler();
+		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, NEGATIVE_HEIGHT));
 		Board board = new Board(dimensions);
