@@ -46,7 +46,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeXPosition() {
 
-		gameContext.configureBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -65,7 +65,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeYPosition() {
 
-		gameContext.configureBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -84,7 +84,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeXYPosition() {
 
-		gameContext.configureBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -104,7 +104,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorOutOfBoardXYPosition() {
 
-		gameContext.configureBoard(getBoard(BOARD_SMALL_X, BOARD_SMALL_X));
+		gameContext.addBoard(getBoard(BOARD_SMALL_X, BOARD_SMALL_X));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 

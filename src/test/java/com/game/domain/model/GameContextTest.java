@@ -43,7 +43,7 @@ public class GameContextTest {
 
 	@Test
 	public void testAddRovers() {
-		gameContext.configureBoard(getBoard());
+		gameContext.addBoard(getBoard());
 		assertThat(gameContext.getBoard().getWidth()).isEqualTo(WIDTH);
 		assertThat(gameContext.getBoard().getHeight()).isEqualTo(HEIGHT);
 		gameContext.addRover(getRover());
@@ -55,7 +55,7 @@ public class GameContextTest {
 
 	@Test
 	public void testRemoveRover() {
-		gameContext.configureBoard(getBoard());
+		gameContext.addBoard(getBoard());
 		gameContext.addRover(getRover());
 		assertThat(gameContext.getRover(GameContext.ROVER_NAME_PREFIX + 1)).isNotNull();
 		gameContext.removeRover(GameContext.ROVER_NAME_PREFIX + 1);
@@ -75,13 +75,13 @@ public class GameContextTest {
 
 	@Test
 	public void testReset() {
-		gameContext.configureBoard(getBoard());
+		gameContext.addBoard(getBoard());
 		gameContext.addRover(getRover());
 		gameContext.addRover(getRover());
 		gameContext.reset();
 		assertThat(gameContext.getNumberOfRovers()).isEqualTo(0);
 		assertThat(gameContext.isInitialized()).isFalse();
-		gameContext.configureBoard(getBoard());
+		gameContext.addBoard(getBoard());
 		gameContext.addRover(getRover());
 		assertThat(gameContext.getRover(GameContext.ROVER_NAME_PREFIX + 1)).isNotNull();
 	}

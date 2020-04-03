@@ -46,7 +46,7 @@ public class GameContext {
 		return roverStepLength;
 	}
 
-	public void configureBoard(Board board) {
+	public void addBoard(Board board) {
 		GAME.board = ArgumentCheck.preNotNull(board, GameExceptionLabels.MISSING_BOARD_CONFIGURATION);
 		initialized = true;
 	}

@@ -10,6 +10,10 @@ import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Rover implements Entity {
 
+	public void setOrientation(Orientation orientation) {
+		this.orientation = orientation;
+	}
+
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
 	 * given Rover
@@ -101,10 +105,6 @@ public class Rover implements Entity {
 		getCoordinates().shiftAlongOrdinate(-1 * step);
 	}
 
-	public void setPosition(TwoDimensionalCoordinates position) {
-		this.position = position;
-	}
-
 	public TwoDimensionalCoordinates getPosition() {
 		return position;
 	}
@@ -124,6 +124,10 @@ public class Rover implements Entity {
 
 	public Orientation getOrientation() {
 		return orientation;
+	}
+	
+	public void setPosition(TwoDimensionalCoordinates position) {
+		this.position = position;
 	}
 
 	public TwoDimensionalCoordinates getCoordinates() {
