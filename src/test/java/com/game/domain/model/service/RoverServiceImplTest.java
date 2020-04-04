@@ -1,6 +1,7 @@
 package com.game.domain.model.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +10,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.game.domain.model.GameContext;
+import com.game.domain.model.entity.Board;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.exception.EntityValidationException;
+import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
@@ -20,6 +25,10 @@ public class RoverServiceImplTest {
 	private static final int X = 3;
 
 	private static final int Y = 4;
+
+	private static final int WIDTH = 5;
+
+	private static final int HEIGHT = 5;
 
 	private static final String ROVER_PREFIX = "ROVER_TEST_";
 
@@ -30,12 +39,6 @@ public class RoverServiceImplTest {
 	 */
 	private RoverServiceImpl roverService = new RoverServiceImpl(mockRoverRepository);
 
-	private GameContext gameContext = GameContext.getInstance();
-
-	private static final int WIDTH = 3;
-
-	private static final int HEIGHT = 3;
-
 	@BeforeMethod
 	public void reset() {
 		mockRoverRepository.removeAllRovers();
@@ -43,12 +46,30 @@ public class RoverServiceImplTest {
 
 	@Test
 	public void testInitializeRover() {
+		GameContext.getInstance().addBoard(getBoard(WIDTH, HEIGHT));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		roverService.initializeRover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
 				Orientation.SOUTH);
 		Rover rover = mockRoverRepository.getRover(ROVER_PREFIX + 1);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
+	}
+
+	@Test
+	public void testInitializeRoverOutOfBoard() {
+		int width = 2, height = 2;
+		GameContext.getInstance().addBoard(getBoard(width, height));
+		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
+
+		Throwable thrown = catchThrowable(() -> roverService.initializeRover(
+				ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH));
+		
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
+						String.format(GameExceptionLabels.ROVER_X_OUT_OF_BOARD, X, width)
+								+ ", " + String.format(GameExceptionLabels.ROVER_Y_OUT_OF_BOARD, Y,
+										height)));
 	}
 
 	@Test
@@ -124,6 +145,11 @@ public class RoverServiceImplTest {
 			rovers.clear();
 		}
 
+	}
+
+	private Board getBoard(int width, int height) {
+		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(width, height));
+		return new Board(dimensions);
 	}
 
 }

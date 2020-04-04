@@ -38,13 +38,15 @@ public class GameExceptionLabels {
 	public static final String BOARD_NEGATIVE_WIDTH = "Board width [%d] should be strictly positive";
 
 	public static final String BOARD_NEGATIVE_HEIGHT = "Board height [%d] should strictly positive";
+	
+	public static final String BOARD_NOT_SQUARE = "Board should be a square: width [%d] is not equal to height [%d]";
 
 	public static final String ROVER_NEGATIVE_X = "Rover X-position [%d] should be strictly positive";
 	
 	public static final String ROVER_NEGATIVE_Y = "Rover Y-position [%d] should be strictly positive";
 
-	public static final String ROVER_X_OUT_OF_BOARD = "Rover with X-position [%d] is out of the board with width [%d]";
+	public static final String ROVER_X_OUT_OF_BOARD = "Rover with X-position [%d] is out of the Board with width [%d]";
 
-	public static final String ROVER_Y_OUT_OF_BOARD = "Rover with Y-position [%d] is out of the board with height [%d]";
+	public static final String ROVER_Y_OUT_OF_BOARD = "Rover with Y-position [%d] is out of the Board with height [%d]";
 
 }

@@ -20,6 +20,7 @@ public class BoardValidator extends EntityValidator<Board> {
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.BOARD_NEGATIVE_HEIGHT, entity().getHeight()));
 		
+		
 	}
 
 }
