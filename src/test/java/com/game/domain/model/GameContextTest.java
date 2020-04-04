@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 
@@ -24,7 +24,7 @@ public class GameContextTest {
 
 	@Test
 	public void testGetGameInstance() {
-		assertThat(gameContext.getBoard()).isNull();
+		assertThat(gameContext.getPlateau()).isNull();
 	}
 	
 	@Test
@@ -34,24 +34,24 @@ public class GameContextTest {
 	}
 	
 	@Test
-	public void testAddBoard() {
-		gameContext.addBoard(getBoard());
-		assertThat(gameContext.getBoard().getWidth()).isEqualTo(WIDTH);
-		assertThat(gameContext.getBoard().getHeight()).isEqualTo(HEIGHT);
+	public void testAddPlateau() {
+		gameContext.addPlateau(getPlateau());
+		assertThat(gameContext.getPlateau().getWidth()).isEqualTo(WIDTH);
+		assertThat(gameContext.getPlateau().getHeight()).isEqualTo(HEIGHT);
 	}
 
 	@Test
 	public void testReset() {
-		gameContext.addBoard(getBoard());
+		gameContext.addPlateau(getPlateau());
 		gameContext.reset();
 		assertThat(gameContext.isInitialized()).isFalse();
-		assertThat(gameContext.getBoard()).isNull();
+		assertThat(gameContext.getPlateau()).isNull();
 		assertThat(gameContext.getRoverStepLength()).isEqualTo(GameContext.ROVER_STEP_LENGTH);
 	}
 
-	private Board getBoard() {
+	private Plateau getPlateau() {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(3, 3));
-		return new Board(dimensions);
+		return new Plateau(dimensions);
 	}
 
 }

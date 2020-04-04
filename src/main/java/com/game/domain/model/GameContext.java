@@ -3,9 +3,9 @@ package com.game.domain.model;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.game.core.validation.ArgumentCheck;
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.exception.GameExceptionLabels;
-import com.game.domain.model.service.BoardServiceImpl;
+import com.game.domain.model.service.PlateauServiceImpl;
 import com.game.domain.model.service.RoverServiceImpl;
 import com.game.domain.model.service.ServiceLocator;
 
@@ -29,7 +29,7 @@ public class GameContext {
 	private int roverStepLength = ROVER_STEP_LENGTH;
 
 	/**
-	 * Game is initialized if only the board has been initialized
+	 * Game is initialized if only the plateau has been initialized
 	 */
 	private boolean initialized;
 
@@ -55,8 +55,8 @@ public class GameContext {
 		return (RoverServiceImpl) ServiceLocator.getRoverService();
 	}
 
-	public BoardServiceImpl getBoardService() {
-		return (BoardServiceImpl) ServiceLocator.getBoardService();
+	public PlateauServiceImpl getPlateauService() {
+		return (PlateauServiceImpl) ServiceLocator.getPlateauService();
 	}
 	
 
@@ -66,12 +66,12 @@ public class GameContext {
 
 	
 	/**
-	 * Adding a board to the game will initialize the game
+	 * Adding a plateau to the game will initialize the game
 	 * Rovers are then allowed to be added/initialized as well
 	 */
-	public void addBoard(Board board) {
+	public void addPlateau(Plateau plateau) {
 		reset();
-		GAME.board = ArgumentCheck.preNotNull(board, GameExceptionLabels.MISSING_BOARD_CONFIGURATION);
+		GAME.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
 		initialized = true;
 	}
 
@@ -82,13 +82,13 @@ public class GameContext {
 
 	public void reset() {
 		initialized = false;
-		GAME.board = null;
+		GAME.plateau = null;
 		roverStepLength = 1;
 		counter = new AtomicInteger(0);
 	}
 
-	public Board getBoard() {
-		return GAME.getBoard();
+	public Plateau getPlateau() {
+		return GAME.getPlateau();
 	}
 	
 	public AtomicInteger getCounter() {

@@ -24,13 +24,13 @@ public class RoverValidatorTest {
 
 	private final int POSITIVE_Y_POSITION = 4;
 
-	private final int BOARD_WIDTH = 5;
+	private final int PLATEAU_WIDTH = 5;
 
-	private final int BOARD_HEIGHT = 5;
+	private final int PLATEAU_HEIGHT = 5;
 	
-	private final int BOARD_SMALL_X = 2;
+	private final int PLATEAU_SMALL_X = 2;
 	
-	private final int BOARD_SMALL_Y = 2;
+	private final int PLATEAU_SMALL_Y = 2;
 	
 
 	private GameContext gameContext = GameContext.getInstance();
@@ -46,7 +46,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeXPosition() {
 
-		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addPlateau(getPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -65,7 +65,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeYPosition() {
 
-		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addPlateau(getPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -84,7 +84,7 @@ public class RoverValidatorTest {
 	@Test
 	public void testValidatorNegativeXYPosition() {
 
-		gameContext.addBoard(getBoard(BOARD_WIDTH, BOARD_HEIGHT));
+		gameContext.addPlateau(getPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -99,12 +99,12 @@ public class RoverValidatorTest {
 	}
 	
 	/**
-	 * [ERR-001] Rover with X-position [3] is out of the board with width [2], Rover with Y-position [4] is out of the board with height [2]"
+	 * [ERR-001] Rover with X-position [3] is out of the plateau with width [2], Rover with Y-position [4] is out of the plateau with height [2]"
 	 */
 	@Test
-	public void testValidatorOutOfBoardXYPosition() {
+	public void testValidatorOutOfPlateauXYPosition() {
 
-		gameContext.addBoard(getBoard(BOARD_SMALL_X, BOARD_SMALL_X));
+		gameContext.addPlateau(getPlateau(PLATEAU_SMALL_X, PLATEAU_SMALL_X));
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
@@ -114,15 +114,15 @@ public class RoverValidatorTest {
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.ROVER_X_OUT_OF_BOARD, rover.getXPosition(), BOARD_SMALL_X) + ", "
-								+ String.format(GameExceptionLabels.ROVER_Y_OUT_OF_BOARD, rover.getYPosition(), BOARD_SMALL_Y)));
+						String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, rover.getXPosition(), PLATEAU_SMALL_X) + ", "
+								+ String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAU_SMALL_Y)));
 	}
 
 
 	
-	private Board getBoard(int width, int height) {
+	private Plateau getPlateau(int width, int height) {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(width, height));
-		return new Board(dimensions);
+		return new Plateau(dimensions);
 	}
 
 	private Rover getRover(int X, int Y) {

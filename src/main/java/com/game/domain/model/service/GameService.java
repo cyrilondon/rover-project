@@ -14,7 +14,7 @@ public interface GameService extends ApplicationService {
 	 * TODO replace the arguments by command object
 	 * @param  coordinates
 	 */
-	public void initializeBoard(TwoDimensionalCoordinates coordinates);
+	public void initializePlateau(TwoDimensionalCoordinates coordinates);
 
 	/**
 	 * Arguments to be refactored later in a Command object

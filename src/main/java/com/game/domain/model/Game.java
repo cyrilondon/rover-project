@@ -1,11 +1,10 @@
 package com.game.domain.model;
 
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 
 /**
  * Not really needed as it is for now.
  * But here in case of other entities/value objects to configure
- * @author cyril
  *
  */
 public class Game {
@@ -13,10 +12,10 @@ public class Game {
 	Game() {
 	}
 
-	Board board;
+	Plateau plateau;
 
-	public Board getBoard() {
-		return board;
+	public Plateau getPlateau() {
+		return plateau;
 	}
 
 }

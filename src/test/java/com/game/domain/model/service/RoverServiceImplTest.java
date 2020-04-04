@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.game.domain.model.GameContext;
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -46,7 +46,7 @@ public class RoverServiceImplTest {
 
 	@Test
 	public void testInitializeRover() {
-		GameContext.getInstance().addBoard(getBoard(WIDTH, HEIGHT));
+		GameContext.getInstance().addPlateau(getPlateau(WIDTH, HEIGHT));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		roverService.initializeRover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
 				Orientation.SOUTH);
@@ -56,9 +56,9 @@ public class RoverServiceImplTest {
 	}
 
 	@Test
-	public void testInitializeRoverOutOfBoard() {
+	public void testInitializeRoverOutOfPlateau() {
 		int width = 2, height = 2;
-		GameContext.getInstance().addBoard(getBoard(width, height));
+		GameContext.getInstance().addPlateau(getPlateau(width, height));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 
 		Throwable thrown = catchThrowable(() -> roverService.initializeRover(
@@ -67,8 +67,8 @@ public class RoverServiceImplTest {
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.ROVER_X_OUT_OF_BOARD, X, width)
-								+ ", " + String.format(GameExceptionLabels.ROVER_Y_OUT_OF_BOARD, Y,
+						String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, X, width)
+								+ ", " + String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, Y,
 										height)));
 	}
 
@@ -147,9 +147,9 @@ public class RoverServiceImplTest {
 
 	}
 
-	private Board getBoard(int width, int height) {
+	private Plateau getPlateau(int width, int height) {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(width, height));
-		return new Board(dimensions);
+		return new Plateau(dimensions);
 	}
 
 }

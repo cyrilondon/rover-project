@@ -9,7 +9,7 @@ public class ServiceLocator {
 
 	public static String ROVER_SERVICE = "rover_service";
 	
-	public static String BOARD_SERVICE = "board_service";
+	public static String PLATEAU_SERVICE = "plateau_service";
 
 	private Map<String, DomainService> services = new HashMap<>();
 
@@ -17,7 +17,7 @@ public class ServiceLocator {
 
 	static {
 		soleInstance.services.put(ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
-		soleInstance.services.put(BOARD_SERVICE, new BoardServiceImpl());
+		soleInstance.services.put(PLATEAU_SERVICE, new PlateauServiceImpl());
 	}
 
 	public static void load(ServiceLocator arg) {
@@ -28,8 +28,8 @@ public class ServiceLocator {
 		return (RoverServiceImpl)soleInstance.services.get(ROVER_SERVICE);
 	}
 	
-	public static BoardServiceImpl getBoardService() {
-		return (BoardServiceImpl)soleInstance.services.get(BOARD_SERVICE);
+	public static PlateauServiceImpl getPlateauService() {
+		return (PlateauServiceImpl)soleInstance.services.get(PLATEAU_SERVICE);
 	}
 
 }

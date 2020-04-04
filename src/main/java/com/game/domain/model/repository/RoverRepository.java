@@ -9,7 +9,7 @@ public interface RoverRepository extends DomainRepository {
 	public void addRover(Rover rover);
 
 	/**
-	 * In case for example of a rover moving out of the board, it will be removed
+	 * In case for example of a rover moving out of the plateau, it will be removed
 	 * from the game
 	 * 
 	 * @param roverName

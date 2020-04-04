@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 
 
 public class RelativisticTwoDimensionsTest {
@@ -21,9 +21,9 @@ public class RelativisticTwoDimensionsTest {
 	@Test
 	public void testWidthAndLengthContraction() {
 		TwoDimensionalSpace dimensions = new RelativisticTwoDimensions(OBSERVER_SPEED, new TwoDimensionalCoordinates(initial_coordinate, initial_coordinate));
-		Board board = new Board(dimensions);
-        assertThat(board.getWidth()).isEqualTo(49);
-        assertThat(board.getHeight()).isEqualTo(49);
+		Plateau plateau = new Plateau(dimensions);
+        assertThat(plateau.getWidth()).isEqualTo(49);
+        assertThat(plateau.getHeight()).isEqualTo(49);
 	}
 
 }

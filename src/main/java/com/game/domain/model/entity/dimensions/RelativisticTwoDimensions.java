@@ -3,10 +3,10 @@ package com.game.domain.model.entity.dimensions;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import com.game.domain.model.entity.Board;
+import com.game.domain.model.entity.Plateau;
 
 /**
- * Board dimensions according to more accurate Einstein's special relativity
+ * Plateau dimensions according to more accurate Einstein's special relativity
  * theory. What would  the {@link TwoDimensionalCoordinates#getWidth()} and
  * {@link TwoDimensionalCoordinates#getHeight()} be as measured from a observer
  * traveling at a speed close to the speed of light ;-) 
@@ -14,7 +14,7 @@ import com.game.domain.model.entity.Board;
  * the Lorentz factor (usually referred as to the Greek letter gamma). 
  * Example of Gang of Four Strategy pattern, which  allows us to change the behavior of an algorithm
  * at runtime. 
- * In our case, at {@link Board} building time, we will chose a relativistic or classical algorithm.
+ * In our case, at {@link Plateau} building time, we will chose a relativistic or classical algorithm.
  * {@see https://en.wikipedia.org/wiki/Special_relativity#Length_contraction}
  *
  */

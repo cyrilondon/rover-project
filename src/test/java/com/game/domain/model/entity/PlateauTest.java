@@ -11,39 +11,39 @@ import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
-public class BoardTest {
+public class PlateauTest {
 	
 	@Test
 	public void testInitialisationIsOk() {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(3, 3));
-		Board board = new Board(dimensions);
-		assertThat(board.getWidth()).isEqualTo(dimensions.getWidth());
-		assertThat(board.getHeight()).isEqualTo(dimensions.getHeight());
+		Plateau plateau = new Plateau(dimensions);
+		assertThat(plateau.getWidth()).isEqualTo(dimensions.getWidth());
+		assertThat(plateau.getHeight()).isEqualTo(dimensions.getHeight());
 	}
 	
 	@Test
 	public void testDefaultInitialization() {
-		Board board = new Board();
-		assertThat(board.getWidth()).isEqualTo(TwoDimensionalSpace.DEFAULT_WIDTH);
-		assertThat(board.getHeight()).isEqualTo(TwoDimensionalSpace.DEFAULT_HEIGHT);
+		Plateau plateau = new Plateau();
+		assertThat(plateau.getWidth()).isEqualTo(TwoDimensionalSpace.DEFAULT_WIDTH);
+		assertThat(plateau.getHeight()).isEqualTo(TwoDimensionalSpace.DEFAULT_HEIGHT);
 	}
 	
 	@Test
 	public void testInitialisationWithCoordinatesIsOk() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
-		Board board = new Board(coordinates);
-		assertThat(board.getWidth()).isEqualTo(coordinates.getWidth());
-		assertThat(board.getHeight()).isEqualTo(coordinates.getHeight());
+		Plateau plateau = new Plateau(coordinates);
+		assertThat(plateau.getWidth()).isEqualTo(coordinates.getWidth());
+		assertThat(plateau.getHeight()).isEqualTo(coordinates.getHeight());
 	}
 	
 	@Test
 	public void testMissingDimensions() {
-		Throwable thrown = catchThrowable(() -> new Board((TwoDimensions)null));
+		Throwable thrown = catchThrowable(() -> new Plateau((TwoDimensions)null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
 						String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
-								GameExceptionLabels.MISSING_BOARD_DIMENSIONS)));
+								GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS)));
 	}
 
 

@@ -7,9 +7,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.game.domain.model.GameContext;
-import com.game.domain.model.entity.Board;
 import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
@@ -35,11 +34,11 @@ public class GameServiceImplTest {
 	}
 
 	@Test
-	public void testInitializeBoard() {
-		gameService.initializeBoard(new TwoDimensionalCoordinates(WIDTH, HEIGHT));
-		Board board = gameContext.getBoard();
-		assertThat(board.getWidth()).isEqualTo(WIDTH);
-		assertThat(board.getHeight()).isEqualTo(HEIGHT);
+	public void testInitializePlateau() {
+		gameService.initializePlateau(new TwoDimensionalCoordinates(WIDTH, HEIGHT));
+		Plateau plateau = gameContext.getPlateau();
+		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
+		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
 	}
 
 //	@Test
@@ -56,22 +55,22 @@ public class GameServiceImplTest {
 //	}
 
 	/**
-	 * Expected error message: "[ERR-000] Missing Board configuration - It is not allowed to add a Rover. Please initialize the Board first."
+	 * Expected error message: "[ERR-000] Missing Plateau configuration - It is not allowed to add a Rover. Please initialize the Plateau first."
 	 */
 	@Test
-	public void testInitializeRoverWithoutBoard() {
+	public void testInitializeRoverWithoutPlateau() {
 		Throwable thrown = catchThrowable(
 				() -> gameService.initializeRover(new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
-						String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN, GameExceptionLabels.MISSING_BOARD_CONFIGURATION,
+						String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
 								GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR)));
 	}
 
-	private Board getBoard() {
+	private Plateau getPlateau() {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, HEIGHT));
-		return new Board(dimensions);
+		return new Plateau(dimensions);
 	}
 
 }

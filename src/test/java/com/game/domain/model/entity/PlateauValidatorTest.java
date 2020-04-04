@@ -12,7 +12,7 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class BoardValidatorTest {
+public class PlateauValidatorTest {
 
 	private final static int WIDTH = 3;
 
@@ -24,7 +24,7 @@ public class BoardValidatorTest {
 
 	
 	/**
-	 * Expected errorMessage: "[ERR-001] Board width [-5] should be strictly positive"
+	 * Expected errorMessage: "[ERR-001] Plateau width [-5] should be strictly positive"
 	 */
 	@Test
 	public void testValidatorNegativeWidth() {
@@ -32,17 +32,17 @@ public class BoardValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT));
-		Board board = new Board(dimensions);
+		Plateau plateau = new Plateau(dimensions);
 
-		Throwable thrown = catchThrowable(() -> board.validate(errorHandler));
+		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.BOARD_NEGATIVE_WIDTH, NEGATIVE_WIDTH)));
+						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH)));
 	}
 
 	/**
-	 * Expected errorMessage: "[ERR-001] Board height [-5] should be strictly positive"
+	 * Expected errorMessage: "[ERR-001] Plateau height [-5] should be strictly positive"
 	 */
 	@Test
 	public void testValidatorNegativeHeight() {
@@ -50,18 +50,18 @@ public class BoardValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, NEGATIVE_HEIGHT));
-		Board board = new Board(dimensions);
+		Plateau plateau = new Plateau(dimensions);
 
-		Throwable thrown = catchThrowable(() -> board.validate(errorHandler));
+		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.BOARD_NEGATIVE_HEIGHT, NEGATIVE_HEIGHT)));
+						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_HEIGHT, NEGATIVE_HEIGHT)));
 	}
 
 	
 	/**
-	 * Expected errorMessage: "[ERR-001] Board width [-5] should be strictly positive, Board height [-1] should strictly positive"
+	 * Expected errorMessage: "[ERR-001] Plateau width [-5] should be strictly positive, Plateau height [-1] should strictly positive"
 	 */
 	@Test
 	public void testValidatorWithNegativeWidthAndHeight() {
@@ -69,13 +69,13 @@ public class BoardValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, NEGATIVE_HEIGHT));
-		Board board = new Board(dimensions);
+		Plateau plateau = new Plateau(dimensions);
 
-		Throwable thrown = catchThrowable(() -> board.validate(errorHandler));
+		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.BOARD_NEGATIVE_WIDTH, NEGATIVE_WIDTH) + ", "
-								+ String.format(GameExceptionLabels.BOARD_NEGATIVE_HEIGHT, NEGATIVE_HEIGHT)));
+						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH) + ", "
+								+ String.format(GameExceptionLabels.PLATEAU_NEGATIVE_HEIGHT, NEGATIVE_HEIGHT)));
 	}
 }

@@ -7,15 +7,15 @@ import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Board implements TwoDimensionalSpace, Entity {
+public class Plateau implements TwoDimensionalSpace, Entity {
 
 	private TwoDimensionalSpace dimensions;
 
-	public Board(TwoDimensionalSpace dimensions) {
-		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_BOARD_DIMENSIONS);
+	public Plateau(TwoDimensionalSpace dimensions) {
+		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 
-	public Board() {
+	public Plateau() {
 		this.dimensions = new TwoDimensions(
 				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
@@ -30,7 +30,7 @@ public class Board implements TwoDimensionalSpace, Entity {
 
 	@Override
 	public void validate(ValidationNotificationHandler handler) {
-		new BoardValidator(this, handler).validate();
+		new PlateauValidator(this, handler).validate();
 	}
 
 }

@@ -23,13 +23,13 @@ public class RoverValidator extends EntityValidator<Rover> {
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.ROVER_NEGATIVE_Y, entity().getYPosition()));
 
-		if (entity().getXPosition() > GameContext.getInstance().getBoard().getWidth())
+		if (entity().getXPosition() > GameContext.getInstance().getPlateau().getWidth())
 			this.notificationHandler()
-					.handleError(String.format(GameExceptionLabels.ROVER_X_OUT_OF_BOARD, entity().getXPosition(), GameContext.getInstance().getBoard().getWidth()));
+					.handleError(String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, entity().getXPosition(), GameContext.getInstance().getPlateau().getWidth()));
 		
-		if (entity().getYPosition() > GameContext.getInstance().getBoard().getHeight())
+		if (entity().getYPosition() > GameContext.getInstance().getPlateau().getHeight())
 			this.notificationHandler()
-					.handleError(String.format(GameExceptionLabels.ROVER_Y_OUT_OF_BOARD, entity().getYPosition(), GameContext.getInstance().getBoard().getHeight()));
+					.handleError(String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, entity().getYPosition(), GameContext.getInstance().getPlateau().getHeight()));
 
 	}
 
