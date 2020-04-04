@@ -23,7 +23,7 @@ public class RelativisticTwoDimensionsTest {
 		TwoDimensionalSpace dimensions = new RelativisticTwoDimensions(OBSERVER_SPEED, new TwoDimensionalCoordinates(initial_coordinate, initial_coordinate));
 		Board board = new Board(dimensions);
         assertThat(board.getWidth()).isEqualTo(49);
-        assertThat(board.getWidth()).isEqualTo(49);
+        assertThat(board.getHeight()).isEqualTo(49);
 	}
 
 }

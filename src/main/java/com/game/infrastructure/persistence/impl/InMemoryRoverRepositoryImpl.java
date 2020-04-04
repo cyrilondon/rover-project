@@ -12,8 +12,7 @@ import com.game.domain.model.repository.RoverRepository;
  * https://alistair.cockburn.us/hexagonal-architecture/
  *
  */
-public class InMemoryRoverRepository implements RoverRepository {
-	
+public class InMemoryRoverRepositoryImpl implements RoverRepository {
 	
 	
 	Map<String, Rover> rovers = new ConcurrentHashMap<>();

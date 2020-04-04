@@ -3,7 +3,7 @@ package com.game.domain.model.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.game.infrastructure.persistence.impl.InMemoryRoverRepository;
+import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 public class ServiceLocator {
 
@@ -16,7 +16,7 @@ public class ServiceLocator {
 	private static ServiceLocator soleInstance = new ServiceLocator();
 
 	static {
-		soleInstance.services.put(ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepository()));
+		soleInstance.services.put(ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
 		soleInstance.services.put(BOARD_SERVICE, new BoardServiceImpl());
 	}
 

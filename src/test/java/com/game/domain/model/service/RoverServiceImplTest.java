@@ -13,7 +13,7 @@ import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.repository.RoverRepository;
-import com.game.infrastructure.persistence.impl.InMemoryRoverRepository;
+import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 public class RoverServiceImplTest {
 
@@ -93,7 +93,7 @@ public class RoverServiceImplTest {
 
 	/**
 	 * Simple MockClass for the RoverRepository We explicitly choose a different
-	 * implementation than the {@link InMemoryRoverRepository}
+	 * implementation than the {@link InMemoryRoverRepositoryImpl}
 	 *
 	 */
 	private class MockRoverRepository implements RoverRepository {

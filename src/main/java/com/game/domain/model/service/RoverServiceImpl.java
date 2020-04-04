@@ -7,7 +7,7 @@ import com.game.domain.model.repository.RoverRepository;
 
 /**
  * Pure domain service 
- * No need of a specific interface other than the marker {@link DomainService} one
+ * There is no need of a specific interface other than the marker {@link DomainService} one
  *
  */
 public class RoverServiceImpl implements DomainService {
