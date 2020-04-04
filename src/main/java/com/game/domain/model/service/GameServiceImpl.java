@@ -36,7 +36,8 @@ public class GameServiceImpl implements GameService {
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_BOARD_CONFIGURATION,
 					GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR));
-		roverService.initializeRover(coordinates, orientation);
+		int robotNumber = gameContext.getCounter().addAndGet(1);
+		roverService.initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, coordinates, orientation);
 	}
 
 	public void moveRoverwithOrientation(String roverName, Orientation orientation) {

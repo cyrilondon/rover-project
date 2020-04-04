@@ -2,9 +2,7 @@ package com.game.infrastructure.persistence.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.repository.RoverRepository;
 
@@ -16,7 +14,7 @@ import com.game.domain.model.repository.RoverRepository;
  */
 public class InMemoryRoverRepository implements RoverRepository {
 	
-	private AtomicInteger counter = new AtomicInteger(0);
+	
 	
 	Map<String, Rover> rovers = new ConcurrentHashMap<>();
 
@@ -25,8 +23,6 @@ public class InMemoryRoverRepository implements RoverRepository {
 	}
 
 	public void addRover(Rover rover) {
-		int robotNumber = counter.addAndGet(1);
-		rover.setName(GameContext.ROVER_NAME_PREFIX + robotNumber);
 		rovers.putIfAbsent(rover.getName(), rover);
 	}
 

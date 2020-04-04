@@ -18,7 +18,7 @@ public class RoverServiceImpl implements DomainService {
 		this.roverRepository = roverRepository;
 	}
 
-	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
+	public void initializeRover(String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		roverRepository.addRover(new Rover(coordinates, orientation));
 	}
 

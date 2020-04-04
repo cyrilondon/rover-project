@@ -1,5 +1,7 @@
 package com.game.domain.model;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.Board;
 import com.game.domain.model.exception.GameExceptionLabels;
@@ -32,7 +34,8 @@ public class GameContext {
 	private boolean initialized;
 
 	private static GameContext GAME_CONTEXT = new GameContext();
-
+	
+	AtomicInteger counter = new AtomicInteger(0);
 
 	private Game GAME = new Game();
 	
@@ -81,10 +84,16 @@ public class GameContext {
 		initialized = false;
 		GAME.board = null;
 		roverStepLength = 1;
+		counter = new AtomicInteger(0);
 	}
 
 	public Board getBoard() {
 		return GAME.getBoard();
 	}
+	
+	public AtomicInteger getCounter() {
+		return counter;
+	}
+
 
 }
