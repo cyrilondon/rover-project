@@ -31,7 +31,6 @@ public class RoverValidator extends EntityValidator<Rover> {
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.ROVER_Y_OUT_OF_BOARD, entity().getYPosition(), GameContext.getInstance().getBoard().getHeight()));
 
-
 	}
 
 }

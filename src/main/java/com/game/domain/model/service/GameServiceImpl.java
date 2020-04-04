@@ -3,42 +3,44 @@ package com.game.domain.model.service;
 import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.Board;
 import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.IllegalArgumentGameException;
 
 /**
- * Application service which orchestrates the application process among the two Domain services
- * {@link RoverServiceImpl} and {@link BoardServiceImpl}
- * and the {@link GameContext} application state.
+ * Application service which acts as a facade to the application and delegates
+ * the execution of the process to the two Domain services
+ * {@link RoverServiceImpl}, {@link BoardServiceImpl}  and the Application State
+ * {@link GameContext}
+ * All the write commands should have return type = void
  *
  */
 public class GameServiceImpl implements GameService {
-
-	RoverServiceImpl roverService = (RoverServiceImpl) ServiceLocator.getRoverService();
-
-	BoardServiceImpl boardService = (BoardServiceImpl) ServiceLocator.getBoardService();
-
-	GameContext gameContext = GameContext.getInstance();
 	
+	GameContext gameContext = GameContext.getInstance();
+
+	BoardServiceImpl boardService = gameContext.getBoardService();
+
+	RoverServiceImpl roverService = gameContext.getRoverService();
+
 	public void initializeBoard(TwoDimensionalCoordinates coordinates) {
 		Board board = boardService.initializeBoard(coordinates);
-		GameContext.getInstance().addBoard(board);
-	}
-	
-	/**
-	 *Arguments to be refactored later in a Command object
-	 * 
-	 * @param coordinates
-	 * @param orientation
-	 */
-	public Rover initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		Rover rover = roverService.initializeRover(coordinates, orientation);
-		GameContext.getInstance().addRover(rover);
-		return rover;
+		// once initialized, we want to keep track of the Board as in-memory singleton instance during the game lifetime
+		// i.e no need to go back to the Board repository each time it is needed 
+		// (this in contrary to what happens for the rover objects which are fetched each time from the Rover Repository)
+		gameContext.addBoard(board);
 	}
 
-	public void moveRoverwithOrientation(Rover rover, Orientation orientation) {
-		roverService.moveRoverwithOrientation(rover, orientation);
+	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		if (!gameContext.isInitialized())
+			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
+					GameExceptionLabels.MISSING_BOARD_CONFIGURATION,
+					GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR));
+		roverService.initializeRover(coordinates, orientation);
+	}
+
+	public void moveRoverwithOrientation(String roverName, Orientation orientation) {
+		roverService.moveRoverwithOrientation(roverName, orientation);
 	}
 
 }

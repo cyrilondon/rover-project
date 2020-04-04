@@ -3,20 +3,32 @@ package com.game.domain.model.service;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.repository.RoverRepository;
 
+/**
+ * Pure domain service 
+ * No need of a specific interface other than the marker {@link DomainService} one
+ *
+ */
 public class RoverServiceImpl implements DomainService {
-	
-	
-	public Rover initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		return new Rover(coordinates, orientation);
+
+	private RoverRepository roverRepository;
+
+	public RoverServiceImpl(RoverRepository roverRepository) {
+		this.roverRepository = roverRepository;
 	}
-	
-	/**
-	 * To be refactored later in Command object
-	 * @param coordinates
-	 * @param orientation
-	 */
-	public void moveRoverwithOrientation(Rover rover, Orientation orientation) {
+
+	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		roverRepository.addRover(new Rover(coordinates, orientation));
+	}
+
+	public void faceToOrientation(String roverName, Orientation orientation) {
+		Rover rover = roverRepository.getRover(roverName);
+		rover.setOrientation(orientation);
+	}
+
+	public void moveRoverwithOrientation(String roverName, Orientation orientation) {
+		Rover rover = roverRepository.getRover(roverName);
 		rover.setOrientation(orientation);
 		rover.move();
 	}

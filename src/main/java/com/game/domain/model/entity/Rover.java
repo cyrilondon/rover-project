@@ -42,14 +42,15 @@ public class Rover implements Entity {
 	}
 
 	/**
-	 * We add this constructor with a name parameter to keep track of a given Rover
-	 * if we send commands other than from the file ( where the explore command
-	 * follows immediately the initialize command) By example, it could be make the
-	 * Rover 2 turn left or turn right well after Rover 2 has been initialized
+	 * We add this constructor with a name parameter to keep track of a given Rover, in the case of
+	 * sending commands from sources/clients other than a file ( where the explore command
+	 * follows immediately the initialize command).
+	 * By example, the command could ask for Rover_X
+	 * to turn left or turn right well after Rover_X has been initialized.
 	 * 
-	 * @param name
-	 * @param coordinates
-	 * @param orientation
+	 * @param rover name
+	 * @param rover coordinates
+	 * @param rover orientation
 	 */
 	public Rover(String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		this(coordinates, orientation);

@@ -1,11 +1,19 @@
 package com.game.domain.model.service;
 
 import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
+/**
+ * 
+ *
+ */
 public interface GameService extends ApplicationService {
 
+	
+	/**
+	 * TODO replace the arguments by command object
+	 * @param  coordinates
+	 */
 	public void initializeBoard(TwoDimensionalCoordinates coordinates);
 
 	/**
@@ -14,8 +22,8 @@ public interface GameService extends ApplicationService {
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public Rover initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation);
+	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation);
 
-	public void moveRoverwithOrientation(Rover rover, Orientation orientation);
+	public void moveRoverwithOrientation(String roverName, Orientation orientation);
 
 }

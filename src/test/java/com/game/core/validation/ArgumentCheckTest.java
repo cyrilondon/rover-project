@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import org.testng.annotations.Test;
 
 import com.game.core.validation.ArgumentCheck;
+import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;

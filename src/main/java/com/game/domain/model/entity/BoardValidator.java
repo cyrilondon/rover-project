@@ -12,11 +12,11 @@ public class BoardValidator extends EntityValidator<Board> {
 
 	@Override
 	public void doValidate() {
-		if (entity().getWidth() < 0)
+		if (entity().getWidth() <= 0)
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.BOARD_NEGATIVE_WIDTH, entity().getWidth()));
 		
-		if (entity().getHeight() < 0)
+		if (entity().getHeight() <= 0)
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.BOARD_NEGATIVE_HEIGHT, entity().getHeight()));
 		
