@@ -115,20 +115,12 @@ public class Rover implements Entity<Rover> {
 		return new RoverValidator(this, handler).validate();
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getName() {
 		return name;
 	}
 
 	public Orientation getOrientation() {
 		return orientation;
-	}
-	
-	public void setPosition(TwoDimensionalCoordinates position) {
-		this.position = position;
 	}
 
 	public TwoDimensionalCoordinates getCoordinates() {

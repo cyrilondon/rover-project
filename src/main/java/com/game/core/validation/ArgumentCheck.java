@@ -4,7 +4,13 @@ import com.game.core.util.StringUtils;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
-
+/**
+ * Utility validation class used to check the method arguments nullity or emptiness.
+ * Useful to give consistent error code and messages for all the application.
+ * As this utility class could be called by every layer of the application (not only the model but the adapter as well)
+ * it is located in a core package.
+ *
+ */
 public class ArgumentCheck {
 	
 	public static <T> T preNotNull(final T object, final String message) {

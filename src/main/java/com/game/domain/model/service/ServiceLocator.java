@@ -20,10 +20,6 @@ public class ServiceLocator {
 		soleInstance.services.put(PLATEAU_SERVICE, new PlateauServiceImpl());
 	}
 
-	public static void load(ServiceLocator arg) {
-		soleInstance = arg;
-	}
-
 	public static RoverServiceImpl getRoverService() {
 		return (RoverServiceImpl)soleInstance.services.get(ROVER_SERVICE);
 	}
