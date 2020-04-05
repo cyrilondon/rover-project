@@ -8,7 +8,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Rover implements Entity {
+public class Rover implements Entity<Rover> {
 
 	public void setOrientation(Orientation orientation) {
 		this.orientation = orientation;
@@ -111,8 +111,8 @@ public class Rover implements Entity {
 	}
 
 	@Override
-	public void validate(ValidationNotificationHandler handler) {
-		new RoverValidator(this, handler).validate();
+	public Rover validate(ValidationNotificationHandler handler) {
+		return new RoverValidator(this, handler).validate();
 	}
 
 	public void setName(String name) {

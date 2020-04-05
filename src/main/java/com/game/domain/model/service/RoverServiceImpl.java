@@ -22,8 +22,8 @@ public class RoverServiceImpl implements DomainService {
 	public void initializeRover(String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		Rover rover = new Rover(coordinates, orientation);
 		// should the rover validate itself instead?
-		rover.validate(new EntityDefaultValidationNotificationHandler());
-		roverRepository.addRover(rover);
+		
+		roverRepository.addRover(rover.validate(new EntityDefaultValidationNotificationHandler()));
 	}
 
 	public void faceToOrientation(String roverName, Orientation orientation) {

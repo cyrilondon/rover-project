@@ -8,8 +8,8 @@ import com.game.domain.model.validation.ValidationNotificationHandler;
  * @see #validate(ValidationNotificationHandler)
  *
  */
-public interface Entity {
+public interface Entity<T> {
 	
-	public void validate(ValidationNotificationHandler handler);
+	public T validate(ValidationNotificationHandler handler);
 
 }

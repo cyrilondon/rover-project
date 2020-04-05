@@ -26,9 +26,10 @@ public abstract class EntityValidator<T> {
 	 * Subclasses can only override the protected {@link doValidate} method.
 	 * @see https://en.wikipedia.org/wiki/Template_method_pattern
 	 */
-	public final void validate() {
+	public final T validate() {
 		doValidate();
 		notificationHandler.checkValidationResult();
+		return entity();
 	}
 	
 	/**

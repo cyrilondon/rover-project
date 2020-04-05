@@ -7,7 +7,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Plateau implements TwoDimensionalSpace, Entity {
+public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 
 	private TwoDimensionalSpace dimensions;
 
@@ -29,8 +29,8 @@ public class Plateau implements TwoDimensionalSpace, Entity {
 	}
 
 	@Override
-	public void validate(ValidationNotificationHandler handler) {
-		new PlateauValidator(this, handler).validate();
+	public Plateau validate(ValidationNotificationHandler handler) {
+		return new PlateauValidator(this, handler).validate();
 	}
 
 }
