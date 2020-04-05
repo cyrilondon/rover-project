@@ -19,8 +19,6 @@ public class PlateauValidator extends EntityValidator<Plateau> {
 		if (entity().getHeight() <= 0)
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.PLATEAU_NEGATIVE_HEIGHT, entity().getHeight()));
-		
-		
 	}
 
 }

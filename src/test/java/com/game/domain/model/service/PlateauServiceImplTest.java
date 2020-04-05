@@ -9,6 +9,7 @@ import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.infrastructure.persistence.impl.InMemoryPlateauRepositoryImpl;
 
 public class PlateauServiceImplTest {
 
@@ -20,7 +21,7 @@ public class PlateauServiceImplTest {
 
 	private static final int OBSERVER_SPEED = Math.multiplyExact(2, (int) Math.pow(10, 7));
 
-	PlateauServiceImpl plateauService = new PlateauServiceImpl();
+	PlateauServiceImpl plateauService = new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl());
 
 	@Test
 	public void testInitializePlateau() {

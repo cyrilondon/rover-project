@@ -10,6 +10,7 @@ import com.game.domain.model.service.PlateauServiceImpl;
 import com.game.domain.model.service.RoverService;
 import com.game.domain.model.service.RoverServiceImpl;
 import com.game.domain.model.service.ServiceLocator;
+import com.game.infrastructure.persistence.impl.InMemoryPlateauRepositoryImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 /**
@@ -41,7 +42,7 @@ public class GameContext {
 
 	AtomicInteger counter = new AtomicInteger(0);
 
-	private Game GAME = new Game();
+	private Plateau plateau;
 
 	private GameContext() {
 		configure();
@@ -53,7 +54,7 @@ public class GameContext {
 	private void configure() {
 		ServiceLocator locator = new ServiceLocator();
 		locator.loadService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
-		locator.loadService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl());
+		locator.loadService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl()));
 		ServiceLocator.load(locator);
 	}
 
@@ -79,12 +80,12 @@ public class GameContext {
 	}
 
 	/**
-	 * Adding a plateau to the game will initialize the game Rovers are then allowed
-	 * to be added/initialized as well
+	 * Adding a plateau to the game will initialize the game
+	 *  Rovers are then allowed to be added/initialized as well
 	 */
 	 public void addPlateau(Plateau plateau) {
 		reset();
-		GAME.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
+		this.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
 		initialized = true;
 	}
 
@@ -94,13 +95,13 @@ public class GameContext {
 
 	public void reset() {
 		initialized = false;
-		GAME.plateau = null;
+		plateau = null;
 		roverStepLength = 1;
 		counter = new AtomicInteger(0);
 	}
 
 	public Plateau getPlateau() {
-		return GAME.getPlateau();
+		return plateau;
 	}
 
 	public AtomicInteger getCounter() {

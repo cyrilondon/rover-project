@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -80,10 +82,13 @@ public class GameServiceImplTest {
 		assertThat(roversList.contains(
 				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.SOUTH)))
 						.isTrue();
-		gameService.initializeRover(coordinates, Orientation.EAST);
+		assertThat(gameContext.getPlateauService().isLocationBusy(coordinates)).isTrue();
+		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X+1, Y+1);
+		gameService.initializeRover(otherCoordinates, Orientation.EAST);
 		assertThat(roversList.contains(
-				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.EAST)))
+				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), otherCoordinates, Orientation.EAST)))
 						.isTrue();
+		assertThat(gameContext.getPlateauService().isLocationBusy(otherCoordinates)).isTrue();
 	}
 
 	/**
@@ -138,11 +143,13 @@ public class GameServiceImplTest {
 	}
 
 	/**
-	 * Simple MockClass for the RoverServiceImpl
+	 * Simple MockClass for the PlateauServiceImpl
 	 *
 	 */
 	private class MockPlateauServiceImpl implements PlateauService {
-
+		
+		Map<TwoDimensionalCoordinates, Boolean> mapLocations = new HashMap<>();
+		
 		@Override
 		public Plateau initializePlateau(TwoDimensionalCoordinates coordinates) {
 			GameServiceImplTest.this.plateau = new Plateau(new TwoDimensions(
@@ -155,6 +162,16 @@ public class GameServiceImplTest {
 			GameServiceImplTest.this.plateau = new Plateau(new RelativisticTwoDimensions(speed,
 					new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())));
 			return GameServiceImplTest.this.plateau;
+		}
+
+		@Override
+		public void markLocationBusy(Plateau plateau, TwoDimensionalCoordinates coordinates) {
+			mapLocations.put(coordinates, Boolean.TRUE);
+		}
+
+		@Override
+		public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
+			return mapLocations.get(coordinates);
 		}
 
 	}
