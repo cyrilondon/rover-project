@@ -7,11 +7,10 @@ import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 
 /**
- * Pure domain service 
- * There is no need of a specific interface other than the marker {@link DomainService} one
+ * Pure domain service which handles {@link Rover} entity
  *
  */
-public class RoverServiceImpl implements DomainService {
+public class RoverServiceImpl implements RoverService {
 
 	private RoverRepository roverRepository;
 
@@ -19,19 +18,20 @@ public class RoverServiceImpl implements DomainService {
 		this.roverRepository = roverRepository;
 	}
 
+	@Override
 	public void initializeRover(String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		Rover rover = new Rover(coordinates, orientation);
-		// should the rover validate itself instead?
-		
 		roverRepository.addRover(rover.validate(new EntityDefaultValidationNotificationHandler()));
 	}
 
+	@Override
 	public void faceToOrientation(String roverName, Orientation orientation) {
 		Rover rover = roverRepository.getRover(roverName);
 		rover.setOrientation(orientation);
 	}
 
-	public void moveRoverwithOrientation(String roverName, Orientation orientation) {
+	@Override
+	public void moveRoverWithOrientation(String roverName, Orientation orientation) {
 		Rover rover = roverRepository.getRover(roverName);
 		rover.setOrientation(orientation);
 		rover.move();

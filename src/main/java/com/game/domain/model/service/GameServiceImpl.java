@@ -19,12 +19,16 @@ public class GameServiceImpl implements GameService {
 	
 	GameContext gameContext = GameContext.getInstance();
 
-	PlateauServiceImpl plateauService = gameContext.getPlateauService();
-
-	RoverServiceImpl roverService = gameContext.getRoverService();
-
 	public void initializePlateau(TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = plateauService.initializePlateau(coordinates);
+		Plateau plateau = gameContext.getPlateauService().initializePlateau(coordinates);
+		// once initialized, we want to keep track of the Plateau as in-memory singleton instance during the game lifetime
+		// i.e no need to go back to the Plateau repository each time it is needed 
+		// (this in contrary to what happens for the rover objects which are fetched each time from the Rover Repository)
+		gameContext.addPlateau(plateau);
+	}
+	
+	public void initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates) {
+		Plateau plateau = gameContext.getPlateauService().initializeRelativisticPlateau(speed, coordinates);
 		// once initialized, we want to keep track of the Plateau as in-memory singleton instance during the game lifetime
 		// i.e no need to go back to the Plateau repository each time it is needed 
 		// (this in contrary to what happens for the rover objects which are fetched each time from the Rover Repository)
@@ -37,11 +41,11 @@ public class GameServiceImpl implements GameService {
 					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
 					GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR));
 		int robotNumber = gameContext.getCounter().addAndGet(1);
-		roverService.initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, coordinates, orientation);
+		gameContext.getRoverService().initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, coordinates, orientation);
 	}
 
 	public void moveRoverwithOrientation(String roverName, Orientation orientation) {
-		roverService.moveRoverwithOrientation(roverName, orientation);
+		gameContext.getRoverService().moveRoverWithOrientation(roverName, orientation);
 	}
 
 }

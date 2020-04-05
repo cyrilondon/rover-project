@@ -16,21 +16,21 @@ import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class RoverValidatorTest {
 
-	private final int NEGATIVE_X_POSITION = -3;
-
 	private final int POSITIVE_X_POSITION = 3;
-
-	private final int NEGATIVE_Y_POSITION = -4;
+	
+	private final int NEGATIVE_X_POSITION = -POSITIVE_X_POSITION;
 
 	private final int POSITIVE_Y_POSITION = 4;
+	
+	private final int NEGATIVE_Y_POSITION = -POSITIVE_Y_POSITION;
 
 	private final int PLATEAU_WIDTH = 5;
 
-	private final int PLATEAU_HEIGHT = 5;
+	private final int PLATEAU_HEIGHT = PLATEAU_WIDTH;
 	
 	private final int PLATEAU_SMALL_X = 2;
 	
-	private final int PLATEAU_SMALL_Y = 2;
+	private final int PLATEAU_SMALL_Y = PLATEAU_SMALL_X;
 	
 
 	private GameContext gameContext = GameContext.getInstance();

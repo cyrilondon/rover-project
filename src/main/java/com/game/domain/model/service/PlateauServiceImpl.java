@@ -11,25 +11,17 @@ import com.game.domain.model.validation.EntityDefaultValidationNotificationHandl
  * {@link Plateau}
  *
  */
-public class PlateauServiceImpl implements DomainService {
+public class PlateauServiceImpl implements PlateauService {
 
-	/**
-	 * Initializes the plateau in classical referential
-	 * @param coordinates
-	 * @return
-	 */
+	
+	@Override
 	public Plateau initializePlateau(TwoDimensionalCoordinates coordinates) {
 		return validate(new Plateau(new TwoDimensions(
 				new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))));
 	}
 
-	/**
-	 * Initializes the plateau as observed in relativistic referential from an observer moving at speed v
-	 * 
-	 * @param speed       observer speed
-	 * @param coordinates with rest dimensions
-	 * @return relativistic plateau
-	 */
+	
+	@Override
 	public Plateau initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates) {
 		return validate(new Plateau(new RelativisticTwoDimensions(speed,
 				(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())))));
