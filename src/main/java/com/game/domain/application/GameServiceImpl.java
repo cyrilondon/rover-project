@@ -1,11 +1,12 @@
-package com.game.domain.model.service;
+package com.game.domain.application;
 
-import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
+import com.game.domain.model.service.PlateauServiceImpl;
+import com.game.domain.model.service.RoverServiceImpl;
 
 /**
  * Application service which acts as a facade to the application and delegates

@@ -1,6 +1,6 @@
 package com.game.domain.model.entity;
 
-import com.game.domain.model.GameContext;
+import com.game.domain.application.GameContext;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityValidator;
 import com.game.domain.model.validation.ValidationNotificationHandler;

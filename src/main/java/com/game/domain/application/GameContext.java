@@ -1,4 +1,4 @@
-package com.game.domain.model;
+package com.game.domain.application;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -82,7 +82,7 @@ public class GameContext {
 	 * Adding a plateau to the game will initialize the game Rovers are then allowed
 	 * to be added/initialized as well
 	 */
-	public void addPlateau(Plateau plateau) {
+	 public void addPlateau(Plateau plateau) {
 		reset();
 		GAME.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
 		initialized = true;

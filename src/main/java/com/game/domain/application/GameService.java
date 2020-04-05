@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.application;
 
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;

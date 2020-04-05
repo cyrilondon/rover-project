@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.game.domain.model.GameContext;
+import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.EntityValidationException;

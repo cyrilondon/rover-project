@@ -9,8 +9,8 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.game.domain.model.GameContext;
 import com.game.domain.model.entity.Plateau;
+import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;

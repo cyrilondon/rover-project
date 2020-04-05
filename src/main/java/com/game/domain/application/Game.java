@@ -1,4 +1,4 @@
-package com.game.domain.model;
+package com.game.domain.application;
 
 import com.game.domain.model.entity.Plateau;
 

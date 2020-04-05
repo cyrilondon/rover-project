@@ -10,7 +10,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.game.domain.model.GameContext;
+import com.game.domain.application.GameContext;
+import com.game.domain.application.GameService;
+import com.game.domain.application.GameServiceImpl;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
