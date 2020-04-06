@@ -34,11 +34,10 @@ public class GameServiceImpl implements GameService {
 		if (!gameContext.isInitialized())
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
-					GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR));
+					GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
 		int robotNumber = gameContext.getCounter().addAndGet(1);
 		gameContext.getRoverService().initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, coordinates,
 				orientation);
-		// if (gameContext.getPlateauService().)
 		gameContext.getPlateauService().markLocationBusy(gameContext.getPlateau(), coordinates);
 	}
 

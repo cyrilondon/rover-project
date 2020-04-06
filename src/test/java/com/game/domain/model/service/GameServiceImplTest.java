@@ -104,7 +104,7 @@ public class GameServiceImplTest {
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
 						String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 								GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
-								GameExceptionLabels.NOT_ALLOWED_ADDING_ROVER_ERROR)));
+								GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED)));
 	}
 	
 	

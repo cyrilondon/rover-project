@@ -33,6 +33,9 @@ public class RoverServiceImplTest {
 	private static final String ROVER_PREFIX = "ROVER_TEST_";
 
 	RoverRepository mockRoverRepository = new MockRoverRepository();
+	
+	private GameContext gameContext = GameContext.getInstance();
+
 
 	/**
 	 * Inject our own Mock Rover repository implementation here
@@ -41,12 +44,13 @@ public class RoverServiceImplTest {
 
 	@BeforeMethod
 	public void reset() {
+		gameContext.reset();
 		mockRoverRepository.removeAllRovers();
 	}
 
 	@Test
 	public void testInitializeRover() {
-		GameContext.getInstance().addPlateau(getPlateau(WIDTH, HEIGHT));
+		addPlateau(WIDTH, HEIGHT);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		roverService.initializeRover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
 				Orientation.SOUTH);
@@ -58,7 +62,7 @@ public class RoverServiceImplTest {
 	@Test
 	public void testInitializeRoverOutOfPlateau() {
 		int width = 2, height = 2;
-		GameContext.getInstance().addPlateau(getPlateau(width, height));
+		addPlateau(width, height);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 
 		Throwable thrown = catchThrowable(() -> roverService.initializeRover(
@@ -147,9 +151,10 @@ public class RoverServiceImplTest {
 
 	}
 
-	private Plateau getPlateau(int width, int height) {
-		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(width, height));
-		return new Plateau(dimensions);
+	
+	private void addPlateau(int width, int height) {
+		gameContext.addPlateau(
+				new Plateau(new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 
 }
