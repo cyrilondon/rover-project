@@ -33,11 +33,6 @@ public class GameContext {
 	 */
 	private int roverStepLength = ROVER_STEP_LENGTH;
 
-	/**
-	 * Game is initialized if only the plateau has been initialized
-	 */
-	private boolean initialized;
-
 	private static GameContext GAME_CONTEXT = new GameContext();
 
 	AtomicInteger counter = new AtomicInteger(0);
@@ -86,15 +81,13 @@ public class GameContext {
 	 public void addPlateau(Plateau plateau) {
 		reset();
 		this.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
-		initialized = true;
 	}
 
 	public boolean isInitialized() {
-		return initialized;
+		return getPlateau() != null;
 	}
 
 	public void reset() {
-		initialized = false;
 		plateau = null;
 		roverStepLength = 1;
 		counter = new AtomicInteger(0);
