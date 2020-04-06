@@ -12,8 +12,8 @@ import com.game.domain.model.entity.Plateau;
  * traveling at a speed close to the speed of light ;-) 
  * In case of an observer's high speed, the lengths are contracted in the direction of the movement by
  * the Lorentz factor (usually referred as to the Greek letter gamma). 
- * Example of Gang of Four Strategy pattern, which  allows us to change the behavior of an algorithm
- * at runtime. 
+ * Example of Gang of Four Decorator pattern, which  allows us to extend or alter the functionality of objects at run-time 
+ * by wrapping them in an object of a decorator class
  * In our case, at {@link Plateau} building time, we will chose a relativistic or classical algorithm.
  * {@see https://en.wikipedia.org/wiki/Special_relativity#Length_contraction}
  *
