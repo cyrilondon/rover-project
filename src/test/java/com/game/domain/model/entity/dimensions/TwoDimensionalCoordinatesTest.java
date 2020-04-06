@@ -52,8 +52,8 @@ public class TwoDimensionalCoordinatesTest {
 	@Test
 	public void testCoordinatesWidthAndHeight() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 4);
-		assertThat(coordinates.getWidth()).isEqualTo(3);
-		assertThat(coordinates.getHeight()).isEqualTo(4);
+		assertThat(coordinates.getAbscissa()).isEqualTo(3);
+		assertThat(coordinates.getOrdinate()).isEqualTo(4);
 	}
 
 	@Test

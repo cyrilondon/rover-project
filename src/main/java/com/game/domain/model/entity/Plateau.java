@@ -45,7 +45,7 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	 * @return
 	 */
 	public void setLocationBusy(TwoDimensionalCoordinates coordinates) {
-		locations[coordinates.getAbscissa()][coordinates.getHeight()] = true;
+		locations[coordinates.getAbscissa()][coordinates.getOrdinate()] = true;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	 * @return
 	 */
 	public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
-		return locations[coordinates.getAbscissa()][coordinates.getHeight()];
+		return locations[coordinates.getAbscissa()][coordinates.getOrdinate()];
 	}
 
 	@Override

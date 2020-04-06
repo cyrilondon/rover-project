@@ -41,7 +41,7 @@ public class GameServiceImpl implements GameService {
 		int robotNumber = gameContext.getCounter().addAndGet(1);
 		gameContext.getRoverService().initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
 				Orientation.get(String.valueOf(command.getOrientation())));
-		gameContext.getPlateauService().markLocationBusy(gameContext.getPlateau(), new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
+		gameContext.getPlateauService().markLocationBusy(new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 	
 	public void execute(MoveRoverCommand command) {

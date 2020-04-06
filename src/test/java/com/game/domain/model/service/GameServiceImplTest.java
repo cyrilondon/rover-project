@@ -80,15 +80,17 @@ public class GameServiceImplTest {
 	public void testInitializeRover() {
 		gameContext.addPlateau(getPlateau());
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder().withAbscissa(coordinates.getAbscissa()).withOrdinate(coordinates.getHeight())
-				.withOrientation('S').build();
+		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder()
+				.withAbscissa(coordinates.getAbscissa()).withOrdinate(coordinates.getOrdinate()).withOrientation('S')
+				.build();
 		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(
 				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.SOUTH)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(coordinates)).isTrue();
 		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X + 1, Y + 1);
-		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand.Builder().withAbscissa(otherCoordinates.getAbscissa()).withOrdinate(otherCoordinates.getHeight())
+		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand.Builder()
+				.withAbscissa(otherCoordinates.getAbscissa()).withOrdinate(otherCoordinates.getOrdinate())
 				.withOrientation('E').build();
 		gameService.execute(otherInitializeCommand);
 		assertThat(roversList.contains(new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(),
@@ -165,13 +167,13 @@ public class GameServiceImplTest {
 
 		@Override
 		public Plateau initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(new RelativisticTwoDimensions(speed,
-					new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())));
+			GameServiceImplTest.this.plateau = new Plateau(new RelativisticTwoDimensions(speed, new TwoDimensions(
+					new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))));
 			return GameServiceImplTest.this.plateau;
 		}
 
 		@Override
-		public void markLocationBusy(Plateau plateau, TwoDimensionalCoordinates coordinates) {
+		public void markLocationBusy(TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.TRUE);
 		}
 

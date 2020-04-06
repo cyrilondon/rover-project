@@ -2,7 +2,7 @@ package com.game.domain.model.entity.dimensions;
 
 import java.util.Objects;
 
-public class TwoDimensionalCoordinates implements TwoDimensionalSpace {
+public class TwoDimensionalCoordinates {
 
 	private int abscissa, ordinate;
 
@@ -54,16 +54,6 @@ public class TwoDimensionalCoordinates implements TwoDimensionalSpace {
 	@Override
 	public String toString() {
 		return String.format("Coordinates [abscissa = %s, ordinate = %s]", getAbscissa(), getOrdinate());
-	}
-
-	@Override
-   public int getWidth() {
-		return getAbscissa();
-	}
-
-	@Override
-	public int getHeight() {
-		return getOrdinate();
 	}
 
 }

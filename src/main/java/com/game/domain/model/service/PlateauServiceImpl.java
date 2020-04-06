@@ -14,7 +14,7 @@ import com.game.domain.model.validation.EntityDefaultValidationNotificationHandl
  */
 public class PlateauServiceImpl implements PlateauService {
 
-	private PlateauRepository plateauRepository;
+	PlateauRepository plateauRepository;
 
 	public PlateauServiceImpl(PlateauRepository plateauRepository) {
 		this.plateauRepository = plateauRepository;
@@ -32,8 +32,9 @@ public class PlateauServiceImpl implements PlateauService {
 	@Override
 	public Plateau initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates) {
 		Plateau plateau = validate(new Plateau(new RelativisticTwoDimensions(speed,
-				(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())))))
-						.initializeLocations();
+				new TwoDimensions(
+						(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))))
+								.initializeLocations();
 		plateauRepository.addPlateau(plateau);
 		return plateau;
 	}
@@ -43,10 +44,10 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 
 	@Override
-	public void markLocationBusy(Plateau plateau, TwoDimensionalCoordinates coordinates) {
-		plateau.setLocationBusy(coordinates);
+	public void markLocationBusy(TwoDimensionalCoordinates coordinates) {
+		plateauRepository.getPlateau().setLocationBusy(coordinates);
 	}
-	
+
 	@Override
 	public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
 		return plateauRepository.getPlateau().isLocationBusy(coordinates);

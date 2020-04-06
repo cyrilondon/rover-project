@@ -26,7 +26,7 @@ public interface PlateauService extends DomainService {
 	/**
 	 * Mark the current location as busy
 	 */
-	void markLocationBusy(Plateau plateau, TwoDimensionalCoordinates coordinates);
+	void markLocationBusy(TwoDimensionalCoordinates coordinates);
 
 	/**
 	 * Check if the location is busy

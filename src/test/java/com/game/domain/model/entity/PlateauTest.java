@@ -31,9 +31,9 @@ public class PlateauTest {
 	@Test
 	public void testInitialisationWithCoordinatesIsOk() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
-		Plateau plateau = new Plateau(coordinates);
-		assertThat(plateau.getWidth()).isEqualTo(coordinates.getWidth());
-		assertThat(plateau.getHeight()).isEqualTo(coordinates.getHeight());
+		Plateau plateau = new Plateau(new TwoDimensions(coordinates));
+		assertThat(plateau.getWidth()).isEqualTo(coordinates.getAbscissa());
+		assertThat(plateau.getHeight()).isEqualTo(coordinates.getOrdinate());
 	}
 	
 	@Test
