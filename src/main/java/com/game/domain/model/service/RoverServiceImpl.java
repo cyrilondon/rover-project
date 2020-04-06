@@ -31,10 +31,9 @@ public class RoverServiceImpl implements RoverService {
 	}
 
 	@Override
-	public void moveRoverWithOrientation(String roverName, Orientation orientation) {
+	public void moveRoverNumberOfTimes(String roverName, int times) {
 		Rover rover = roverRepository.getRover(roverName);
-		rover.setOrientation(orientation);
-		rover.move();
+		rover.moveNumberOfTimes(times);
 	}
 
 }

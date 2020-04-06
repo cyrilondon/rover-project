@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.game.domain.application.GameContext;
 import com.game.domain.application.GameService;
 import com.game.domain.application.GameServiceImpl;
+import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
@@ -110,8 +111,8 @@ public class GameServiceImplTest {
 	
 	public void testMoveRoverWithOrientation() {
 		String roverName = GameContext.ROVER_NAME_PREFIX +3;
-		gameService.moveRoverwithOrientation(roverName, Orientation.SOUTH);
-		assertThat(roversList).contains(new Rover(roverName, new TwoDimensionalCoordinates(2,3), Orientation.SOUTH));
+		gameService.execute(new MoveRoverCommand(roverName, 1));
+		assertThat(roversList).contains(new Rover(roverName, new TwoDimensionalCoordinates(2,3), Orientation.WEST));
 		
 	}
 
@@ -136,8 +137,8 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void moveRoverWithOrientation(String roverName, Orientation orientation) {
-			GameServiceImplTest.this.roversList.add(new Rover(roverName, new TwoDimensionalCoordinates(2,3), orientation));
+		public void moveRoverNumberOfTimes(String roverName, int numberOfTimes) {
+			GameServiceImplTest.this.roversList.add(new Rover(roverName, new TwoDimensionalCoordinates(2,3), Orientation.WEST));
 		}
 
 	}

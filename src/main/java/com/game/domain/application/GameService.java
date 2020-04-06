@@ -1,5 +1,6 @@
 package com.game.domain.application;
 
+import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
@@ -36,6 +37,6 @@ public interface GameService extends ApplicationService {
 	 * @param roverName
 	 * @param orientation
 	 */
-	public void moveRoverwithOrientation(String roverName, Orientation orientation);
+	public void execute(MoveRoverCommand command);
 
 }

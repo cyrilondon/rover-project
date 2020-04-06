@@ -1,7 +1,8 @@
 package com.game.domain.application;
 
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
@@ -40,9 +41,9 @@ public class GameServiceImpl implements GameService {
 				orientation);
 		gameContext.getPlateauService().markLocationBusy(gameContext.getPlateau(), coordinates);
 	}
-
-	public void moveRoverwithOrientation(String roverName, Orientation orientation) {
-		gameContext.getRoverService().moveRoverWithOrientation(roverName, orientation);
+	
+	public void execute(MoveRoverCommand command) {
+		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverName(), command.getNumberOfMoves());
 	}
 
 	/**

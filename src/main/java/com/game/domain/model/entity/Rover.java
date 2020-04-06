@@ -72,38 +72,42 @@ public class Rover implements Entity<Rover> {
 	}
 
 	public void move() {
+		moveNumberOfTimes(1);
+	}
+	
+	public void moveNumberOfTimes(int numberOfTimes) {
 		switch (orientation) {
 		case NORTH:
-			moveNorth();
+			moveNorth(numberOfTimes);
 			break;
 		case WEST:
-			moveWest();
+			moveWest(numberOfTimes);
 			break;
 		case EAST:
-			moveEast();
+			moveEast(numberOfTimes);
 			break;
 		case SOUTH:
-			moveSouth();
+			moveSouth(numberOfTimes);
 			break;
 		default:
 			throw new IllegalArgumentException(GameExceptionLabels.ILLEGAL_ORIENTATION_VALUE);
 		}
 	}
 
-	private void moveNorth() {
-		getCoordinates().shiftAlongOrdinate(step);
+	private void moveNorth(int numberOfTimes) {
+		getCoordinates().shiftAlongOrdinate(numberOfTimes * step);
 	}
 
-	private void moveWest() {
-		getCoordinates().shiftAlongAbscissa(-1 * step);
+	private void moveWest(int numberOfTimes) {
+		getCoordinates().shiftAlongAbscissa(numberOfTimes * -step);
 	}
 
-	private void moveEast() {
-		getCoordinates().shiftAlongAbscissa(step);
+	private void moveEast(int numberOfTimes) {
+		getCoordinates().shiftAlongAbscissa(numberOfTimes * step);
 	}
 
-	private void moveSouth() {
-		getCoordinates().shiftAlongOrdinate(-1 * step);
+	private void moveSouth(int numberOfTimes) {
+		getCoordinates().shiftAlongOrdinate(numberOfTimes * -step);
 	}
 
 	public TwoDimensionalCoordinates getPosition() {

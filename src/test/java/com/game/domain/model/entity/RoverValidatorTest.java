@@ -122,7 +122,9 @@ public class RoverValidatorTest {
 										PLATEAU_SMALL_Y)));
 	}
 	
-	
+	/**
+	 * [ERR-001] There is already a Rover at position X = [3] and Y = [4]
+	 */
 	@Test
 	public void testAlreadySetPosition() {
 
