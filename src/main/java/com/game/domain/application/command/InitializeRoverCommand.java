@@ -6,14 +6,21 @@ package com.game.domain.application.command;
  */
 public class InitializeRoverCommand {
 	
+	String name;
+	
 	private int abscissa, ordinate;
 	
 	char orientation;
 	
 	private InitializeRoverCommand(Builder builder) {
+		this.name = builder.name;
 		this.abscissa = builder.abscissa;
 		this.ordinate = builder.ordinate;
 		this.orientation = builder.orientation;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public int getAbscissa() {
@@ -30,9 +37,16 @@ public class InitializeRoverCommand {
 
    public static class Builder{
 	   
+	   String name;
+	   
 	   private int abscissa, ordinate;
 		
 		char orientation;
+		
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
 		
 		public Builder withAbscissa(int x) {
 			this.abscissa = x;
