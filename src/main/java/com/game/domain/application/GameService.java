@@ -1,7 +1,7 @@
 package com.game.domain.application;
 
+import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
-import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
 /**
@@ -25,14 +25,14 @@ public interface GameService extends ApplicationService {
 	public void initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates);
 
 	/**
-	 * Arguments to be refactored later in a Command object
-	 * 
+	 * Initialize the rover
 	 * @param coordinates
 	 * @param orientation
 	 */
-	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation);
+	public void execute(InitializeRoverCommand command);
 
 	/**
+	 * Moves the rover
 	 * 
 	 * @param roverName
 	 * @param orientation

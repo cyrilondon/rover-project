@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.game.domain.application.GameContext;
 import com.game.domain.application.GameService;
 import com.game.domain.application.GameServiceImpl;
+import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
@@ -79,13 +80,15 @@ public class GameServiceImplTest {
 	public void testInitializeRover() {
 		gameContext.addPlateau(getPlateau());
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		gameService.initializeRover(coordinates, Orientation.SOUTH);
+		InitializeRoverCommand initializeCommand = new InitializeRoverCommand(coordinates.getAbscissa(), coordinates.getHeight(), "S");
+		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(
 				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.SOUTH)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(coordinates)).isTrue();
 		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X+1, Y+1);
-		gameService.initializeRover(otherCoordinates, Orientation.EAST);
+		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand(otherCoordinates.getAbscissa(), otherCoordinates.getHeight(), "E");
+		gameService.execute(otherInitializeCommand);
 		assertThat(roversList.contains(
 				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), otherCoordinates, Orientation.EAST)))
 						.isTrue();
@@ -98,8 +101,9 @@ public class GameServiceImplTest {
 	 */
 	@Test
 	public void testInitializeRoverWithoutPlateau() {
+		InitializeRoverCommand initializeCommand = new InitializeRoverCommand(X, Y, "S");
 		Throwable thrown = catchThrowable(
-				() -> gameService.initializeRover(new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH));
+				() -> gameService.execute(initializeCommand));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,

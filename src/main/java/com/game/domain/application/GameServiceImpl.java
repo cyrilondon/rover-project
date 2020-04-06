@@ -1,5 +1,6 @@
 package com.game.domain.application;
 
+import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
@@ -13,8 +14,9 @@ import com.game.domain.model.service.RoverServiceImpl;
  * Application service which acts as a facade to the application and delegates
  * the execution of the process to the two Domain services
  * {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
- * State {@link GameContext} All the write commands should have return type =
- * void
+ * State {@link GameContext}
+ * Converts Command objects from outside world to Domain Services arguments
+ * All the write commands should have return type = void
  *
  */
 public class GameServiceImpl implements GameService {
@@ -31,15 +33,15 @@ public class GameServiceImpl implements GameService {
 		addPlateauToContext(plateau);
 	}
 
-	public void initializeRover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
+	public void execute(InitializeRoverCommand command) {
 		if (!gameContext.isInitialized())
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
 					GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
 		int robotNumber = gameContext.getCounter().addAndGet(1);
-		gameContext.getRoverService().initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, coordinates,
-				orientation);
-		gameContext.getPlateauService().markLocationBusy(gameContext.getPlateau(), coordinates);
+		gameContext.getRoverService().initializeRover(GameContext.ROVER_NAME_PREFIX + robotNumber, new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
+				Orientation.get(command.getOrientation()));
+		gameContext.getPlateauService().markLocationBusy(gameContext.getPlateau(), new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 	
 	public void execute(MoveRoverCommand command) {
