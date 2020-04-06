@@ -8,12 +8,12 @@ public class InitializeRoverCommand {
 	
 	private int abscissa, ordinate;
 	
-	String orientation;
+	char orientation;
 	
-	public InitializeRoverCommand(int abscissa, int ordinate, String orientation) {
-		this.abscissa = abscissa;
-		this.ordinate = ordinate;
-		this.orientation = orientation;
+	private InitializeRoverCommand(Builder builder) {
+		this.abscissa = builder.abscissa;
+		this.ordinate = builder.ordinate;
+		this.orientation = builder.orientation;
 	}
 
 	public int getAbscissa() {
@@ -24,11 +24,36 @@ public class InitializeRoverCommand {
 		return ordinate;
 	}
 
-	public String getOrientation() {
+	public char getOrientation() {
 		return orientation;
 	}
 
-
+   public static class Builder{
+	   
+	   private int abscissa, ordinate;
+		
+		char orientation;
+		
+		public Builder withAbscissa(int x) {
+			this.abscissa = x;
+			return this;
+		}
+		
+		public Builder withOrdinate(int y) {
+			this.ordinate = y;
+			return this;
+		}
+		
+		public Builder withOrientation(char orientation) {
+			this.orientation = orientation;
+			return this;
+		}
+		
+		public InitializeRoverCommand build() {
+			return new InitializeRoverCommand(this);
+		}   
+	   
+   }
 	
 
 }

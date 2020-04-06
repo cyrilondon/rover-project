@@ -80,18 +80,19 @@ public class GameServiceImplTest {
 	public void testInitializeRover() {
 		gameContext.addPlateau(getPlateau());
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		InitializeRoverCommand initializeCommand = new InitializeRoverCommand(coordinates.getAbscissa(), coordinates.getHeight(), "S");
+		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder().withAbscissa(coordinates.getAbscissa()).withOrdinate(coordinates.getHeight())
+				.withOrientation('S').build();
 		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(
 				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.SOUTH)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(coordinates)).isTrue();
-		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X+1, Y+1);
-		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand(otherCoordinates.getAbscissa(), otherCoordinates.getHeight(), "E");
+		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X + 1, Y + 1);
+		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand.Builder().withAbscissa(otherCoordinates.getAbscissa()).withOrdinate(otherCoordinates.getHeight())
+				.withOrientation('E').build();
 		gameService.execute(otherInitializeCommand);
-		assertThat(roversList.contains(
-				new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), otherCoordinates, Orientation.EAST)))
-						.isTrue();
+		assertThat(roversList.contains(new Rover(GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(),
+				otherCoordinates, Orientation.EAST))).isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(otherCoordinates)).isTrue();
 	}
 
@@ -101,9 +102,9 @@ public class GameServiceImplTest {
 	 */
 	@Test
 	public void testInitializeRoverWithoutPlateau() {
-		InitializeRoverCommand initializeCommand = new InitializeRoverCommand(X, Y, "S");
-		Throwable thrown = catchThrowable(
-				() -> gameService.execute(initializeCommand));
+		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder().withAbscissa(X).withOrdinate(Y)
+				.withOrientation('S').build();
+		Throwable thrown = catchThrowable(() -> gameService.execute(initializeCommand));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -111,13 +112,12 @@ public class GameServiceImplTest {
 								GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
 								GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED)));
 	}
-	
-	
+
 	public void testMoveRoverWithOrientation() {
-		String roverName = GameContext.ROVER_NAME_PREFIX +3;
+		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
 		gameService.execute(new MoveRoverCommand(roverName, 1));
-		assertThat(roversList).contains(new Rover(roverName, new TwoDimensionalCoordinates(2,3), Orientation.WEST));
-		
+		assertThat(roversList).contains(new Rover(roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+
 	}
 
 	private Plateau getPlateau() {
@@ -142,7 +142,8 @@ public class GameServiceImplTest {
 
 		@Override
 		public void moveRoverNumberOfTimes(String roverName, int numberOfTimes) {
-			GameServiceImplTest.this.roversList.add(new Rover(roverName, new TwoDimensionalCoordinates(2,3), Orientation.WEST));
+			GameServiceImplTest.this.roversList
+					.add(new Rover(roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
 		}
 
 	}
@@ -152,9 +153,9 @@ public class GameServiceImplTest {
 	 *
 	 */
 	private class MockPlateauServiceImpl implements PlateauService {
-		
+
 		Map<TwoDimensionalCoordinates, Boolean> mapLocations = new HashMap<>();
-		
+
 		@Override
 		public Plateau initializePlateau(TwoDimensionalCoordinates coordinates) {
 			GameServiceImplTest.this.plateau = new Plateau(new TwoDimensions(
