@@ -5,6 +5,8 @@ import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
+import com.game.domain.model.DomainEventPublisher;
+import com.game.domain.model.RoverMovedEvent;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
@@ -125,23 +127,42 @@ public class Rover implements Entity<Rover> {
 	}
 
 	private void moveNorth() {
-		getCoordinates().shiftAlongOrdinate(step);
+		this.position = getCoordinates().shiftAlongOrdinate(step);
+		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withRoverName(name)
+				.withPreviousPosition(getCoordinates()).withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)));
 	}
 
+	/**
+	 * Essentially we publish a domain event here with rover name, old and current
+	 * position
+	 */
 	private void moveWest() {
-		getCoordinates().shiftAlongAbscissa(-step);
+		this.position = getCoordinates().shiftAlongAbscissa(-step);
+		DomainEventPublisher.instance()
+				.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+						.withCurrentPosition(getCoordinates().shiftAlongAbscissa(-step)));
 	}
 
 	private void moveEast() {
-		getCoordinates().shiftAlongAbscissa(step);
+		this.position = getCoordinates().shiftAlongAbscissa(step);
+		DomainEventPublisher.instance()
+		.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)));
 	}
 
 	private void moveSouth() {
-		getCoordinates().shiftAlongOrdinate(-step);
+		this.position = getCoordinates().shiftAlongOrdinate(-step);
+		DomainEventPublisher.instance()
+		.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(-step)));
 	}
 
 	public TwoDimensionalCoordinates getPosition() {
 		return position;
+	}
+
+	public void setPosition(TwoDimensionalCoordinates position) {
+		this.position = position;
 	}
 
 	@Override

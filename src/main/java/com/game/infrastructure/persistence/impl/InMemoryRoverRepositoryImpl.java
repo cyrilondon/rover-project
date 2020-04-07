@@ -7,41 +7,42 @@ import com.game.domain.model.entity.Rover;
 import com.game.domain.model.repository.RoverRepository;
 
 /**
- * "Secondary" port interface as described by Alistair CockBurn in his
- * original paper, i.e. port on the right side of the hexagon.
- * https://alistair.cockburn.us/hexagonal-architecture/
- * Located in a infrastructure package and implements a model interface
- * {@link RoverRepository}
+ * Repository adapter as defined by Hexagonal Architecture
+ * Should implement a repository port/interface from the model
+ *
  */
 public class InMemoryRoverRepositoryImpl implements RoverRepository {
-	
-	
+
 	Map<String, Rover> rovers = new ConcurrentHashMap<>();
 
-	public Rover getRover(String name) {
+	@Override
+	public Rover load(String name) {
 		return rovers.get(name);
 	}
 
-	public void addRover(Rover rover) {
+	@Override
+	public void add(Rover rover) {
 		rovers.putIfAbsent(rover.getName(), rover);
 	}
 
-	/**
-	 * In case for example of a rover moving out of the plateau, it will be removed
-	 * from the game
-	 * 
-	 * @param roverName
-	 */
-	public void removeRover(String roverName) {
-		rovers.remove(roverName);
+	@Override
+	public void update(Rover rover) {
+		rovers.put(rover.getName(), rover);
 	}
 
+	@Override
+	public void remove(String name) {
+		rovers.remove(name);
+
+	}
+	
 	public int getNumberOfRovers() {
 		return rovers.size();
 	}
-	
+
 	public void removeAllRovers() {
 		rovers.clear();
 	}
+
 
 }

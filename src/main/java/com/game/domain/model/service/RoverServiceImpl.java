@@ -21,19 +21,30 @@ public class RoverServiceImpl implements RoverService {
 	@Override
 	public void initializeRover(String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		Rover rover = new Rover(coordinates, orientation);
-		roverRepository.addRover(rover.validate(new EntityDefaultValidationNotificationHandler()));
+		roverRepository.add(rover.validate(new EntityDefaultValidationNotificationHandler()));
 	}
 
 	@Override
 	public void faceToOrientation(String roverName, Orientation orientation) {
-		Rover rover = roverRepository.getRover(roverName);
+		Rover rover = roverRepository.load(roverName);
 		rover.setOrientation(orientation);
 	}
 
 	@Override
 	public void moveRoverNumberOfTimes(String roverName, int times) {
-		Rover rover = roverRepository.getRover(roverName);
+		Rover rover = roverRepository.load(roverName);
 		rover.moveNumberOfTimes(times);
+	}
+
+	@Override
+	public void updateRover(Rover rover) {
+		roverRepository.update(rover);
+		
+	}
+
+	@Override
+	public Rover getRover(String roverName) {
+		return roverRepository.load(roverName);
 	}
 
 }

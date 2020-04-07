@@ -43,12 +43,22 @@ public class TwoDimensionalCoordinates {
 		return ordinate;
 	}
 
-	public void shiftAlongAbscissa(int step) {
-		abscissa += step;
+	/**
+	 * We don't mutate the state, i.e. functional behaviour
+	 * @param step
+	 * @return new coordinates
+	 */
+	public TwoDimensionalCoordinates shiftAlongAbscissa(int step) {
+		return new TwoDimensionalCoordinates(abscissa + step, ordinate);
 	}
 
-	public void shiftAlongOrdinate(int step) {
-		ordinate += step;
+	/**
+	 * We don't mutate the state, i.e. functional behaviour
+	 * @param step
+	 * @return new coordinates
+	 */
+	public TwoDimensionalCoordinates shiftAlongOrdinate(int step) {
+		return new TwoDimensionalCoordinates(abscissa, ordinate + step);
 	}
 	
 	@Override

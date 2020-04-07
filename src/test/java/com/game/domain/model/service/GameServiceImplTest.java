@@ -25,6 +25,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
+import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 
 public class GameServiceImplTest {
 
@@ -115,10 +116,24 @@ public class GameServiceImplTest {
 								GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED)));
 	}
 
+	@Test
 	public void testMoveRoverWithOrientation() {
 		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
 		gameService.execute(new MoveRoverCommand(roverName, 1));
 		assertThat(roversList).contains(new Rover(roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+
+	}
+
+	/**
+	 * Here we test that no exception is caught in GameServiceImpl method
+	 */
+	@Test
+	public void testMoveRoverWithOrientationOutOfTheBoard() {
+		String roverName = GameContext.ROVER_NAME_PREFIX + 5;
+		Throwable thrown = catchThrowable(() -> gameService.execute(new MoveRoverCommand(roverName, 1)));
+		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE, "Error"));
 
 	}
 
@@ -146,6 +161,17 @@ public class GameServiceImplTest {
 		public void moveRoverNumberOfTimes(String roverName, int numberOfTimes) {
 			GameServiceImplTest.this.roversList
 					.add(new Rover(roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+			if (roverName.equals(GameContext.ROVER_NAME_PREFIX + 5))
+				throw new PlateauLocationAlreadySetException("Error");
+		}
+
+		@Override
+		public void updateRover(Rover rover) {
+		}
+
+		@Override
+		public Rover getRover(String roverName) {
+			return null;
 		}
 
 	}

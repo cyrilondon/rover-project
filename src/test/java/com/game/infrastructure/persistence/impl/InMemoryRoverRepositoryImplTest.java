@@ -28,8 +28,8 @@ public class InMemoryRoverRepositoryImplTest {
 	@Test
 	public void testAdd() {
 		Rover rover = getRover(ROVER_PREFIX);
-		roverRepository.addRover(rover);
-		Rover roverFromRepo = roverRepository.getRover(ROVER_PREFIX);
+		roverRepository.add(rover);
+		Rover roverFromRepo = roverRepository.load(ROVER_PREFIX);
 		assertThat(roverFromRepo).isNotNull();
 		assertThat(roverFromRepo.getName()).isEqualTo(ROVER_PREFIX);
 		assertThat(roverFromRepo.getXPosition()).isEqualTo(X);
@@ -41,12 +41,12 @@ public class InMemoryRoverRepositoryImplTest {
 	@Test
 	public void testRemove() {
 		Rover rover = getRover(ROVER_PREFIX);
-		roverRepository.addRover(rover);
-		Rover roverFromRepo = roverRepository.getRover(ROVER_PREFIX);
+		roverRepository.add(rover);
+		Rover roverFromRepo = roverRepository.load(ROVER_PREFIX);
 		assertThat(roverFromRepo).isNotNull();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(1);
-		roverRepository.removeRover(ROVER_PREFIX);
-		Rover roverFromRepoRemoved = roverRepository.getRover(ROVER_PREFIX);
+		roverRepository.remove(ROVER_PREFIX);
+		Rover roverFromRepoRemoved = roverRepository.load(ROVER_PREFIX);
 		assertThat(roverFromRepoRemoved).isNull();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(0);
 	}
@@ -54,9 +54,9 @@ public class InMemoryRoverRepositoryImplTest {
 	@Test
 	public void testRemoveAll() {
 		Rover rover1 = getRover(ROVER_PREFIX+1);
-		roverRepository.addRover(rover1);
+		roverRepository.add(rover1);
 		Rover rover2 = getRover(ROVER_PREFIX+2);
-		roverRepository.addRover(rover2);
+		roverRepository.add(rover2);
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(2);
 		roverRepository.removeAllRovers();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(0);

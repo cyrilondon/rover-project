@@ -94,6 +94,11 @@ public class PlateauServiceImplTest {
 
 		}
 
+		@Override
+		public void updatePlateau(Plateau plateau) {
+			this.plateau = plateau;
+		}
+
 	}
 
 }

@@ -7,5 +7,7 @@ public interface PlateauRepository {
 	public Plateau getPlateau();
 	
 	public void addPlateau(Plateau plateau);
+	
+	public void updatePlateau(Plateau plateau);
 
 }

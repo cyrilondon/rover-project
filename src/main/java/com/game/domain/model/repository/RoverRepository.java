@@ -2,19 +2,15 @@ package com.game.domain.model.repository;
 
 import com.game.domain.model.entity.Rover;
 
-public interface RoverRepository extends DomainRepository {
+/**
+ * "Secondary" port interface as described by Alistair CockBurn in his original
+ * paper, i.e. port on the right side of the hexagon.
+ * https://alistair.cockburn.us/hexagonal-architecture/ 
+ * Located in the model layer
+ * Implemented by the secondary port adapter {@link InMemoryRoverRepositoryImpl} located in infrastructure package/module
+ */
 
-	public Rover getRover(String name);
-
-	public void addRover(Rover rover);
-
-	/**
-	 * In case for example of a rover moving out of the plateau, it will be removed
-	 * from the game
-	 * 
-	 * @param roverName
-	 */
-	public void removeRover(String roverName);
+public interface RoverRepository extends DomainRepository<Rover, String> {
 
 	public int getNumberOfRovers();
 	

@@ -23,6 +23,11 @@ public class InMemoryPlateauRepositoryImpl implements PlateauRepository {
 	public void addPlateau(Plateau plateau) {
 		this.plateau = plateau;
 	}
+
+	@Override
+	public void updatePlateau(Plateau plateau) {
+		this.plateau = plateau;	
+	}
 	
 	
 

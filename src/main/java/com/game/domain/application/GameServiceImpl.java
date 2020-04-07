@@ -2,8 +2,12 @@ package com.game.domain.application;
 
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
+import com.game.domain.model.DomainEventPublisher;
+import com.game.domain.model.DomainEventSubscriber;
+import com.game.domain.model.RoverMovedEvent;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
@@ -11,13 +15,15 @@ import com.game.domain.model.service.PlateauServiceImpl;
 import com.game.domain.model.service.RoverServiceImpl;
 
 /**
- * Application service which acts as a facade to the application and delegates
- * the execution of the process to the two Domain services
- * {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
- * State {@link GameContext}
- * Converts Command objects from outside world to Domain Services arguments
- * All the write commands should have return type = void
- *
+ * Application service which acts as a facade to the application
+ * <ol>
+ *  <li>Delegates the execution of the process to the two Domain services
+ *  {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
+ *  State {@link GameContext}</li>
+ *  <li>Converts Command objects from outside world to Domain Services calls
+ *  (All the write commands should have return type = void)</li>
+ *  <li>Register Domain Events subscribers</li>
+ * </ol>
  */
 public class GameServiceImpl implements GameService {
 
@@ -44,7 +50,33 @@ public class GameServiceImpl implements GameService {
 		gameContext.getPlateauService().markLocationBusy(new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void execute(MoveRoverCommand command) {
+		@SuppressWarnings("rawtypes")
+		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverMovedEvent>() {
+
+			@Override
+			public void handleEvent(RoverMovedEvent event) {
+				// 1. update Rover with last position
+				updateRoverWithLastPosition(event);
+				
+				// store the event
+				//gameContext.getPlateauService().markLocationFree(event.getPreviousPosition());
+				gameContext.getPlateauService().markLocationBusy(event.getCurrentPosition());
+			}
+
+			@Override
+			public Class<RoverMovedEvent> subscribedToEventType() {
+				return RoverMovedEvent.class;
+			}
+			
+			private void updateRoverWithLastPosition(RoverMovedEvent event) {
+				Rover rover = gameContext.getRoverService().getRover(event.getRoverName());
+				rover.setPosition(event.getCurrentPosition());
+				gameContext.getRoverService().updateRover(rover);
+			}
+		};
+		DomainEventPublisher.instance().subscribe(subscriber);
 		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverName(), command.getNumberOfMoves());
 	}
 

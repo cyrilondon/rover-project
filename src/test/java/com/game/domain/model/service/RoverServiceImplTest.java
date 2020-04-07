@@ -54,7 +54,7 @@ public class RoverServiceImplTest {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		roverService.initializeRover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
 				Orientation.SOUTH);
-		Rover rover = mockRoverRepository.getRover(ROVER_PREFIX + 1);
+		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 	}
@@ -78,28 +78,28 @@ public class RoverServiceImplTest {
 
 	@Test
 	public void testFaceToOrientation() {
-		mockRoverRepository.addRover(getRover());
+		mockRoverRepository.add(getRover());
 		roverService.faceToOrientation(ROVER_PREFIX + 1, Orientation.EAST);
-		Rover rover = mockRoverRepository.getRover(ROVER_PREFIX + 1);
+		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.EAST);
 	}
 
 	@Test
 	public void testMoveRoverNumberOfTimes() {
 		addPlateau(WIDTH, HEIGHT);
-		mockRoverRepository.addRover(getRover());
+		mockRoverRepository.add(getRover());
 		roverService.moveRoverNumberOfTimes(ROVER_PREFIX + 1, 3);
-		Rover rover = mockRoverRepository.getRover(ROVER_PREFIX + 1);
+		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(X, Y-3));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 	}
 
 	@Test
 	public void testAddRovers() {
-		mockRoverRepository.addRover(getRover());
-		assertThat(mockRoverRepository.getRover(ROVER_PREFIX + 1)).isNotNull();
-		mockRoverRepository.addRover(getRover());
-		assertThat(mockRoverRepository.getRover(ROVER_PREFIX + 2)).isNotNull();
+		mockRoverRepository.add(getRover());
+		assertThat(mockRoverRepository.load(ROVER_PREFIX + 1)).isNotNull();
+		mockRoverRepository.add(getRover());
+		assertThat(mockRoverRepository.load(ROVER_PREFIX + 2)).isNotNull();
 		assertThat(mockRoverRepository.getNumberOfRovers()).isEqualTo(2);
 	}
 //
@@ -127,17 +127,17 @@ public class RoverServiceImplTest {
 		List<Rover> rovers = new ArrayList<Rover>();
 
 		@Override
-		public Rover getRover(String name) {
+		public Rover load(String name) {
 			return rovers.get(Integer.valueOf(name.substring(ROVER_PREFIX.length())) - 1);
 		}
 
 		@Override
-		public void addRover(Rover rover) {
+		public void add(Rover rover) {
 			rovers.add(rover);
 		}
 
 		@Override
-		public void removeRover(String roverName) {
+		public void remove(String roverName) {
 		}
 
 		@Override
@@ -148,6 +148,10 @@ public class RoverServiceImplTest {
 		@Override
 		public void removeAllRovers() {
 			rovers.clear();
+		}
+
+		@Override
+		public void update(Rover entity) {
 		}
 
 	}
