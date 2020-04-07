@@ -11,6 +11,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
@@ -123,7 +124,7 @@ public class RoverValidatorTest {
 	}
 	
 	/**
-	 * [ERR-001] There is already a Rover at position X = [3] and Y = [4]
+	 * com.game.domain.model.exception.PlateauLocationAlreadySetException: [ERR-003] There is already a Rover at position X = [3] and Y = [4]
 	 */
 	@Test
 	public void testAlreadySetPosition() {
@@ -137,9 +138,9 @@ public class RoverValidatorTest {
 		Rover rover = getRover(POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
-		assertThat(thrown).isInstanceOf(EntityValidationException.class)
+		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
-						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
+						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE,
 						String.format(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET, rover.getXPosition(), rover.getYPosition())));
 	}
 

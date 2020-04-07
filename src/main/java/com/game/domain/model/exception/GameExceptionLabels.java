@@ -46,7 +46,11 @@ public class GameExceptionLabels {
 	public static final String ROVER_X_OUT_OF_PLATEAU = "Rover with X-position [%d] is out of the Plateau with width [%d]";
 	
 	public static final String ROVER_Y_OUT_OF_PLATEAU = "Rover with Y-position [%d] is out of the Plateau with height [%d]";
+	
+	public static final String PLATEAU_LOCATION_ERROR_CODE = "ERR-003";
+	
+	public static final String PLATEAU_LOCATION_ALREADY_SET_START = "There is already a Rover";
 
-	public static final String PLATEAU_LOCATION_ALREADY_SET = "There is already a Rover at position X = [%d] and Y = [%d]";
+	public static final String PLATEAU_LOCATION_ALREADY_SET = PLATEAU_LOCATION_ALREADY_SET_START + " at position X = [%d] and Y = [%d]";
 
 }

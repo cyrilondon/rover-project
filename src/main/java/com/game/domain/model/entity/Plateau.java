@@ -24,9 +24,9 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 		this.dimensions = new TwoDimensions(
 				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
-	
+
 	public Plateau initializeLocations() {
-		locations = new boolean [dimensions.getWidth()][dimensions.getHeight()];
+		locations = new boolean[dimensions.getWidth()][dimensions.getHeight()];
 		return this;
 	}
 
@@ -45,7 +45,8 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	 * @return
 	 */
 	public void setLocationBusy(TwoDimensionalCoordinates coordinates) {
-		locations[coordinates.getAbscissa()][coordinates.getOrdinate()] = true;
+		locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
+				coordinates.getOrdinate())] = true;
 	}
 
 	/**
@@ -55,12 +56,17 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	 * @return
 	 */
 	public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
-		return locations[coordinates.getAbscissa()][coordinates.getOrdinate()];
+		return locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
+				coordinates.getOrdinate())];
 	}
 
 	@Override
 	public Plateau validate(ValidationNotificationHandler handler) {
 		return new PlateauValidator(this, handler).validate();
+	}
+
+	private int getLocationIndexFromCoordinate(int coordinate) {
+		return coordinate - 1;
 	}
 
 }

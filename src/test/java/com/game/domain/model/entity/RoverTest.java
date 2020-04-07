@@ -3,15 +3,30 @@ package com.game.domain.model.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 
 public class RoverTest {
 
 	private static final String ROVER_NAME = "ROVER_TEST";
+
+	private GameContext gameContext = GameContext.getInstance();
+
+	private final static int PLATEAu_WIDTH = 6;
+
+	private final static int PLATEAu_HEIGHT = 6;
+
+	@BeforeMethod
+	public void reset() {
+		addPlateau(PLATEAu_WIDTH, PLATEAu_HEIGHT);
+	}
 
 	@Test
 	public void testConstructorWithName() {
@@ -44,12 +59,31 @@ public class RoverTest {
 	}
 
 	@Test
-	public void testMoveNorth() {
+	public void testMoveNorthOneTime() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.move();
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(5);
+	}
+
+	@Test
+	public void testMoveNorthTwoTimes() {
+		Rover rover = initializeRover(Orientation.NORTH);
+		rover.moveNumberOfTimes(2);
+		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
+		assertThat(rover.getXPosition()).isEqualTo(3);
+		assertThat(rover.getYPosition()).isEqualTo(6);
+	}
+
+	@Test
+	public void testMoveNorthThreeTimesOutOfBoard() {
+		Rover rover = initializeRover(Orientation.NORTH);
+		Throwable thrown = catchThrowable(() -> rover.moveNumberOfTimes(3));
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
+						String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAu_HEIGHT)));
 	}
 
 	@Test
@@ -126,21 +160,18 @@ public class RoverTest {
 	public void testWithNullOrientation() {
 		Throwable thrown = catchThrowable(() -> new Rover(ROVER_NAME, new TwoDimensionalCoordinates(3, 4), null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
-		.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
-				GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
-				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
-						GameExceptionLabels.MISSING_ROVER_ORIENTATION)));
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
+						String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
+								GameExceptionLabels.MISSING_ROVER_ORIENTATION)));
 	}
-	
 
 	@Test
 	public void testWithNullName() {
 		Throwable thrown = catchThrowable(() -> new Rover(null, new TwoDimensionalCoordinates(3, 4), Orientation.EAST));
-		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
-		.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
-				GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
-				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
-						GameExceptionLabels.MISSING_ROVER_NAME)));
+		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class).hasMessage(String.format(
+				GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN, GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
+				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE, GameExceptionLabels.MISSING_ROVER_NAME)));
 	}
 
 	private Rover initializeDefaultRover() {
@@ -149,6 +180,11 @@ public class RoverTest {
 
 	private Rover initializeRover(Orientation orientation) {
 		return new Rover(ROVER_NAME, new TwoDimensionalCoordinates(3, 4), orientation);
+	}
+
+	private void addPlateau(int width, int height) {
+		gameContext.addPlateau(
+				new Plateau(new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 
 }

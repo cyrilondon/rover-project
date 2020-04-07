@@ -1,18 +1,16 @@
 package com.game.domain.model.entity;
 
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Rover implements Entity<Rover> {
-
-	public void setOrientation(Orientation orientation) {
-		this.orientation = orientation;
-	}
 
 	/**
 	 * Not asked by this exercise but added in case of subsequent commands on a
@@ -42,11 +40,11 @@ public class Rover implements Entity<Rover> {
 	}
 
 	/**
-	 * We add this constructor with a name parameter to keep track of a given Rover, in the case of
-	 * sending commands from sources/clients other than a file ( where the explore command
-	 * follows immediately the initialize command).
-	 * By example, the command could ask for Rover_X
-	 * to turn left or turn right well after Rover_X has been initialized.
+	 * We add this constructor with a name parameter to keep track of a given Rover,
+	 * in the case of sending commands from sources/clients other than a file (
+	 * where the explore command follows immediately the initialize command). By
+	 * example, the command could ask for Rover_X to turn left or turn right well
+	 * after Rover_X has been initialized.
 	 * 
 	 * @param rover name
 	 * @param rover coordinates
@@ -74,40 +72,72 @@ public class Rover implements Entity<Rover> {
 	public void move() {
 		moveNumberOfTimes(1);
 	}
-	
+
 	public void moveNumberOfTimes(int numberOfTimes) {
 		switch (orientation) {
 		case NORTH:
-			moveNorth(numberOfTimes);
+			moveNorthNumberOfTimes(numberOfTimes);
 			break;
 		case WEST:
-			moveWest(numberOfTimes);
+			moveWestNumberOfTimes(numberOfTimes);
 			break;
 		case EAST:
-			moveEast(numberOfTimes);
+			moveEastNumberOfTimes(numberOfTimes);
 			break;
 		case SOUTH:
-			moveSouth(numberOfTimes);
+			moveSouthNumberOfTimes(numberOfTimes);
 			break;
 		default:
 			throw new IllegalArgumentException(GameExceptionLabels.ILLEGAL_ORIENTATION_VALUE);
 		}
 	}
 
-	private void moveNorth(int numberOfTimes) {
-		getCoordinates().shiftAlongOrdinate(numberOfTimes * step);
+	private void moveNorthNumberOfTimes(int numberOfTimes) {
+		IntStream.range(0, numberOfTimes).forEach(i -> {
+			moveNorth();
+			validate();
+		});
 	}
 
-	private void moveWest(int numberOfTimes) {
-		getCoordinates().shiftAlongAbscissa(numberOfTimes * -step);
+	private void moveWestNumberOfTimes(int numberOfTimes) {
+		IntStream.range(0, numberOfTimes).forEach(i -> {
+			moveWest();
+			validate();
+		});
 	}
 
-	private void moveEast(int numberOfTimes) {
-		getCoordinates().shiftAlongAbscissa(numberOfTimes * step);
+	private void moveEastNumberOfTimes(int numberOfTimes) {
+		IntStream.range(0, numberOfTimes).forEach(i -> {
+			moveEast();
+			validate();
+		});
 	}
 
-	private void moveSouth(int numberOfTimes) {
-		getCoordinates().shiftAlongOrdinate(numberOfTimes * -step);
+	private void moveSouthNumberOfTimes(int numberOfTimes) {
+		IntStream.range(0, numberOfTimes).forEach(i -> {
+			moveSouth();
+			validate();
+		});
+	}
+
+	private void validate() {
+		validate(new EntityDefaultValidationNotificationHandler());
+	}
+
+	private void moveNorth() {
+		getCoordinates().shiftAlongOrdinate(step);
+	}
+
+	private void moveWest() {
+		getCoordinates().shiftAlongAbscissa(-step);
+	}
+
+	private void moveEast() {
+		getCoordinates().shiftAlongAbscissa(step);
+	}
+
+	private void moveSouth() {
+		getCoordinates().shiftAlongOrdinate(-step);
 	}
 
 	public TwoDimensionalCoordinates getPosition() {
@@ -125,6 +155,10 @@ public class Rover implements Entity<Rover> {
 
 	public Orientation getOrientation() {
 		return orientation;
+	}
+
+	public void setOrientation(Orientation orientation) {
+		this.orientation = orientation;
 	}
 
 	public TwoDimensionalCoordinates getCoordinates() {

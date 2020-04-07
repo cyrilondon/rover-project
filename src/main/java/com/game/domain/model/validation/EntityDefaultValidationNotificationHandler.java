@@ -1,6 +1,8 @@
 package com.game.domain.model.validation;
 
 import com.game.domain.model.exception.EntityValidationException;
+import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 
 public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
 
@@ -14,7 +16,13 @@ public class EntityDefaultValidationNotificationHandler implements ValidationNot
 	@Override
 	public void checkValidationResult() {
 		if (validationResult.isInError()) {
-			throw new EntityValidationException(validationResult.getAllErrorMessages());
+			String allErrorMessages = validationResult.getAllErrorMessages();
+			// in case there is only an issue where the board is already set
+			// we want to throw a more specific error with specific code
+			if (allErrorMessages.startsWith(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET_START)) {
+				throw new PlateauLocationAlreadySetException(allErrorMessages);
+			}
+			throw new EntityValidationException(allErrorMessages);
 		}
 
 	}

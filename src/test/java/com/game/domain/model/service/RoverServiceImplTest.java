@@ -26,9 +26,9 @@ public class RoverServiceImplTest {
 
 	private static final int Y = 4;
 
-	private static final int WIDTH = 5;
+	private static final int WIDTH = 10;
 
-	private static final int HEIGHT = 5;
+	private static final int HEIGHT = 10;
 
 	private static final String ROVER_PREFIX = "ROVER_TEST_";
 
@@ -85,7 +85,8 @@ public class RoverServiceImplTest {
 	}
 
 	@Test
-	public void testMoveRoverwithOrientation() {
+	public void testMoveRoverNumberOfTimes() {
+		addPlateau(WIDTH, HEIGHT);
 		mockRoverRepository.addRover(getRover());
 		roverService.moveRoverNumberOfTimes(ROVER_PREFIX + 1, 3);
 		Rover rover = mockRoverRepository.getRover(ROVER_PREFIX + 1);
