@@ -59,10 +59,11 @@ public class GameServiceImpl implements GameService {
 			public void handleEvent(RoverMovedEvent event) {
 				// 1. update Rover with last position
 				updateRoverWithLastPosition(event);
-				
-				// store the event
+				// 2. mark old rover position as free
 				//gameContext.getPlateauService().markLocationFree(event.getPreviousPosition());
+				// 3. mark new rover position as set/busy
 				gameContext.getPlateauService().markLocationBusy(event.getCurrentPosition());
+				// 4s. store the event
 			}
 
 			@Override
