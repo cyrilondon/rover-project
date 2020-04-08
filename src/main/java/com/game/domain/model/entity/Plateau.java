@@ -28,9 +28,15 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 		this.dimensions = new TwoDimensions(
 				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
-
+	
+	/**
+	 * The check of negative coordinates is done in the validator
+	 * So this initialization should be called in the validator if all is ok 
+	 * Initializing in the constructor would lead to java.lang.NegativeArraySizeException
+	 * in case of negative coordinates
+	 */
 	public Plateau initializeLocations() {
-		locations = new boolean[dimensions.getWidth()][dimensions.getHeight()];
+		this.locations = new boolean[dimensions.getWidth()][dimensions.getHeight()];
 		return this;
 	}
 

@@ -47,7 +47,6 @@ public class GameContextTest {
 	public void testReset() {
 		gameContext.addPlateau(getPlateau());
 		gameContext.reset();
-		assertThat(gameContext.isInitialized()).isFalse();
 		assertThat(gameContext.getPlateau()).isNull();
 		assertThat(gameContext.getRoverStepLength()).isEqualTo(GameContext.ROVER_STEP_LENGTH);
 	}

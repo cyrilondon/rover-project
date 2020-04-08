@@ -20,5 +20,14 @@ public class PlateauValidator extends EntityValidator<Plateau> {
 			this.notificationHandler()
 					.handleError(String.format(GameExceptionLabels.PLATEAU_NEGATIVE_HEIGHT, entity().getHeight()));
 	}
+	
+	/**
+	 * We can initialize the Plateau as double array with given dimensions
+	 * only if we are sure none of the dimensions is negative
+	 */
+	@Override
+	public void afterValidate() {
+		entity().initializeLocations();
+	}
 
 }

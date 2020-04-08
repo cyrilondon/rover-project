@@ -129,23 +129,25 @@ public class RoverTest {
 
 	@Test
 	public void testEqualsWithName() {
-		Rover rover = initializeDefaultRover();
-		Rover otherrover = initializeDefaultRover();
+		UUID uuid = UUID.randomUUID();
+		Rover rover = initializeDefaultRover(uuid);
+		Rover otherrover = initializeDefaultRover(uuid);
 		assertThat(rover).isEqualTo(otherrover);
 	}
 
 	@Test
 	public void testHashCodeWithName() {
-		Rover rover = initializeDefaultRover();
-		Rover otherrover = initializeDefaultRover();
+		UUID uuid = UUID.randomUUID();
+		Rover rover = initializeDefaultRover(uuid);
+		Rover otherrover = initializeDefaultRover(uuid);
 		assertThat(rover.hashCode()).isEqualTo(otherrover.hashCode());
 	}
 
 	@Test
 	public void testToString() {
-		Rover rover = new Rover(UUID.randomUUID(), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		Rover rover = new Rover(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 		assertThat(rover.toString()).isEqualTo(
-				"Rover [ROVER_TEST] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
+				"Rover [ROVER_TEST] attached to Plateau [53567a5d-a21c-495e-80a3-d12adaf8585c] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
 	}
 
 	@Test
@@ -178,6 +180,10 @@ public class RoverTest {
 
 	private Rover initializeDefaultRover() {
 		return new Rover(UUID.randomUUID(), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+	}
+	
+	private Rover initializeDefaultRover(UUID uuid) {
+		return new Rover(uuid, ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 	}
 
 	private Rover initializeRover(Orientation orientation) {

@@ -8,7 +8,7 @@ import java.util.UUID;
  *
  */
 public class MoveRoverCommand {
-	
+
 	public UUID plateauUuid;
 
 	public String roverName;
@@ -27,6 +27,10 @@ public class MoveRoverCommand {
 
 	public int getNumberOfMoves() {
 		return numberOfMoves;
+	}
+	
+	public UUID getPlateauUuid() {
+		return plateauUuid;
 	}
 
 }

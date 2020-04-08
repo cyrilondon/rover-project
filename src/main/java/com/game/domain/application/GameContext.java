@@ -83,10 +83,6 @@ public class GameContext {
 		this.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
 	}
 
-	public boolean isInitialized() {
-		return getPlateau() != null;
-	}
-
 	public void reset() {
 		plateau = null;
 		roverStepLength = 1;

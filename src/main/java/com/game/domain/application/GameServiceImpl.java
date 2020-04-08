@@ -15,16 +15,15 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.service.PlateauServiceImpl;
 
-
 /**
  * Application service which acts as a facade to the application
  * <ol>
- *  <li>Delegates the execution of the process to the two Domain services
- *  {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
- *  State {@link GameContext}</li>
- *  <li>Converts Command objects from outside world to Domain Services calls
- *  (All the write commands should have return type = void)</li>
- *  <li>Register Domain Events subscribers</li>
+ * <li>Delegates the execution of the process to the two Domain services
+ * {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
+ * State {@link GameContext}</li>
+ * <li>Converts Command objects from outside world to Domain Services calls (All
+ * the write commands should have return type = void)</li>
+ * <li>Register Domain Events subscribers</li>
  * </ol>
  */
 public class GameServiceImpl implements GameService {
@@ -42,16 +41,16 @@ public class GameServiceImpl implements GameService {
 	}
 
 	public void execute(InitializeRoverCommand command) {
-		if (!gameContext.isInitialized())
+		if (gameContext.getPlateauService().loadPlateau(command.getPlateauUuid()) == null)
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
-					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION,
-					GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
-		int robotNumber = gameContext.getCounter().addAndGet(1);
-		gameContext.getRoverService().initializeRover(command.getPlateauUuid(), GameContext.ROVER_NAME_PREFIX + robotNumber, new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
+					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION, GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
+		gameContext.getRoverService().initializeRover(command.getPlateauUuid(), command.getName(),
+				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
 				Orientation.get(String.valueOf(command.getOrientation())));
-		gameContext.getPlateauService().setLocationBusy(command.getPlateauUuid(), new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
+		gameContext.getPlateauService().setLocationBusy(command.getPlateauUuid(),
+				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void execute(MoveRoverCommand command) {
 		@SuppressWarnings("rawtypes")
@@ -72,7 +71,7 @@ public class GameServiceImpl implements GameService {
 			public Class<RoverMovedEvent> subscribedToEventType() {
 				return RoverMovedEvent.class;
 			}
-			
+
 			private void updateRoverWithLastPosition(RoverMovedEvent event) {
 				Rover rover = gameContext.getRoverService().getRover(event.getRoverName());
 				rover.setPosition(event.getCurrentPosition());
@@ -80,7 +79,7 @@ public class GameServiceImpl implements GameService {
 			}
 		};
 		DomainEventPublisher.instance().subscribe(subscriber);
-		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverName(), command.getNumberOfMoves());
+		gameContext.getRoverService().moveRoverNumberOfTimes(command.getPlateauUuid(), command.getRoverName(), command.getNumberOfMoves());
 	}
 
 	/**

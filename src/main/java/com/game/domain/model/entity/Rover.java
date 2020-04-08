@@ -206,7 +206,7 @@ public class Rover implements Entity<Rover> {
 
 		if (obj instanceof Rover) {
 			Rover other = (Rover) obj;
-			return Objects.equals(name, other.getName()) && Objects.equals(getCoordinates(), other.getCoordinates())
+			return Objects.equals(plateauUuid, other.getPlateauUuid()) && Objects.equals(name, other.getName()) && Objects.equals(getCoordinates(), other.getCoordinates())
 					&& Objects.equals(getOrientation(), other.getOrientation());
 		}
 
@@ -215,12 +215,12 @@ public class Rover implements Entity<Rover> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getName(), getCoordinates(), getOrientation());
+		return Objects.hash(getPlateauUuid(), getName(), getCoordinates(), getOrientation());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Rover [%s] with [%s] and [%s]", this.getName(), this.getCoordinates(),
+		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getName(), this.getPlateauUuid(), this.getCoordinates(),
 				this.getOrientation());
 	}
 

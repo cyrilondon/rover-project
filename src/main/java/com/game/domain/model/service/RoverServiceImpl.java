@@ -33,7 +33,7 @@ public class RoverServiceImpl implements RoverService {
 	}
 
 	@Override
-	public void moveRoverNumberOfTimes(String roverName, int times) {
+	public void moveRoverNumberOfTimes(UUID plateauUuid, String roverName, int times) {
 		Rover rover = roverRepository.load(roverName);
 		rover.moveNumberOfTimes(times);
 	}

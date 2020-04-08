@@ -29,6 +29,7 @@ public abstract class EntityValidator<T> {
 	public final T validate() {
 		doValidate();
 		notificationHandler.checkValidationResult();
+		afterValidate();
 		return entity();
 	}
 	
@@ -36,6 +37,14 @@ public abstract class EntityValidator<T> {
 	 * Method to be overridden by the subclasses
 	 */
 	protected  abstract void doValidate();
+	
+	/**
+	 * Callback after validation if needed
+	 */
+	protected  void afterValidate() {
+		// do nothing by default
+	}
+
 
 	protected ValidationNotificationHandler notificationHandler() {
 		return this.notificationHandler;

@@ -12,7 +12,7 @@ public interface RoverService extends DomainService {
 
 	public void faceToOrientation(String roverName, Orientation orientation);
 
-	void moveRoverNumberOfTimes(String roverName, int times);
+	void moveRoverNumberOfTimes(UUID plateauUuid, String roverName, int times);
 	
 	Rover getRover(String roverName);
 	

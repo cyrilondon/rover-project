@@ -58,6 +58,7 @@ public class GameServiceImplTest {
 	public void resetGame() {
 		gameContext.reset();
 		roversList.clear();
+		((MockPlateauServiceImpl)gameContext.getPlateauService()).reset();
 	}
 
 	@Test
@@ -65,7 +66,6 @@ public class GameServiceImplTest {
 		gameService.initializePlateau(UUID.randomUUID(), new TwoDimensionalCoordinates(WIDTH, HEIGHT));
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
-		assertThat(gameContext.isInitialized());
 		assertThat(gameContext.getPlateau()).isEqualTo(plateau);
 	}
 
@@ -74,30 +74,30 @@ public class GameServiceImplTest {
 		gameService.initializeRelativisticPlateau(UUID.randomUUID(), 12, new TwoDimensionalCoordinates(WIDTH, HEIGHT));
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 1);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT - 1);
-		assertThat(gameContext.isInitialized());
 		assertThat(gameContext.getPlateau()).isEqualTo(plateau);
 	}
 
 	@Test
 	public void testInitializeRover() {
 		UUID uuid = UUID.randomUUID();
-		gameContext.addPlateau(getPlateau(uuid));
+		gameService.initializePlateau(uuid, new TwoDimensionalCoordinates(WIDTH, HEIGHT));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder().withPlateauUuid(uuid)
-				.withAbscissa(coordinates.getAbscissa()).withOrdinate(coordinates.getOrdinate()).withOrientation('S')
-				.build();
+				.withName(GameContext.ROVER_NAME_PREFIX + 1).withAbscissa(coordinates.getAbscissa())
+				.withOrdinate(coordinates.getOrdinate()).withOrientation('S').build();
 		gameService.execute(initializeCommand);
-		assertThat(roversList.contains(
-				new Rover(uuid, GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(), coordinates, Orientation.SOUTH)))
+		assertThat(
+				roversList.contains(new Rover(uuid, GameContext.ROVER_NAME_PREFIX + 1, coordinates, Orientation.SOUTH)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, coordinates)).isTrue();
 		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X + 1, Y + 1);
 		InitializeRoverCommand otherInitializeCommand = new InitializeRoverCommand.Builder().withPlateauUuid(uuid)
-				.withAbscissa(otherCoordinates.getAbscissa()).withOrdinate(otherCoordinates.getOrdinate())
-				.withOrientation('E').build();
+				.withName(GameContext.ROVER_NAME_PREFIX + 2).withAbscissa(otherCoordinates.getAbscissa())
+				.withOrdinate(otherCoordinates.getOrdinate()).withOrientation('E').build();
 		gameService.execute(otherInitializeCommand);
-		assertThat(roversList.contains(new Rover(uuid, GameContext.ROVER_NAME_PREFIX + gameContext.getCounter(),
-				otherCoordinates, Orientation.EAST))).isTrue();
+		assertThat(roversList
+				.contains(new Rover(uuid, GameContext.ROVER_NAME_PREFIX + 2, otherCoordinates, Orientation.EAST)))
+						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, otherCoordinates)).isTrue();
 	}
 
@@ -108,7 +108,8 @@ public class GameServiceImplTest {
 	@Test
 	public void testInitializeRoverWithoutPlateau() {
 		InitializeRoverCommand initializeCommand = new InitializeRoverCommand.Builder().withAbscissa(X).withOrdinate(Y)
-				.withOrientation('S').build();
+				.withName(GameContext.ROVER_NAME_PREFIX + 1).withOrientation('S')
+				.withPlateauUuid(UUID.randomUUID()).build();
 		Throwable thrown = catchThrowable(() -> gameService.execute(initializeCommand));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
@@ -120,9 +121,11 @@ public class GameServiceImplTest {
 
 	@Test
 	public void testMoveRoverWithOrientation() {
+		UUID uuid = UUID.randomUUID();
 		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
-		gameService.execute(new MoveRoverCommand(UUID.randomUUID(),roverName, 1));
-		assertThat(roversList).contains(new Rover(UUID.randomUUID(), roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+		gameService.execute(new MoveRoverCommand(uuid, roverName, 1));
+		assertThat(roversList)
+				.contains(new Rover(uuid, roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
 
 	}
 
@@ -132,15 +135,12 @@ public class GameServiceImplTest {
 	@Test
 	public void testMoveRoverWithOrientationOutOfTheBoard() {
 		String roverName = GameContext.ROVER_NAME_PREFIX + 5;
-		Throwable thrown = catchThrowable(() -> gameService.execute(new MoveRoverCommand(UUID.randomUUID(), roverName, 1)));
+		Throwable thrown = catchThrowable(
+				() -> gameService.execute(new MoveRoverCommand(UUID.randomUUID(), roverName, 1)));
 		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE, "Error"));
 
-	}
-
-	private Plateau getPlateau(UUID uuid) {
-		return new Plateau(uuid, new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, HEIGHT)));
 	}
 
 	/**
@@ -150,7 +150,8 @@ public class GameServiceImplTest {
 	private class MockRoverServiceImpl implements RoverService {
 
 		@Override
-		public void initializeRover(UUID plateauUuid, String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		public void initializeRover(UUID plateauUuid, String roverName, TwoDimensionalCoordinates coordinates,
+				Orientation orientation) {
 			GameServiceImplTest.this.roversList.add(new Rover(plateauUuid, roverName, coordinates, orientation));
 		}
 
@@ -160,9 +161,9 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void moveRoverNumberOfTimes(String roverName, int numberOfTimes) {
+		public void moveRoverNumberOfTimes(UUID plateauUUID, String roverName, int numberOfTimes) {
 			GameServiceImplTest.this.roversList
-					.add(new Rover(UUID.randomUUID(), roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+					.add(new Rover(plateauUUID, roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
 			if (roverName.equals(GameContext.ROVER_NAME_PREFIX + 5))
 				throw new PlateauLocationAlreadySetException("Error");
 		}
@@ -188,15 +189,19 @@ public class GameServiceImplTest {
 
 		@Override
 		public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(uuid, new TwoDimensions(
-					new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())));
+			GameServiceImplTest.this.plateau = new Plateau(uuid,
+					new TwoDimensions(
+							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())))
+									.initializeLocations();
 			return GameServiceImplTest.this.plateau;
 		}
 
 		@Override
 		public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(uuid, new RelativisticTwoDimensions(speed, new TwoDimensions(
-					new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))));
+			GameServiceImplTest.this.plateau = new Plateau(uuid,
+					new RelativisticTwoDimensions(speed, new TwoDimensions(
+							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))
+									.initializeLocations();
 			return GameServiceImplTest.this.plateau;
 		}
 
@@ -213,7 +218,16 @@ public class GameServiceImplTest {
 		@Override
 		public void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.FALSE);
-			
+
+		}
+
+		@Override
+		public Plateau loadPlateau(UUID plateauUuid) {
+			return GameServiceImplTest.this.plateau;
+		}
+		
+		public void reset() {
+			GameServiceImplTest.this.plateau = null;
 		}
 
 	}

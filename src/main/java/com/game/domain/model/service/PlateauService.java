@@ -42,4 +42,11 @@ public interface PlateauService extends DomainService {
 	 */
 	boolean isLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates);
 
+	/**
+	 * Load plateau from Uuid
+	 * @param plateauUuid
+	 * @return
+	 */
+	Plateau loadPlateau(UUID plateauUuid);
+
 }

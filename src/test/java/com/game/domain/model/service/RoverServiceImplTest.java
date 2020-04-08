@@ -89,7 +89,7 @@ public class RoverServiceImplTest {
 	public void testMoveRoverNumberOfTimes() {
 		addPlateau(WIDTH, HEIGHT);
 		mockRoverRepository.add(getRover());
-		roverService.moveRoverNumberOfTimes(ROVER_PREFIX + 1, 3);
+		roverService.moveRoverNumberOfTimes(UUID.randomUUID(), ROVER_PREFIX + 1, 3);
 		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(X, Y-3));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
