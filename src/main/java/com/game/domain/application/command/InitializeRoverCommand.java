@@ -1,19 +1,24 @@
 package com.game.domain.application.command;
 
+import java.util.UUID;
+
 /**
  * Initializes a rover with coordinates and orientation
  *
  */
 public class InitializeRoverCommand {
-	
+
 	String name;
 	
 	private int abscissa, ordinate;
 	
 	char orientation;
 	
+	UUID plateauUuid;
+	
 	private InitializeRoverCommand(Builder builder) {
 		this.name = builder.name;
+		this.plateauUuid = builder.plateauUuid;
 		this.abscissa = builder.abscissa;
 		this.ordinate = builder.ordinate;
 		this.orientation = builder.orientation;
@@ -21,6 +26,10 @@ public class InitializeRoverCommand {
 
 	public String getName() {
 		return name;
+	}
+	
+	public UUID getPlateauUuid() {
+		return plateauUuid;
 	}
 
 	public int getAbscissa() {
@@ -43,8 +52,15 @@ public class InitializeRoverCommand {
 		
 		char orientation;
 		
+		UUID plateauUuid;
+		
 		public Builder withName(String name) {
 			this.name = name;
+			return this;
+		}
+		
+		public Builder withPlateauUuid(UUID uuid) {
+			this.plateauUuid = uuid;
 			return this;
 		}
 		

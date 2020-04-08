@@ -1,5 +1,7 @@
 package com.game.domain.model.service;
 
+import java.util.UUID;
+
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -19,8 +21,8 @@ public class RoverServiceImpl implements RoverService {
 	}
 
 	@Override
-	public void initializeRover(String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		Rover rover = new Rover(coordinates, orientation);
+	public void initializeRover(UUID plateauUuid, String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		Rover rover = new Rover(plateauUuid, roverName, coordinates, orientation);
 		roverRepository.add(rover.validate(new EntityDefaultValidationNotificationHandler()));
 	}
 

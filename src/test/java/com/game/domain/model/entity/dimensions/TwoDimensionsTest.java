@@ -2,6 +2,8 @@ package com.game.domain.model.entity.dimensions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.Plateau;
@@ -14,7 +16,7 @@ public class TwoDimensionsTest {
 	public void testDimensions() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 5);
 		TwoDimensions dimensions = new TwoDimensions(coordinates);
-		Plateau plateau = new Plateau(dimensions);
+		Plateau plateau = new Plateau(UUID.randomUUID(), dimensions);
 		assertThat(plateau.getWidth()).isEqualTo(coordinates.getAbscissa());
 		assertThat(plateau.getHeight()).isEqualTo(coordinates.getOrdinate());
 	}

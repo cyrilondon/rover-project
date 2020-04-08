@@ -3,6 +3,8 @@ package com.game.domain.model.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.Plateau;
@@ -29,14 +31,14 @@ public class PlateauServiceImplTest {
 
 	@Test
 	public void testInitializePlateau() {
-		Plateau plateau = plateauService.initializePlateau(new TwoDimensionalCoordinates(WIDTH, HEIGHT));
+		Plateau plateau = plateauService.initializePlateau(UUID.randomUUID(), new TwoDimensionalCoordinates(WIDTH, HEIGHT));
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getWidth()).isEqualTo(HEIGHT);
 	}
 
 	@Test
 	public void testInitializeRelativisticPlateau() {
-		Plateau plateau = plateauService.initializeRelativisticPlateau(OBSERVER_SPEED,
+		Plateau plateau = plateauService.initializeRelativisticPlateau(UUID.randomUUID(), OBSERVER_SPEED,
 				(new TwoDimensionalCoordinates(WIDTH, HEIGHT)));
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 1);
 		assertThat(plateau.getWidth()).isEqualTo(HEIGHT - 1);
@@ -45,7 +47,7 @@ public class PlateauServiceImplTest {
 	@Test
 	public void testInitializePlateauNegativeWidth() {
 		Throwable thrown = catchThrowable(
-				() -> plateauService.initializePlateau((new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
+				() -> plateauService.initializePlateau(UUID.randomUUID(), (new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
@@ -54,7 +56,7 @@ public class PlateauServiceImplTest {
 
 	@Test
 	public void testInitializeRelativisticPlateauNegativeDimensions() {
-		Throwable thrown = catchThrowable(() -> plateauService.initializeRelativisticPlateau(OBSERVER_SPEED,
+		Throwable thrown = catchThrowable(() -> plateauService.initializeRelativisticPlateau(UUID.randomUUID(), OBSERVER_SPEED,
 				(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
@@ -64,14 +66,15 @@ public class PlateauServiceImplTest {
 
 	@Test
 	public void testMarkLocationBusy() {
-		plateauRepository.addPlateau(getPlateau());
+		UUID uuid = UUID.randomUUID();
+		plateauRepository.add(getPlateau(uuid));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 4);
-		plateauService.markLocationBusy(coordinates);
-		assertThat(plateauService.isLocationBusy(coordinates)).isTrue();
+		plateauService.setLocationBusy(uuid, coordinates);
+		assertThat(plateauService.isLocationBusy(uuid, coordinates)).isTrue();
 	}
 
-	private Plateau getPlateau() {
-		return new Plateau(new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, HEIGHT))).initializeLocations();
+	private Plateau getPlateau(UUID uuid) {
+		return new Plateau(uuid, new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, HEIGHT))).initializeLocations();
 	}
 
 	/**
@@ -83,20 +86,26 @@ public class PlateauServiceImplTest {
 
 		Plateau plateau;
 
+
 		@Override
-		public Plateau getPlateau() {
+		public Plateau load(UUID id) {
 			return plateau;
 		}
 
 		@Override
-		public void addPlateau(Plateau plateau) {
+		public void add(Plateau plateau) {
 			this.plateau = plateau;
-
 		}
 
 		@Override
-		public void updatePlateau(Plateau plateau) {
+		public void update(Plateau plateau) {
 			this.plateau = plateau;
+		}
+
+		@Override
+		public void remove(UUID id) {
+			this.plateau = null;
+			
 		}
 
 	}

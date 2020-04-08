@@ -2,6 +2,8 @@ package com.game.infrastructure.persistence.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -64,7 +66,7 @@ public class InMemoryRoverRepositoryImplTest {
 	
 	private Rover getRover(String name) {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		return new Rover(name, coordinates, Orientation.SOUTH);
+		return new Rover(UUID.randomUUID(), name, coordinates, Orientation.SOUTH);
 	}
 
 }

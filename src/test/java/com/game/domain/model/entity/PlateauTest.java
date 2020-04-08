@@ -3,6 +3,8 @@ package com.game.domain.model.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -16,7 +18,7 @@ public class PlateauTest {
 	@Test
 	public void testInitialisationIsOk() {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(3, 3));
-		Plateau plateau = new Plateau(dimensions);
+		Plateau plateau = new Plateau(UUID.randomUUID(), dimensions);
 		assertThat(plateau.getWidth()).isEqualTo(dimensions.getWidth());
 		assertThat(plateau.getHeight()).isEqualTo(dimensions.getHeight());
 	}
@@ -31,14 +33,14 @@ public class PlateauTest {
 	@Test
 	public void testInitialisationWithCoordinatesIsOk() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
-		Plateau plateau = new Plateau(new TwoDimensions(coordinates));
+		Plateau plateau = new Plateau(UUID.randomUUID(), new TwoDimensions(coordinates));
 		assertThat(plateau.getWidth()).isEqualTo(coordinates.getAbscissa());
 		assertThat(plateau.getHeight()).isEqualTo(coordinates.getOrdinate());
 	}
 	
 	@Test
 	public void testMissingDimensions() {
-		Throwable thrown = catchThrowable(() -> new Plateau((TwoDimensions)null));
+		Throwable thrown = catchThrowable(() -> new Plateau(UUID.randomUUID(), null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,

@@ -1,6 +1,7 @@
 package com.game.domain.model.entity;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
@@ -24,22 +25,18 @@ public class Rover implements Entity<Rover> {
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
-
-	private int step = GameContext.getInstance().getRoverStepLength();
+	
+	/**
+	 * Many-to-one association to a Plateau instance
+	 * We keep track of the plateau UUID
+	 */
+	private UUID plateauUuid;
 
 	/**
-	 * The normal way the Rover should be instantiated via the File adapter as each
-	 * line initializes a anonymous Rover with coordinates and orientation
-	 * {@link Rover#Rover(String, TwoDimensionalCoordinates, Orientation)}
-	 * 
-	 * @param name
-	 * @param coordinates
-	 * @param orientation
+	 * Rover step length - configurable in the GameContext
 	 */
-	public Rover(TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROVER_POSITION);
-		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROVER_ORIENTATION);
-	}
+	private int step = GameContext.getInstance().getRoverStepLength();
+
 
 	/**
 	 * We add this constructor with a name parameter to keep track of a given Rover,
@@ -52,8 +49,10 @@ public class Rover implements Entity<Rover> {
 	 * @param rover coordinates
 	 * @param rover orientation
 	 */
-	public Rover(String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		this(coordinates, orientation);
+	public Rover(UUID plateauUuid, String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		this.plateauUuid = ArgumentCheck.preNotNull(plateauUuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROVER_POSITION);
+		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROVER_ORIENTATION);
 		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROVER_NAME);
 	}
 
@@ -128,7 +127,7 @@ public class Rover implements Entity<Rover> {
 
 	private void moveNorth() {
 		this.position = getCoordinates().shiftAlongOrdinate(step);
-		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withRoverName(name)
+		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name)
 				.withPreviousPosition(getCoordinates()).withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)));
 	}
 
@@ -139,21 +138,21 @@ public class Rover implements Entity<Rover> {
 	private void moveWest() {
 		this.position = getCoordinates().shiftAlongAbscissa(-step);
 		DomainEventPublisher.instance()
-				.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+				.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
 						.withCurrentPosition(getCoordinates().shiftAlongAbscissa(-step)));
 	}
 
 	private void moveEast() {
 		this.position = getCoordinates().shiftAlongAbscissa(step);
 		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+		.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
 				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)));
 	}
 
 	private void moveSouth() {
 		this.position = getCoordinates().shiftAlongOrdinate(-step);
 		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withRoverName(name).withPreviousPosition(getCoordinates())
+		.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
 				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(-step)));
 	}
 
@@ -192,6 +191,10 @@ public class Rover implements Entity<Rover> {
 
 	public int getYPosition() {
 		return getCoordinates().getOrdinate();
+	}
+	
+	public UUID getPlateauUuid() {
+		return plateauUuid;
 	}
 
 	@Override

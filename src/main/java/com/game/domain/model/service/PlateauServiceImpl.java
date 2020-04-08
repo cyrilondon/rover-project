@@ -1,5 +1,7 @@
 package com.game.domain.model.service;
 
+import java.util.UUID;
+
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -21,21 +23,21 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 
 	@Override
-	public Plateau initializePlateau(TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = validate(new Plateau(
+	public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		Plateau plateau = validate(new Plateau(uuid,
 				new TwoDimensions(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))
 						.initializeLocations();
-		plateauRepository.addPlateau(plateau);
+		plateauRepository.add(plateau);
 		return plateau;
 	}
 
 	@Override
-	public Plateau initializeRelativisticPlateau(int speed, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = validate(new Plateau(new RelativisticTwoDimensions(speed,
+	public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
+		Plateau plateau = validate(new Plateau(uuid, new RelativisticTwoDimensions(speed,
 				new TwoDimensions(
 						(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))))
 								.initializeLocations();
-		plateauRepository.addPlateau(plateau);
+		plateauRepository.add(plateau);
 		return plateau;
 	}
 
@@ -44,13 +46,19 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 
 	@Override
-	public void markLocationBusy(TwoDimensionalCoordinates coordinates) {
-		plateauRepository.getPlateau().setLocationBusy(coordinates);
+	public void setLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		plateauRepository.load(uuid).setLocationBusy(coordinates);
 	}
 
 	@Override
-	public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
-		return plateauRepository.getPlateau().isLocationBusy(coordinates);
+	public boolean isLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		return plateauRepository.load(uuid).isLocationBusy(coordinates);
+	}
+
+	@Override
+	public void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		plateauRepository.load(uuid).setLocationFree(coordinates);
+		
 	}
 
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -52,7 +53,7 @@ public class RoverServiceImplTest {
 	public void testInitializeRover() {
 		addPlateau(WIDTH, HEIGHT);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		roverService.initializeRover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
+		roverService.initializeRover(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
 				Orientation.SOUTH);
 		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
@@ -65,7 +66,7 @@ public class RoverServiceImplTest {
 		addPlateau(width, height);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 
-		Throwable thrown = catchThrowable(() -> roverService.initializeRover(
+		Throwable thrown = catchThrowable(() -> roverService.initializeRover(UUID.randomUUID(),
 				ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH));
 		
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
@@ -114,7 +115,7 @@ public class RoverServiceImplTest {
 
 	private Rover getRover() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		return new Rover(ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH);
+		return new Rover(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH);
 	}
 
 	/**
@@ -159,7 +160,7 @@ public class RoverServiceImplTest {
 	
 	private void addPlateau(int width, int height) {
 		gameContext.addPlateau(
-				new Plateau(new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
+				new Plateau(UUID.randomUUID(), new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 
 }

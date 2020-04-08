@@ -1,5 +1,7 @@
 package com.game.domain.model.entity;
 
+import java.util.UUID;
+
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
@@ -8,6 +10,8 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
+	
+	private UUID uuid;
 
 	private TwoDimensionalSpace dimensions;
 
@@ -16,7 +20,7 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	 */
 	boolean[][] locations;
 
-	public Plateau(TwoDimensionalSpace dimensions) {
+	public Plateau(UUID uuid, TwoDimensionalSpace dimensions) {
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 
@@ -30,16 +34,8 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 		return this;
 	}
 
-	public int getWidth() {
-		return dimensions.getWidth();
-	}
-
-	public int getHeight() {
-		return dimensions.getHeight();
-	}
-
 	/**
-	 * Check if the location is already occupied by a Rover or not
+	 * Mark the position as busy/already set
 	 * 
 	 * @param coordinates
 	 * @return
@@ -47,6 +43,17 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	public void setLocationBusy(TwoDimensionalCoordinates coordinates) {
 		locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
 				coordinates.getOrdinate())] = true;
+	}
+	
+	/**
+	 * Mark the position as busy/already set
+	 * 
+	 * @param coordinates
+	 * @return
+	 */
+	public void setLocationFree(TwoDimensionalCoordinates coordinates) {
+		locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
+				coordinates.getOrdinate())] = false;
 	}
 
 	/**
@@ -68,5 +75,17 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	private int getLocationIndexFromCoordinate(int coordinate) {
 		return coordinate - 1;
 	}
+	
+	public int getWidth() {
+		return dimensions.getWidth();
+	}
 
+	public int getHeight() {
+		return dimensions.getHeight();
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+	
 }

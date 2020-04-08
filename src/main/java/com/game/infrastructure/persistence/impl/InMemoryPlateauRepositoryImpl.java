@@ -1,5 +1,7 @@
 package com.game.infrastructure.persistence.impl;
 
+import java.util.UUID;
+
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.repository.PlateauRepository;
 
@@ -15,20 +17,23 @@ public class InMemoryPlateauRepositoryImpl implements PlateauRepository {
 	Plateau plateau;
 
 	@Override
-	public Plateau getPlateau() {
+	public void remove(UUID id) {
+		this.plateau = null;
+	}
+
+	@Override
+	public Plateau load(UUID id) {
 		return plateau;
 	}
-	
+
 	@Override
-	public void addPlateau(Plateau plateau) {
+	public void add(Plateau plateau) {
 		this.plateau = plateau;
 	}
 
 	@Override
-	public void updatePlateau(Plateau plateau) {
-		this.plateau = plateau;	
+	public void update(Plateau plateau) {
+		this.plateau = plateau;
 	}
 	
-	
-
 }

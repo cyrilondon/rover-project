@@ -1,10 +1,14 @@
 package com.game.domain.model;
 
+import java.util.UUID;
+
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
 public class RoverMovedEvent {
 	
 	private String roverName;
+	
+	private UUID plateauUuid;
 	
 	TwoDimensionalCoordinates previousPosition;
 	
@@ -14,9 +18,14 @@ public class RoverMovedEvent {
 		this.roverName = builder.roverName;
 		this.previousPosition = builder.previousPosition;
 		this.currentPosition = builder.currentPosition;
+		this.plateauUuid = builder.plateauUuid;
 	}
 	
-	 public String getRoverName() {
+	 public UUID getPlateauUuid() {
+		return plateauUuid;
+	}
+
+	public String getRoverName() {
 			return roverName;
 		}
 
@@ -33,6 +42,8 @@ public class RoverMovedEvent {
 		   private  TwoDimensionalCoordinates  previousPosition, currentPosition;
 
 		   private String roverName;
+		   
+		   private UUID plateauUuid;
 
 			public Builder withPreviousPosition(TwoDimensionalCoordinates  previousPosition) {
 				this.previousPosition = previousPosition;
@@ -46,6 +57,11 @@ public class RoverMovedEvent {
 
 			public Builder withRoverName(String roverName) {
 				this.roverName = roverName;
+				return this;
+			}
+			
+			public Builder withPlateauUuid(UUID uuid) {
+				this.plateauUuid = uuid;
 				return this;
 			}
 

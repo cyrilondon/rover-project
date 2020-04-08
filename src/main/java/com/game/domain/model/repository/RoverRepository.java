@@ -9,7 +9,6 @@ import com.game.domain.model.entity.Rover;
  * Located in the model layer
  * Implemented by the secondary port adapter {@link InMemoryRoverRepositoryImpl} located in infrastructure package/module
  */
-
 public interface RoverRepository extends DomainRepository<Rover, String> {
 
 	public int getNumberOfRovers();

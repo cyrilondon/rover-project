@@ -3,6 +3,8 @@ package com.game.domain.model.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -32,7 +34,7 @@ public class PlateauValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT));
-		Plateau plateau = new Plateau(dimensions);
+		Plateau plateau = new Plateau(UUID.randomUUID(), dimensions);
 
 		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
@@ -50,7 +52,7 @@ public class PlateauValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(WIDTH, NEGATIVE_HEIGHT));
-		Plateau plateau = new Plateau(dimensions);
+		Plateau plateau = new Plateau(UUID.randomUUID(), dimensions);
 
 		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
@@ -69,7 +71,7 @@ public class PlateauValidatorTest {
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, NEGATIVE_HEIGHT));
-		Plateau plateau = new Plateau(dimensions);
+		Plateau plateau = new Plateau(UUID.randomUUID(), dimensions);
 
 		Throwable thrown = catchThrowable(() -> plateau.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)

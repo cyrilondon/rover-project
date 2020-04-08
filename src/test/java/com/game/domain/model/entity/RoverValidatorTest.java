@@ -3,6 +3,8 @@ package com.game.domain.model.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import java.util.UUID;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -146,11 +148,11 @@ public class RoverValidatorTest {
 
 	private void addPlateau(int width, int height) {
 		gameContext.addPlateau(
-				new Plateau(new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
+				new Plateau(UUID.randomUUID(), new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 
 	private Rover getRover(int X, int Y) {
-		return new Rover(new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
+		return new Rover(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX, new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
 	}
 
 }

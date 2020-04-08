@@ -22,6 +22,8 @@ public class GameExceptionLabels {
 	public static final String MISSING_ROVER_POSITION = "Missing Rover position";
 
 	public static final String MISSING_ROVER_ORIENTATION = "Missing Rover orientation";
+	
+	public static final String MISSING_PLATEAU_UUID = "Missing Plateau identifiant";
 
 	public static final String MISSING_ROVER_NAME = "Missing Rover name";
 

@@ -2,6 +2,8 @@ package com.game.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -52,7 +54,7 @@ public class GameContextTest {
 
 	private Plateau getPlateau() {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(3, 3));
-		return new Plateau(dimensions);
+		return new Plateau(UUID.randomUUID(), dimensions);
 	}
 
 }
