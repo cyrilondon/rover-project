@@ -2,6 +2,7 @@ package com.game.domain.application;
 
 import java.util.UUID;
 
+import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
@@ -13,11 +14,10 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 public interface GameService extends ApplicationService {
 
 	/**
-	 * TODO replace the arguments by command object
-	 * 
-	 * @param coordinates
+	 * Initializes the plateau
+	 * @param command
 	 */
-	public void initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates);
+	public void execute(InitializePlateauCommand command);
 
 	/**
 	 * 
@@ -27,17 +27,14 @@ public interface GameService extends ApplicationService {
 	public void initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates);
 
 	/**
-	 * Initialize the rover
-	 * @param coordinates
-	 * @param orientation
+	 * Initializes the rover
+	 * @param command
 	 */
 	public void execute(InitializeRoverCommand command);
 
 	/**
-	 * Moves the rover
-	 * 
-	 * @param roverName
-	 * @param orientation
+	 * Makes the rover move 
+	 * @param command
 	 */
 	public void execute(MoveRoverCommand command);
 

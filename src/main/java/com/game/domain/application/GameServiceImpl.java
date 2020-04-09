@@ -2,6 +2,7 @@ package com.game.domain.application;
 
 import java.util.UUID;
 
+import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
@@ -31,8 +32,9 @@ public class GameServiceImpl implements GameService {
 
 	GameContext gameContext = GameContext.getInstance();
 
-	public void initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = gameContext.getPlateauService().initializePlateau(uuid, coordinates);
+	public void execute(InitializePlateauCommand command) {
+		Plateau plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
+				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 		addPlateauToContext(plateau);
 	}
 
@@ -54,6 +56,8 @@ public class GameServiceImpl implements GameService {
 
 	@SuppressWarnings("unchecked")
 	public void execute(MoveRoverCommand command) {
+		
+		// defines the subscriber for the RoverMovedEvent
 		@SuppressWarnings("rawtypes")
 		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverMovedEvent>() {
 
@@ -74,13 +78,19 @@ public class GameServiceImpl implements GameService {
 			}
 
 			private void updateRoverWithLastPosition(RoverMovedEvent event) {
-				Rover rover = gameContext.getRoverService().getRover(new RoverIdentifier(event.getPlateauUuid(), event.getRoverName()));
+				Rover rover = gameContext.getRoverService()
+						.getRover(new RoverIdentifier(event.getPlateauUuid(), event.getRoverName()));
 				rover.setPosition(event.getCurrentPosition());
 				gameContext.getRoverService().updateRover(rover);
 			}
 		};
+		
+		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisher.instance().subscribe(subscriber);
-		gameContext.getRoverService().moveRoverNumberOfTimes(new RoverIdentifier(command.getPlateauUuid(), command.getRoverName()), command.getNumberOfMoves());
+		
+		// delegates to the rover service
+		gameContext.getRoverService().moveRoverNumberOfTimes(
+				new RoverIdentifier(command.getPlateauUuid(), command.getRoverName()), command.getNumberOfMoves());
 	}
 
 	/**

@@ -47,6 +47,25 @@ public class PlateauTest {
 						String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
 								GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS)));
 	}
+	
+	@Test
+	public void testSetLocationBusy() {
+		int x=2, y=1;
+		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
+		Plateau plateau = new Plateau(UUID.randomUUID(), new TwoDimensions(coordinates)).initializeLocations();
+		plateau.setLocationBusy(new TwoDimensionalCoordinates(x, y));
+		assertThat(plateau.isLocationBusy(new TwoDimensionalCoordinates(x, y))).isTrue();
+	}
+	
+	@Test
+	public void testSetLocationFree() {
+		int x=2, y=1;
+		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);
+		Plateau plateau = new Plateau(UUID.randomUUID(), new TwoDimensions(coordinates)).initializeLocations();
+		plateau.setLocationBusy(new TwoDimensionalCoordinates(x, y));
+		plateau.setLocationFree(new TwoDimensionalCoordinates(x, y));
+		assertThat(plateau.isLocationBusy(new TwoDimensionalCoordinates(x, y))).isFalse();
+	}
 
 
 }
