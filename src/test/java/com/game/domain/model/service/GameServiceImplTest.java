@@ -21,6 +21,7 @@ import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
@@ -87,7 +88,7 @@ public class GameServiceImplTest {
 				.withOrdinate(coordinates.getOrdinate()).withOrientation('S').build();
 		gameService.execute(initializeCommand);
 		assertThat(
-				roversList.contains(new Rover(uuid, GameContext.ROVER_NAME_PREFIX + 1, coordinates, Orientation.SOUTH)))
+				roversList.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 1), coordinates, Orientation.SOUTH)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, coordinates)).isTrue();
 		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X + 1, Y + 1);
@@ -96,7 +97,7 @@ public class GameServiceImplTest {
 				.withOrdinate(otherCoordinates.getOrdinate()).withOrientation('E').build();
 		gameService.execute(otherInitializeCommand);
 		assertThat(roversList
-				.contains(new Rover(uuid, GameContext.ROVER_NAME_PREFIX + 2, otherCoordinates, Orientation.EAST)))
+				.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 2), otherCoordinates, Orientation.EAST)))
 						.isTrue();
 		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, otherCoordinates)).isTrue();
 	}
@@ -125,7 +126,7 @@ public class GameServiceImplTest {
 		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
 		gameService.execute(new MoveRoverCommand(uuid, roverName, 1));
 		assertThat(roversList)
-				.contains(new Rover(uuid, roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+				.contains(new Rover(new RoverIdentifier(uuid, roverName), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
 
 	}
 
@@ -150,21 +151,21 @@ public class GameServiceImplTest {
 	private class MockRoverServiceImpl implements RoverService {
 
 		@Override
-		public void initializeRover(UUID plateauUuid, String roverName, TwoDimensionalCoordinates coordinates,
+		public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates,
 				Orientation orientation) {
-			GameServiceImplTest.this.roversList.add(new Rover(plateauUuid, roverName, coordinates, orientation));
+			GameServiceImplTest.this.roversList.add(new Rover(new RoverIdentifier(id.getPlateauUuid(), id.getName()), coordinates, orientation));
 		}
 
 		@Override
-		public void faceToOrientation(String roverName, Orientation orientation) {
+		public void faceToOrientation(RoverIdentifier id, Orientation orientation) {
 
 		}
 
 		@Override
-		public void moveRoverNumberOfTimes(UUID plateauUUID, String roverName, int numberOfTimes) {
+		public void moveRoverNumberOfTimes(RoverIdentifier id, int numberOfTimes) {
 			GameServiceImplTest.this.roversList
-					.add(new Rover(plateauUUID, roverName, new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
-			if (roverName.equals(GameContext.ROVER_NAME_PREFIX + 5))
+					.add(new Rover(new RoverIdentifier(id.getPlateauUuid(), id.getName()), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+			if (id.getName().equals(GameContext.ROVER_NAME_PREFIX + 5))
 				throw new PlateauLocationAlreadySetException("Error");
 		}
 
@@ -173,7 +174,7 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public Rover getRover(String roverName) {
+		public Rover getRover(RoverIdentifier id) {
 			return null;
 		}
 

@@ -152,7 +152,7 @@ public class RoverValidatorTest {
 	}
 
 	private Rover getRover(int X, int Y) {
-		return new Rover(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX, new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
+		return new Rover(new RoverIdentifier(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX), new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
 	}
 
 }

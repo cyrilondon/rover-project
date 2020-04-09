@@ -1,36 +1,26 @@
 package com.game.domain.model.entity;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
-import com.game.domain.model.DomainEventPublisher;
-import com.game.domain.model.RoverMovedEvent;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.event.DomainEventPublisher;
+import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Rover implements Entity<Rover> {
-
-	/**
-	 * Not asked by this exercise but added in case of subsequent commands on a
-	 * given Rover
-	 * {@link Rover#Rover(String, TwoDimensionalCoordinates, Orientation)}
-	 */
-	private String name;
+	
+	
+	private RoverIdentifier id;
 
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
 	
-	/**
-	 * Many-to-one association to a Plateau instance
-	 * We keep track of the plateau UUID
-	 */
-	private UUID plateauUuid;
 
 	/**
 	 * Rover step length - configurable in the GameContext
@@ -49,11 +39,10 @@ public class Rover implements Entity<Rover> {
 	 * @param rover coordinates
 	 * @param rover orientation
 	 */
-	public Rover(UUID plateauUuid, String name, TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		this.plateauUuid = ArgumentCheck.preNotNull(plateauUuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+	public Rover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		this.id = ArgumentCheck.preNotNull(id, GameExceptionLabels.MISSING_ROVER_IDENTIFIER);
 		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROVER_POSITION);
 		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROVER_ORIENTATION);
-		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROVER_NAME);
 	}
 
 	/**
@@ -127,7 +116,7 @@ public class Rover implements Entity<Rover> {
 
 	private void moveNorth() {
 		this.position = getCoordinates().shiftAlongOrdinate(step);
-		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name)
+		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName())
 				.withPreviousPosition(getCoordinates()).withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)));
 	}
 
@@ -138,21 +127,21 @@ public class Rover implements Entity<Rover> {
 	private void moveWest() {
 		this.position = getCoordinates().shiftAlongAbscissa(-step);
 		DomainEventPublisher.instance()
-				.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
+				.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
 						.withCurrentPosition(getCoordinates().shiftAlongAbscissa(-step)));
 	}
 
 	private void moveEast() {
 		this.position = getCoordinates().shiftAlongAbscissa(step);
 		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
+		.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
 				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)));
 	}
 
 	private void moveSouth() {
 		this.position = getCoordinates().shiftAlongOrdinate(-step);
 		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withPlateauUuid(getPlateauUuid()).withRoverName(name).withPreviousPosition(getCoordinates())
+		.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
 				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(-step)));
 	}
 
@@ -167,10 +156,6 @@ public class Rover implements Entity<Rover> {
 	@Override
 	public Rover validate(ValidationNotificationHandler handler) {
 		return new RoverValidator(this, handler).validate();
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public Orientation getOrientation() {
@@ -193,8 +178,8 @@ public class Rover implements Entity<Rover> {
 		return getCoordinates().getOrdinate();
 	}
 	
-	public UUID getPlateauUuid() {
-		return plateauUuid;
+	public RoverIdentifier getId() {
+		return id;
 	}
 
 	@Override
@@ -206,7 +191,7 @@ public class Rover implements Entity<Rover> {
 
 		if (obj instanceof Rover) {
 			Rover other = (Rover) obj;
-			return Objects.equals(plateauUuid, other.getPlateauUuid()) && Objects.equals(name, other.getName()) && Objects.equals(getCoordinates(), other.getCoordinates())
+			return Objects.equals(id, other.getId()) && Objects.equals(getCoordinates(), other.getCoordinates())
 					&& Objects.equals(getOrientation(), other.getOrientation());
 		}
 
@@ -215,12 +200,12 @@ public class Rover implements Entity<Rover> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getPlateauUuid(), getName(), getCoordinates(), getOrientation());
+		return Objects.hash(getId(), getCoordinates(), getOrientation());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getName(), this.getPlateauUuid(), this.getCoordinates(),
+		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(), this.getId().getPlateauUuid(), this.getCoordinates(),
 				this.getOrientation());
 	}
 

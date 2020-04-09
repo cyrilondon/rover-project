@@ -93,8 +93,4 @@ public class GameContext {
 		return plateau;
 	}
 
-	public AtomicInteger getCounter() {
-		return counter;
-	}
-
 }

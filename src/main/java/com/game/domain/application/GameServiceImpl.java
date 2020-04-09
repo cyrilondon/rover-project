@@ -4,13 +4,14 @@ import java.util.UUID;
 
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
-import com.game.domain.model.DomainEventPublisher;
-import com.game.domain.model.DomainEventSubscriber;
-import com.game.domain.model.RoverMovedEvent;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.event.DomainEventPublisher;
+import com.game.domain.model.event.DomainEventSubscriber;
+import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.service.PlateauServiceImpl;
@@ -44,7 +45,7 @@ public class GameServiceImpl implements GameService {
 		if (gameContext.getPlateauService().loadPlateau(command.getPlateauUuid()) == null)
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION, GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
-		gameContext.getRoverService().initializeRover(command.getPlateauUuid(), command.getName(),
+		gameContext.getRoverService().initializeRover(new RoverIdentifier(command.getPlateauUuid(), command.getName()),
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
 				Orientation.get(String.valueOf(command.getOrientation())));
 		gameContext.getPlateauService().setLocationBusy(command.getPlateauUuid(),
@@ -73,13 +74,13 @@ public class GameServiceImpl implements GameService {
 			}
 
 			private void updateRoverWithLastPosition(RoverMovedEvent event) {
-				Rover rover = gameContext.getRoverService().getRover(event.getRoverName());
+				Rover rover = gameContext.getRoverService().getRover(new RoverIdentifier(event.getPlateauUuid(), event.getRoverName()));
 				rover.setPosition(event.getCurrentPosition());
 				gameContext.getRoverService().updateRover(rover);
 			}
 		};
 		DomainEventPublisher.instance().subscribe(subscriber);
-		gameContext.getRoverService().moveRoverNumberOfTimes(command.getPlateauUuid(), command.getRoverName(), command.getNumberOfMoves());
+		gameContext.getRoverService().moveRoverNumberOfTimes(new RoverIdentifier(command.getPlateauUuid(), command.getRoverName()), command.getNumberOfMoves());
 	}
 
 	/**

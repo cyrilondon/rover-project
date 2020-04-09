@@ -1,9 +1,8 @@
 package com.game.domain.model.service;
 
-import java.util.UUID;
-
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
@@ -21,32 +20,30 @@ public class RoverServiceImpl implements RoverService {
 	}
 
 	@Override
-	public void initializeRover(UUID plateauUuid, String roverName, TwoDimensionalCoordinates coordinates, Orientation orientation) {
-		Rover rover = new Rover(plateauUuid, roverName, coordinates, orientation);
+	public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		Rover rover = new Rover(id, coordinates, orientation);
 		roverRepository.add(rover.validate(new EntityDefaultValidationNotificationHandler()));
 	}
 
 	@Override
-	public void faceToOrientation(String roverName, Orientation orientation) {
-		Rover rover = roverRepository.load(roverName);
+	public void faceToOrientation(RoverIdentifier id, Orientation orientation) {
+		Rover rover = roverRepository.load(id);
 		rover.setOrientation(orientation);
 	}
 
 	@Override
-	public void moveRoverNumberOfTimes(UUID plateauUuid, String roverName, int times) {
-		Rover rover = roverRepository.load(roverName);
-		rover.moveNumberOfTimes(times);
+	public void moveRoverNumberOfTimes(RoverIdentifier id, int times) {
+		roverRepository.load(id).moveNumberOfTimes(times);
 	}
 
 	@Override
 	public void updateRover(Rover rover) {
 		roverRepository.update(rover);
-		
 	}
 
 	@Override
-	public Rover getRover(String roverName) {
-		return roverRepository.load(roverName);
+	public Rover getRover(RoverIdentifier id) {
+		return roverRepository.load(id);
 	}
 
 }

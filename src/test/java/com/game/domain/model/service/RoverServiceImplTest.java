@@ -14,6 +14,7 @@ import com.game.domain.model.entity.Plateau;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.EntityValidationException;
@@ -36,6 +37,8 @@ public class RoverServiceImplTest {
 	RoverRepository mockRoverRepository = new MockRoverRepository();
 	
 	private GameContext gameContext = GameContext.getInstance();
+	
+	private final UUID mockUuuid = UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c");
 
 
 	/**
@@ -53,9 +56,10 @@ public class RoverServiceImplTest {
 	public void testInitializeRover() {
 		addPlateau(WIDTH, HEIGHT);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		roverService.initializeRover(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates,
+		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1));
+		roverService.initializeRover(id, coordinates,
 				Orientation.SOUTH);
-		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
+		Rover rover = mockRoverRepository.load(id);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 	}
@@ -65,9 +69,8 @@ public class RoverServiceImplTest {
 		int width = 2, height = 2;
 		addPlateau(width, height);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-
-		Throwable thrown = catchThrowable(() -> roverService.initializeRover(UUID.randomUUID(),
-				ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH));
+		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1));
+		Throwable thrown = catchThrowable(() -> roverService.initializeRover(id, coordinates, Orientation.SOUTH));
 		
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
@@ -80,8 +83,9 @@ public class RoverServiceImplTest {
 	@Test
 	public void testFaceToOrientation() {
 		mockRoverRepository.add(getRover());
-		roverService.faceToOrientation(ROVER_PREFIX + 1, Orientation.EAST);
-		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
+		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), ROVER_PREFIX + 1);
+		roverService.faceToOrientation(id, Orientation.EAST);
+		Rover rover = mockRoverRepository.load(id);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.EAST);
 	}
 
@@ -89,8 +93,9 @@ public class RoverServiceImplTest {
 	public void testMoveRoverNumberOfTimes() {
 		addPlateau(WIDTH, HEIGHT);
 		mockRoverRepository.add(getRover());
-		roverService.moveRoverNumberOfTimes(UUID.randomUUID(), ROVER_PREFIX + 1, 3);
-		Rover rover = mockRoverRepository.load(ROVER_PREFIX + 1);
+		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), ROVER_PREFIX + 1);
+		roverService.moveRoverNumberOfTimes(id, 3);
+		Rover rover = mockRoverRepository.load(id);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(X, Y-3));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 	}
@@ -98,9 +103,9 @@ public class RoverServiceImplTest {
 	@Test
 	public void testAddRovers() {
 		mockRoverRepository.add(getRover());
-		assertThat(mockRoverRepository.load(ROVER_PREFIX + 1)).isNotNull();
+		assertThat(mockRoverRepository.load(new RoverIdentifier(mockUuuid, ROVER_PREFIX + 1))).isNotNull();
 		mockRoverRepository.add(getRover());
-		assertThat(mockRoverRepository.load(ROVER_PREFIX + 2)).isNotNull();
+		assertThat(mockRoverRepository.load(new RoverIdentifier(mockUuuid, ROVER_PREFIX + 1))).isNotNull();
 		assertThat(mockRoverRepository.getNumberOfRovers()).isEqualTo(2);
 	}
 //
@@ -115,7 +120,7 @@ public class RoverServiceImplTest {
 
 	private Rover getRover() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		return new Rover(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1), coordinates, Orientation.SOUTH);
+		return new Rover(new RoverIdentifier(mockUuuid, ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1)), coordinates, Orientation.SOUTH);
 	}
 
 	/**
@@ -128,8 +133,8 @@ public class RoverServiceImplTest {
 		List<Rover> rovers = new ArrayList<Rover>();
 
 		@Override
-		public Rover load(String name) {
-			return rovers.get(Integer.valueOf(name.substring(ROVER_PREFIX.length())) - 1);
+		public Rover load(RoverIdentifier id) {
+			return rovers.get(Integer.valueOf(id.getName().substring(ROVER_PREFIX.length())) - 1);
 		}
 
 		@Override
@@ -138,7 +143,7 @@ public class RoverServiceImplTest {
 		}
 
 		@Override
-		public void remove(String roverName) {
+		public void remove(RoverIdentifier id) {
 		}
 
 		@Override

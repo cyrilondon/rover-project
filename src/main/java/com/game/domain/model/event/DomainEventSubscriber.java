@@ -1,4 +1,4 @@
-package com.game.domain.model;
+package com.game.domain.model.event;
 
 public interface DomainEventSubscriber<T> {
 

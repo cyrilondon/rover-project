@@ -1,6 +1,7 @@
 package com.game.domain.model.repository;
 
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 
 /**
  * "Secondary" port interface as described by Alistair CockBurn in his original
@@ -9,7 +10,7 @@ import com.game.domain.model.entity.Rover;
  * Located in the model layer
  * Implemented by the secondary port adapter {@link InMemoryRoverRepositoryImpl} located in infrastructure package/module
  */
-public interface RoverRepository extends DomainRepository<Rover, String> {
+public interface RoverRepository extends DomainRepository<Rover, RoverIdentifier> {
 
 	public int getNumberOfRovers();
 	

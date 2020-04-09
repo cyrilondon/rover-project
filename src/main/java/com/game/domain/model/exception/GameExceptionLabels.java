@@ -18,6 +18,8 @@ public class GameExceptionLabels {
 	public static final String ILLEGAL_ARGUMENT_CODE = "ERR-000";
 
 	public static final String PRE_CHECK_ERROR_MESSAGE = "Broken precondition: %s";
+	
+	public static final String MISSING_ROVER_IDENTIFIER = "Missing Rover identifier";
 
 	public static final String MISSING_ROVER_POSITION = "Missing Rover position";
 
@@ -54,5 +56,7 @@ public class GameExceptionLabels {
 	public static final String PLATEAU_LOCATION_ALREADY_SET_START = "There is already a Rover";
 
 	public static final String PLATEAU_LOCATION_ALREADY_SET = PLATEAU_LOCATION_ALREADY_SET_START + " at position X = [%d] and Y = [%d]";
+
+
 
 }

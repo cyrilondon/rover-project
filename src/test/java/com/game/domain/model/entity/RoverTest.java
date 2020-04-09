@@ -21,22 +21,24 @@ public class RoverTest {
 
 	private GameContext gameContext = GameContext.getInstance();
 
-	private final static int PLATEAu_WIDTH = 6;
+	private final static int PLATEAU_WIDTH = 6;
 
-	private final static int PLATEAu_HEIGHT = 6;
+	private final static int PLATEAU_HEIGHT = 6;
 
 	@BeforeMethod
 	public void reset() {
-		addPlateau(PLATEAu_WIDTH, PLATEAu_HEIGHT);
+		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
 	}
 
 	@Test
 	public void testConstructorWithName() {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 4);
-		Rover rover = new Rover(UUID.randomUUID(), ROVER_NAME, coordinates, Orientation.SOUTH);
+		UUID plateauUuid = UUID.randomUUID();
+		Rover rover = new Rover(new RoverIdentifier(plateauUuid, ROVER_NAME), coordinates, Orientation.SOUTH);
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
-		assertThat(rover.getName()).isEqualTo(ROVER_NAME);
+		assertThat(rover.getId().getName()).isEqualTo(ROVER_NAME);
+		assertThat(rover.getId().getPlateauUuid()).isEqualTo(plateauUuid);
 	}
 
 	@Test
@@ -44,6 +46,13 @@ public class RoverTest {
 		Rover rover = initializeRover(Orientation.SOUTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(4);
+	}
+	
+	@Test
+	public void testSetPosition() {
+		Rover rover = initializeRover(Orientation.SOUTH);
+		rover.setPosition(new TwoDimensionalCoordinates(7, 2));
+		assertThat(rover.getPosition()).isEqualTo(new TwoDimensionalCoordinates(7, 2));
 	}
 
 	@Test
@@ -85,7 +94,7 @@ public class RoverTest {
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAu_HEIGHT)));
+						String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAU_HEIGHT)));
 	}
 
 	@Test
@@ -145,14 +154,14 @@ public class RoverTest {
 
 	@Test
 	public void testToString() {
-		Rover rover = new Rover(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		Rover rover = new Rover(new RoverIdentifier(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 		assertThat(rover.toString()).isEqualTo(
 				"Rover [ROVER_TEST] attached to Plateau [53567a5d-a21c-495e-80a3-d12adaf8585c] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
 	}
 
 	@Test
 	public void testWithNullPosition() {
-		Throwable thrown = catchThrowable(() -> new Rover(UUID.randomUUID(), ROVER_NAME, null, Orientation.SOUTH));
+		Throwable thrown = catchThrowable(() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), null, Orientation.SOUTH));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -162,7 +171,7 @@ public class RoverTest {
 
 	@Test
 	public void testWithNullOrientation() {
-		Throwable thrown = catchThrowable(() -> new Rover(UUID.randomUUID(), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), null));
+		Throwable thrown = catchThrowable(() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -171,23 +180,23 @@ public class RoverTest {
 	}
 
 	@Test
-	public void testWithNullName() {
-		Throwable thrown = catchThrowable(() -> new Rover(UUID.randomUUID(), null, new TwoDimensionalCoordinates(3, 4), Orientation.EAST));
+	public void testWithNullIdentifier() {
+		Throwable thrown = catchThrowable(() -> new Rover(null, new TwoDimensionalCoordinates(3, 4), Orientation.EAST));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class).hasMessage(String.format(
 				GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN, GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
-				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE, GameExceptionLabels.MISSING_ROVER_NAME)));
+				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE, GameExceptionLabels.MISSING_ROVER_IDENTIFIER)));
 	}
 
 	private Rover initializeDefaultRover() {
-		return new Rover(UUID.randomUUID(), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		return new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 	}
 	
 	private Rover initializeDefaultRover(UUID uuid) {
-		return new Rover(uuid, ROVER_NAME, new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		return new Rover(new RoverIdentifier(uuid, ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 	}
 
 	private Rover initializeRover(Orientation orientation) {
-		return new Rover(UUID.randomUUID(), ROVER_NAME, new TwoDimensionalCoordinates(3, 4), orientation);
+		return new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), orientation);
 	}
 
 	private void addPlateau(int width, int height) {

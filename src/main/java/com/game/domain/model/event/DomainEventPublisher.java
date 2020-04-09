@@ -1,4 +1,4 @@
-package com.game.domain.model;
+package com.game.domain.model.event;
 
 import java.util.ArrayList;
 import java.util.List;

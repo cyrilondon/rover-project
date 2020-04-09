@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
+import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.repository.RoverRepository;
 
@@ -29,11 +30,13 @@ public class InMemoryRoverRepositoryImplTest {
 	
 	@Test
 	public void testAdd() {
-		Rover rover = getRover(ROVER_PREFIX);
+		UUID plateauUuid = UUID.randomUUID();
+		RoverIdentifier roverId = new RoverIdentifier(plateauUuid, ROVER_PREFIX);
+		Rover rover = getRover(roverId);
 		roverRepository.add(rover);
-		Rover roverFromRepo = roverRepository.load(ROVER_PREFIX);
+		Rover roverFromRepo = roverRepository.load(roverId);
 		assertThat(roverFromRepo).isNotNull();
-		assertThat(roverFromRepo.getName()).isEqualTo(ROVER_PREFIX);
+		assertThat(roverFromRepo.getId().getName()).isEqualTo(ROVER_PREFIX);
 		assertThat(roverFromRepo.getXPosition()).isEqualTo(X);
 		assertThat(roverFromRepo.getYPosition()).isEqualTo(Y);
 		assertThat(roverFromRepo.getOrientation()).isEqualTo(Orientation.SOUTH);
@@ -42,31 +45,36 @@ public class InMemoryRoverRepositoryImplTest {
 	
 	@Test
 	public void testRemove() {
-		Rover rover = getRover(ROVER_PREFIX);
-		roverRepository.add(rover);
-		Rover roverFromRepo = roverRepository.load(ROVER_PREFIX);
+		UUID plateauUuid = UUID.randomUUID();
+		RoverIdentifier roverId = new RoverIdentifier(plateauUuid, ROVER_PREFIX);
+		Rover rover = getRover(roverId);
+		roverRepository.add(rover );
+		Rover roverFromRepo = roverRepository.load(roverId);
 		assertThat(roverFromRepo).isNotNull();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(1);
-		roverRepository.remove(ROVER_PREFIX);
-		Rover roverFromRepoRemoved = roverRepository.load(ROVER_PREFIX);
+		roverRepository.remove(roverId);
+		Rover roverFromRepoRemoved = roverRepository.load(roverId);
 		assertThat(roverFromRepoRemoved).isNull();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(0);
 	}
 	
 	@Test
 	public void testRemoveAll() {
-		Rover rover1 = getRover(ROVER_PREFIX+1);
+		UUID plateauUuid = UUID.randomUUID();
+		RoverIdentifier roverId1 = new RoverIdentifier(plateauUuid, ROVER_PREFIX + 1);
+		Rover rover1 = getRover(roverId1);
 		roverRepository.add(rover1);
-		Rover rover2 = getRover(ROVER_PREFIX+2);
+		RoverIdentifier roverId2 = new RoverIdentifier(plateauUuid, ROVER_PREFIX + 2);
+		Rover rover2 = getRover(roverId2);
 		roverRepository.add(rover2);
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(2);
 		roverRepository.removeAllRovers();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(0);
 	}
 	
-	private Rover getRover(String name) {
+	private Rover getRover(RoverIdentifier id) {
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
-		return new Rover(UUID.randomUUID(), name, coordinates, Orientation.SOUTH);
+		return new Rover(id, coordinates, Orientation.SOUTH);
 	}
 
 }
