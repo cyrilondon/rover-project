@@ -21,6 +21,7 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	boolean[][] locations;
 
 	public Plateau(UUID uuid, TwoDimensionalSpace dimensions) {
+		this.uuid = ArgumentCheck.preNotNull(uuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 

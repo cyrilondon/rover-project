@@ -1,7 +1,5 @@
 package com.game.domain.application;
 
-import java.util.UUID;
-
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
@@ -16,6 +14,7 @@ import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.service.PlateauServiceImpl;
+import com.game.domain.model.service.RoverServiceImpl;
 
 /**
  * Application service which acts as a facade to the application
@@ -33,13 +32,15 @@ public class GameServiceImpl implements GameService {
 	GameContext gameContext = GameContext.getInstance();
 
 	public void execute(InitializePlateauCommand command) {
-		Plateau plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
-				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
-		addPlateauToContext(plateau);
-	}
-
-	public void initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = gameContext.getPlateauService().initializeRelativisticPlateau(uuid, speed, coordinates);
+		Plateau plateau = null;
+		if (command.getObserverSpeed() < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
+			plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
+					new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
+		} else {
+			plateau = gameContext.getPlateauService().initializeRelativisticPlateau(command.getPlateauUuid(),
+					command.getObserverSpeed(),
+					new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
+		}
 		addPlateauToContext(plateau);
 	}
 
@@ -56,7 +57,7 @@ public class GameServiceImpl implements GameService {
 
 	@SuppressWarnings("unchecked")
 	public void execute(MoveRoverCommand command) {
-		
+
 		// defines the subscriber for the RoverMovedEvent
 		@SuppressWarnings("rawtypes")
 		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverMovedEvent>() {
@@ -84,10 +85,10 @@ public class GameServiceImpl implements GameService {
 				gameContext.getRoverService().updateRover(rover);
 			}
 		};
-		
+
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisher.instance().subscribe(subscriber);
-		
+
 		// delegates to the rover service
 		gameContext.getRoverService().moveRoverNumberOfTimes(
 				new RoverIdentifier(command.getPlateauUuid(), command.getRoverName()), command.getNumberOfMoves());

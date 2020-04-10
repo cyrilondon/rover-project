@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.service.PlateauService;
 import com.game.domain.model.service.PlateauServiceImpl;
@@ -26,11 +27,16 @@ public class GameContext {
 
 	public static final String ROVER_NAME_PREFIX = "ROVER_";
 
-	public static final int ROVER_STEP_LENGTH = 1;
-
 	/**
-	 * By default, the rover moves one step forward
+	 * By default, the rover moves by one step forward
 	 */
+	public static final int ROVER_STEP_LENGTH = 1;
+	
+	/**
+	 * Minimal speed for which relativistic effects should be taken in effect
+	 */
+	public static final int MINIMAL_RELATIVISTIC_SPEED = (1/3) * RelativisticTwoDimensions.SPEED_OF_LIGHT; 
+
 	private int roverStepLength = ROVER_STEP_LENGTH;
 
 	private static GameContext GAME_CONTEXT = new GameContext();
@@ -86,7 +92,6 @@ public class GameContext {
 	public void reset() {
 		plateau = null;
 		roverStepLength = 1;
-		counter = new AtomicInteger(0);
 	}
 
 	public Plateau getPlateau() {

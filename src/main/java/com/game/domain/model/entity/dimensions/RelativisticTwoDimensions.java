@@ -22,7 +22,7 @@ public class RelativisticTwoDimensions implements TwoDimensionalSpace {
 
 	private TwoDimensions dimensions;
 
-	private static final int SPEED_OF_LIGHT = Math.multiplyExact(3, (int) Math.pow(10, 8));
+	public static final int SPEED_OF_LIGHT = Math.multiplyExact(3, (int) Math.pow(10, 8));
 
 	/**
 	 * speed in m/s

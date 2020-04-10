@@ -9,7 +9,7 @@ import com.game.domain.model.exception.GameExceptionLabels;
 
 /**
  * Rover identifier which includes Plateau UUID + Rover name
- * This combination identifies the Rover with unicity
+ * This combination identifies the Rover with absolute uniqueness
  *
  */
 public class RoverIdentifier implements Serializable {

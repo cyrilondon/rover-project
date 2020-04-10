@@ -49,6 +49,16 @@ public class PlateauTest {
 	}
 	
 	@Test
+	public void testMissingUuid() {
+		Throwable thrown = catchThrowable(() -> new Plateau(null, new TwoDimensions(new TwoDimensionalCoordinates(3, 4))));
+		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
+						String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
+								GameExceptionLabels.MISSING_PLATEAU_UUID)));
+	}
+	
+	@Test
 	public void testSetLocationBusy() {
 		int x=2, y=1;
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 3);

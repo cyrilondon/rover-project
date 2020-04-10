@@ -50,6 +50,8 @@ public class GameServiceImplTest {
 	public List<Rover> roversList = new ArrayList<Rover>();
 
 	public Plateau plateau;
+	
+	UUID relativisticUUID = UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c");
 
 	@BeforeTest
 	public void setup() {
@@ -77,10 +79,11 @@ public class GameServiceImplTest {
 
 	@Test
 	public void testInitializeRelativisticPlateau() {
-		gameService.initializeRelativisticPlateau(UUID.randomUUID(), 12, new TwoDimensionalCoordinates(WIDTH, HEIGHT));
-		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 1);
-		assertThat(plateau.getHeight()).isEqualTo(HEIGHT - 1);
-		assertThat(gameContext.getPlateau()).isEqualTo(plateau);
+		gameService.execute(new InitializePlateauCommand.Builder().withUuid(UUID.randomUUID()).withAbscissa(WIDTH)
+				.withOrdinate(HEIGHT).withObserverSpeed(2 * GameContext.MINIMAL_RELATIVISTIC_SPEED).build());
+		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
+		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
+		assertThat(gameContext.getPlateau().getUuid()).isEqualTo(relativisticUUID);
 	}
 
 	@Test
@@ -202,9 +205,12 @@ public class GameServiceImplTest {
 			return GameServiceImplTest.this.plateau;
 		}
 
+		/**
+		 * What ever UUID we pass as argument, if we go through this method we return the relativistic UUID back
+		 */
 		@Override
 		public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(uuid,
+			GameServiceImplTest.this.plateau = new Plateau(relativisticUUID,
 					new RelativisticTwoDimensions(speed, new TwoDimensions(
 							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))
 									.initializeLocations();
