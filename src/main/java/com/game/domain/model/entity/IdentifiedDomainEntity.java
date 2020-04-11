@@ -16,7 +16,7 @@ public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
 	
 	@Override
 	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, Void> function) {
-		function.apply((DomainEvent) event);
+		function.apply(event);
 		publishEvent(event);
 	}
 	

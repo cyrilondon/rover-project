@@ -56,6 +56,8 @@ public class GameExceptionLabels {
 	public static final String PLATEAU_LOCATION_ALREADY_SET_START = "There is already a Rover";
 
 	public static final String PLATEAU_LOCATION_ALREADY_SET = PLATEAU_LOCATION_ALREADY_SET_START + " at position X = [%d] and Y = [%d]";
+	
+	public static final String ROVER_ILLEGAL_POSITION_ERROR_CODE = "ERR-004";
 
 
 

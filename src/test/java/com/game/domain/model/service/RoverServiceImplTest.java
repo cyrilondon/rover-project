@@ -19,7 +19,7 @@ import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.event.DomainEventPublisher;
-import com.game.domain.model.exception.EntityValidationException;
+import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
@@ -75,7 +75,7 @@ public class RoverServiceImplTest {
 		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1));
 		Throwable thrown = catchThrowable(() -> roverService.initializeRover(id, coordinates, Orientation.SOUTH));
 		
-		assertThat(thrown).isInstanceOf(EntityValidationException.class)
+		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, X, width)

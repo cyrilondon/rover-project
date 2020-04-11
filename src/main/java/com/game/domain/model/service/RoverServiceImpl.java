@@ -26,7 +26,7 @@ public class RoverServiceImpl implements RoverService {
 	@Override
 	public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		Rover rover = new Rover(id, coordinates, orientation);
-		roverRepository.add(rover.validate(new EntityDefaultValidationNotificationHandler()));
+		roverRepository.add(rover.validate());
 	}
 
 	@Override
