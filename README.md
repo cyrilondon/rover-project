@@ -22,8 +22,8 @@ The first line of input is the upper-right coordinates of the plateau, the lower
 In this exercise, we would like to present a step-by-step process driven by the three following software practices
 
 ### Domain Driven Design 
-We start by focusing on our domain (entities) and services, which both lie at the core of our application.
-If you follow our commits on the flow, you will notice that designing and properly testing our entities is our very first concern.
+We start by focusing on our domain (entities) and services, which both represent the very core of our application.
+If you go through our commits on the flow, you will notice that designing and properly testing our entities is our very first concern.
 
 ### Hexagonal Architecture
 Once our domain is built, we isolate it properly from the in and out systems by the so-called adapters and ports (interfaces).
@@ -31,6 +31,8 @@ Once our domain is built, we isolate it properly from the in and out systems by 
 ### Test driven
 Our goal is to propose a final project covered at least at 90% by unit testing.
 
+### No framework
+We intentionally don't use any framework in this work, i.e. no framework for dependency injection and not even a framework for mock testing.
 
 ## Quick start
 
