@@ -24,21 +24,20 @@ public class PlateauServiceImpl implements PlateauService {
 
 	@Override
 	public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = validate(new Plateau(uuid,
-				new TwoDimensions(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))));
+		Plateau plateau = validate(new Plateau(uuid, new TwoDimensions(
+				new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))));
 		plateauRepository.add(plateau);
 		return plateau;
 	}
 
 	@Override
 	public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = validate(new Plateau(uuid, new RelativisticTwoDimensions(speed,
-				new TwoDimensions(
-						(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))));
+		Plateau plateau = validate(new Plateau(uuid, new RelativisticTwoDimensions(speed, new TwoDimensions(
+				(new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))));
 		plateauRepository.add(plateau);
 		return plateau;
 	}
-	
+
 	@Override
 	public Plateau loadPlateau(UUID plateauUuid) {
 		return plateauRepository.load(plateauUuid);
@@ -61,7 +60,6 @@ public class PlateauServiceImpl implements PlateauService {
 	@Override
 	public void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates) {
 		plateauRepository.load(uuid).setLocationFree(coordinates);
-		
 	}
 
 }

@@ -1,6 +1,10 @@
 package com.game.domain.application;
 
 import com.game.domain.application.command.MakeTurnRoverCommand;
+
+import java.util.List;
+import java.util.UUID;
+
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
@@ -31,9 +35,8 @@ import com.game.domain.model.service.RoverServiceImpl;
  */
 public class GameServiceImpl implements GameService {
 
-	GameContext gameContext = GameContext.getInstance();
-
 	public void execute(InitializePlateauCommand command) {
+		GameContext gameContext = GameContext.getInstance();
 		Plateau plateau = null;
 		if (command.getObserverSpeed() < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
 			plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
@@ -47,6 +50,7 @@ public class GameServiceImpl implements GameService {
 	}
 
 	public void execute(InitializeRoverCommand command) {
+		GameContext gameContext = GameContext.getInstance();
 		if (gameContext.getPlateauService().loadPlateau(command.getPlateauUuid()) == null)
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
 					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION, GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
@@ -60,6 +64,8 @@ public class GameServiceImpl implements GameService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(MakeTurnRoverCommand command) {
+		
+		GameContext gameContext = GameContext.getInstance();
 		
 		// defines the subscriber for the FaceToOrientationRoverCommand
 		@SuppressWarnings("rawtypes")
@@ -98,6 +104,8 @@ public class GameServiceImpl implements GameService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(MoveRoverCommand command) {
+		
+		GameContext gameContext = GameContext.getInstance();
 
 		// defines the subscriber for the RoverMovedEvent
 		@SuppressWarnings("rawtypes")
@@ -146,7 +154,12 @@ public class GameServiceImpl implements GameService {
 	 * @param plateau
 	 */
 	private void addPlateauToContext(Plateau plateau) {
-		gameContext.addPlateau(plateau);
+		GameContext.getInstance().addPlateau(plateau);
+	}
+	
+	@Override
+	public List<Rover> getAllRoversByPlateau(UUID uuid){
+		return GameContext.getInstance().getRoverService().getAllRoversOnPlateau(uuid);
 	}
 
 }

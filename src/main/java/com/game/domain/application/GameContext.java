@@ -32,8 +32,9 @@ public class GameContext {
 	
 	/**
 	 * Minimal speed for which relativistic effects should be taken in effect
+	 * Here speed of light / 3
 	 */
-	public static final int MINIMAL_RELATIVISTIC_SPEED = (1/3) * RelativisticTwoDimensions.SPEED_OF_LIGHT; 
+	public static final int MINIMAL_RELATIVISTIC_SPEED = RelativisticTwoDimensions.SPEED_OF_LIGHT/3; 
 
 	private int roverStepLength = ROVER_STEP_LENGTH;
 
@@ -50,8 +51,9 @@ public class GameContext {
 	 */
 	private void configure() {
 		ServiceLocator locator = new ServiceLocator();
-		locator.loadService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
-		locator.loadService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl()));
+		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
+		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
+		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl()));
 		ServiceLocator.load(locator);
 	}
 
@@ -62,6 +64,10 @@ public class GameContext {
 	public static GameContext getInstance(int step) {
 		GAME_CONTEXT.roverStepLength = step;
 		return GAME_CONTEXT;
+	}
+	
+	public GameService getGameService() {
+		return ServiceLocator.getGameService();
 	}
 
 	public RoverService getRoverService() {

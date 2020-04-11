@@ -70,28 +70,24 @@ public class Rover implements Entity<Rover> {
 	private void moveNorthNumberOfTimes(int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
 			moveNorth();
-			validate();
 		});
 	}
 
 	private void moveWestNumberOfTimes(int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
 			moveWest();
-			validate();
 		});
 	}
 
 	private void moveEastNumberOfTimes(int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
 			moveEast();
-			validate();
 		});
 	}
 
 	private void moveSouthNumberOfTimes(int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
 			moveSouth();
-			validate();
 		});
 	}
 
@@ -116,15 +112,19 @@ public class Rover implements Entity<Rover> {
 	}
 
 	private void moveHorizontally(int step) {
+		TwoDimensionalCoordinates previousCoordinates = this.position;
 		this.position = getCoordinates().shiftAlongAbscissa(step);
+		validate();
 		DomainEventPublisher.instance()
-				.publish(buildRoverMovedEvent().withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)).build());
+				.publish(buildRoverMovedEvent(previousCoordinates).withCurrentPosition(position).build());
 	}
 	
 	private void moveVertically(int step) {
+		TwoDimensionalCoordinates previousCoordinates = this.position;
 		this.position = getCoordinates().shiftAlongOrdinate(step);
+		validate();
 		DomainEventPublisher.instance()
-				.publish(buildRoverMovedEvent().withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)).build());
+				.publish(buildRoverMovedEvent(previousCoordinates).withCurrentPosition(position).build());
 	}
 	
 	/**
@@ -154,9 +154,9 @@ public class Rover implements Entity<Rover> {
 		validate(new EntityDefaultValidationNotificationHandler());
 	}
 	
-	private Builder buildRoverMovedEvent() {
+	private Builder buildRoverMovedEvent(TwoDimensionalCoordinates previousPosition) {
 		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauUuid(), id.getName()))
-				.withPreviousPosition(getCoordinates());
+				.withPreviousPosition(previousPosition);
 	}
 
 	public TwoDimensionalCoordinates getPosition() {

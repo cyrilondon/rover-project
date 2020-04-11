@@ -1,5 +1,8 @@
 package com.game.domain.model.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
@@ -16,6 +19,8 @@ public interface RoverService extends DomainService {
 	void moveRoverNumberOfTimes(RoverIdentifier id, int times);
 
 	Rover getRover(RoverIdentifier id);
+
+	List<Rover> getAllRoversOnPlateau(UUID uuid);
 
 
 }

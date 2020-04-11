@@ -1,5 +1,9 @@
 package com.game.domain.model.service;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
@@ -44,6 +48,12 @@ public class RoverServiceImpl implements RoverService {
 	@Override
 	public Rover getRover(RoverIdentifier id) {
 		return roverRepository.load(id);
+	}
+	
+	@Override
+	public List<Rover> getAllRoversOnPlateau(UUID  uuid) {
+		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauUuid().equals(uuid))     
+				.collect(Collectors.toList());      
 	}
 
 }

@@ -56,8 +56,8 @@ public class GameServiceImplTest {
 	@BeforeTest
 	public void setup() {
 		ServiceLocator mockServiceLocator = new ServiceLocator();
-		mockServiceLocator.loadService(ServiceLocator.ROVER_SERVICE, new MockRoverServiceImpl());
-		mockServiceLocator.loadService(ServiceLocator.PLATEAU_SERVICE, new MockPlateauServiceImpl());
+		mockServiceLocator.loadDomainService(ServiceLocator.ROVER_SERVICE, new MockRoverServiceImpl());
+		mockServiceLocator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new MockPlateauServiceImpl());
 		ServiceLocator.load(mockServiceLocator);
 	}
 
@@ -81,8 +81,8 @@ public class GameServiceImplTest {
 	public void testInitializeRelativisticPlateau() {
 		gameService.execute(new InitializePlateauCommand.Builder().withUuid(UUID.randomUUID()).withAbscissa(WIDTH)
 				.withOrdinate(HEIGHT).withObserverSpeed(2 * GameContext.MINIMAL_RELATIVISTIC_SPEED).build());
-		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
-		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
+		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 2);
+		assertThat(plateau.getHeight()).isEqualTo(HEIGHT -2);
 		assertThat(gameContext.getPlateau().getUuid()).isEqualTo(relativisticUUID);
 	}
 
@@ -183,6 +183,11 @@ public class GameServiceImplTest {
 
 		@Override
 		public Rover getRover(RoverIdentifier id) {
+			return null;
+		}
+
+		@Override
+		public List<Rover> getAllRoversOnPlateau(UUID uuid) {
 			return null;
 		}
 

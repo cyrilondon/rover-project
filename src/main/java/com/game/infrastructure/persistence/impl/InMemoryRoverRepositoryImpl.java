@@ -1,5 +1,6 @@
 package com.game.infrastructure.persistence.impl;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,6 +44,11 @@ public class InMemoryRoverRepositoryImpl implements RoverRepository {
 
 	public void removeAllRovers() {
 		rovers.clear();
+	}
+
+	@Override
+	public Collection<Rover> getAllRovers() {
+		return rovers.values();
 	}
 
 

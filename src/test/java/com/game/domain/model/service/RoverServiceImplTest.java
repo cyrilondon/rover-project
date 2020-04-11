@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -160,6 +161,11 @@ public class RoverServiceImplTest {
 
 		@Override
 		public void update(Rover entity) {
+		}
+
+		@Override
+		public Collection<Rover> getAllRovers() {
+			return rovers;
 		}
 
 	}

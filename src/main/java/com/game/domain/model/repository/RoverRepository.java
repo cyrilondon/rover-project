@@ -1,7 +1,10 @@
 package com.game.domain.model.repository;
 
+import java.util.Collection;
+
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 /**
  * "Secondary" port interface as described by Alistair CockBurn in his original
@@ -15,5 +18,7 @@ public interface RoverRepository extends DomainRepository<Rover, RoverIdentifier
 	public int getNumberOfRovers();
 	
 	public void removeAllRovers();
+	
+	public Collection<Rover> getAllRovers();
 
 }
