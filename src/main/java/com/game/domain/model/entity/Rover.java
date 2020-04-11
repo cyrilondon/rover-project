@@ -7,26 +7,25 @@ import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEventPublisher;
+import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.event.RoverMovedEvent;
+import com.game.domain.model.event.RoverMovedEvent.Builder;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Rover implements Entity<Rover> {
-	
-	
+
 	private RoverIdentifier id;
 
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
-	
 
 	/**
-	 * Rover step length - configurable in the GameContext
+	 * Rover step length - configurable in the GameContext Default = 1
 	 */
 	private int step = GameContext.getInstance().getRoverStepLength();
-
 
 	/**
 	 * We add this constructor with a name parameter to keep track of a given Rover,
@@ -49,14 +48,20 @@ public class Rover implements Entity<Rover> {
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnLeft() {
+		Orientation previousOrientation = this.orientation;
 		this.orientation = orientation.turnLeft();
+		DomainEventPublisher.instance().publish(new RoverTurnedEvent.Builder().withRoverId(id)
+				.withPreviousOrientation(previousOrientation).withCurrentOrientation(orientation).build());
 	}
 
 	/**
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnRight() {
+		Orientation previousOrientation = this.orientation;
 		this.orientation = orientation.turnRight();
+		DomainEventPublisher.instance().publish(new RoverTurnedEvent.Builder().withRoverId(id)
+				.withPreviousOrientation(previousOrientation).withCurrentOrientation(orientation).build());
 	}
 
 	public void move() {
@@ -114,35 +119,41 @@ public class Rover implements Entity<Rover> {
 		validate(new EntityDefaultValidationNotificationHandler());
 	}
 
-	private void moveNorth() {
-		this.position = getCoordinates().shiftAlongOrdinate(step);
-		DomainEventPublisher.instance().publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName())
-				.withPreviousPosition(getCoordinates()).withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)));
-	}
-
 	/**
 	 * Essentially we publish a domain event here with rover name, old and current
 	 * position
 	 */
+	private void moveNorth() {
+		moveVertically(step);
+	}
+
 	private void moveWest() {
-		this.position = getCoordinates().shiftAlongAbscissa(-step);
-		DomainEventPublisher.instance()
-				.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
-						.withCurrentPosition(getCoordinates().shiftAlongAbscissa(-step)));
+		moveHorizontally(-step);
 	}
 
 	private void moveEast() {
-		this.position = getCoordinates().shiftAlongAbscissa(step);
-		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
-				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)));
+		moveHorizontally(step);
 	}
 
 	private void moveSouth() {
-		this.position = getCoordinates().shiftAlongOrdinate(-step);
+		moveVertically(-step);
+	}
+
+	private void moveHorizontally(int step) {
+		this.position = getCoordinates().shiftAlongAbscissa(step);
 		DomainEventPublisher.instance()
-		.publish(new RoverMovedEvent.Builder().withPlateauUuid(id.getPlateauUuid()).withRoverName(id.getName()).withPreviousPosition(getCoordinates())
-				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(-step)));
+				.publish(buildRoverMovedEvent().withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)).build());
+	}
+	
+	private void moveVertically(int step) {
+		this.position = getCoordinates().shiftAlongOrdinate(step);
+		DomainEventPublisher.instance()
+				.publish(buildRoverMovedEvent().withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)).build());
+	}
+	
+	private Builder buildRoverMovedEvent() {
+		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauUuid(), id.getName()))
+				.withPreviousPosition(getCoordinates());
 	}
 
 	public TwoDimensionalCoordinates getPosition() {
@@ -161,7 +172,7 @@ public class Rover implements Entity<Rover> {
 	public Orientation getOrientation() {
 		return orientation;
 	}
-
+	
 	public void setOrientation(Orientation orientation) {
 		this.orientation = orientation;
 	}
@@ -177,7 +188,7 @@ public class Rover implements Entity<Rover> {
 	public int getYPosition() {
 		return getCoordinates().getOrdinate();
 	}
-	
+
 	public RoverIdentifier getId() {
 		return id;
 	}
@@ -205,8 +216,8 @@ public class Rover implements Entity<Rover> {
 
 	@Override
 	public String toString() {
-		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(), this.getId().getPlateauUuid(), this.getCoordinates(),
-				this.getOrientation());
+		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(),
+				this.getId().getPlateauUuid(), this.getCoordinates(), this.getOrientation());
 	}
 
 }

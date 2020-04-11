@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
@@ -27,6 +28,7 @@ public class RoverTest {
 
 	@BeforeMethod
 	public void reset() {
+		DomainEventPublisher.instance().clear();
 		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
 	}
 
@@ -186,6 +188,7 @@ public class RoverTest {
 				GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN, GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
 				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE, GameExceptionLabels.MISSING_ROVER_IDENTIFIER)));
 	}
+	
 
 	private Rover initializeDefaultRover() {
 		return new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);

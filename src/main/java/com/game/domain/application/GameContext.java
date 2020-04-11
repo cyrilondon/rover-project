@@ -1,7 +1,5 @@
 package com.game.domain.application;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
@@ -40,8 +38,6 @@ public class GameContext {
 	private int roverStepLength = ROVER_STEP_LENGTH;
 
 	private static GameContext GAME_CONTEXT = new GameContext();
-
-	AtomicInteger counter = new AtomicInteger(0);
 
 	private Plateau plateau;
 

@@ -1,5 +1,6 @@
 package com.game.domain.application;
 
+import com.game.domain.application.command.MakeTurnRoverCommand;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
@@ -10,6 +11,7 @@ import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.event.DomainEventSubscriber;
+import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
@@ -56,6 +58,45 @@ public class GameServiceImpl implements GameService {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
+	public void execute(MakeTurnRoverCommand command) {
+		
+		// defines the subscriber for the FaceToOrientationRoverCommand
+		@SuppressWarnings("rawtypes")
+		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverTurnedEvent>() {
+
+			@Override
+			public void handleEvent(RoverTurnedEvent event) {
+				// 1. update persistent Rover with last orientation
+				updateRoverWithLastOrientation(event);
+				// 2. store the event
+				// TODO with Kafka Producer?
+			}
+
+			@Override
+			public Class<RoverTurnedEvent> subscribedToEventType() {
+				return RoverTurnedEvent.class;
+			}
+			
+			private void updateRoverWithLastOrientation(RoverTurnedEvent event) {
+				Rover rover = gameContext.getRoverService().getRover(event.getRoverId());
+				rover.setOrientation(event.getCurrentOrientation());
+				gameContext.getRoverService().updateRover(rover);
+			}
+		
+		};
+		
+		// register the subscriber for the given type of event = RoverMovedEvent
+		DomainEventPublisher.instance().subscribe(subscriber);
+				
+		gameContext.getRoverService().faceToOrientation(
+				new RoverIdentifier(command.getPlateauUuid(), command.getName()),
+				Orientation.get(String.valueOf(command.getTurn())));
+	}
+
+	
+	@SuppressWarnings("unchecked")
+	@Override
 	public void execute(MoveRoverCommand command) {
 
 		// defines the subscriber for the RoverMovedEvent
@@ -67,10 +108,13 @@ public class GameServiceImpl implements GameService {
 				// 1. update persistent Rover with last position
 				updateRoverWithLastPosition(event);
 				// 2. mark old rover position as free
-				gameContext.getPlateauService().setLocationFree(event.getPlateauUuid(), event.getPreviousPosition());
+				gameContext.getPlateauService().setLocationFree(event.getRoverId().getPlateauUuid(),
+						event.getPreviousPosition());
 				// 3. mark new rover position as set/busy
-				gameContext.getPlateauService().setLocationBusy(event.getPlateauUuid(), event.getCurrentPosition());
+				gameContext.getPlateauService().setLocationBusy(event.getRoverId().getPlateauUuid(),
+						event.getCurrentPosition());
 				// 4s. store the event
+				// TODO with Kafka Producer?
 			}
 
 			@Override
@@ -79,8 +123,7 @@ public class GameServiceImpl implements GameService {
 			}
 
 			private void updateRoverWithLastPosition(RoverMovedEvent event) {
-				Rover rover = gameContext.getRoverService()
-						.getRover(new RoverIdentifier(event.getPlateauUuid(), event.getRoverName()));
+				Rover rover = gameContext.getRoverService().getRover(event.getRoverId());
 				rover.setPosition(event.getCurrentPosition());
 				gameContext.getRoverService().updateRover(rover);
 			}

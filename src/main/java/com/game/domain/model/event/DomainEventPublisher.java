@@ -13,7 +13,7 @@ public class DomainEventPublisher {
 		return new DomainEventPublisher();
 	}
 
-	public <T> void publish(final T domainEvent) {
+	public <T extends DomainEvent> void publish(final T domainEvent) {
 		if (null !=publishing.get() && publishing.get()) return;
 
 		try {
@@ -33,7 +33,7 @@ public class DomainEventPublisher {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> void subscribe(DomainEventSubscriber<T> subscriber) {
+	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T> subscriber) {
 		if (null !=publishing.get() && publishing.get()) return;
 		
 		List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
@@ -44,11 +44,15 @@ public class DomainEventPublisher {
 		registeredSubscribers.add(subscriber);
 	}
 
-	private <T> void handleEvent(DomainEventSubscriber<T> subscriber, Class<?> eventType, T domainEvent) {
+	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T> subscriber, Class<?> eventType, T domainEvent) {
 		Class<?> subscribedTo = subscriber.subscribedToEventType();
 		if (subscribedTo == eventType || subscribedTo == DomainEvent.class) {
 			subscriber.handleEvent(domainEvent);
 		}
 
+	}
+	
+	public void clear() {
+		subscribers.remove();
 	}
 }

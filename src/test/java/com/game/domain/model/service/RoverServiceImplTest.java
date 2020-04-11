@@ -17,6 +17,7 @@ import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.RoverRepository;
@@ -49,6 +50,7 @@ public class RoverServiceImplTest {
 	@BeforeMethod
 	public void reset() {
 		gameContext.reset();
+		DomainEventPublisher.instance().clear();
 		mockRoverRepository.removeAllRovers();
 	}
 

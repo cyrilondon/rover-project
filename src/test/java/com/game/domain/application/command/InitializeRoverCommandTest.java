@@ -1,10 +1,11 @@
-package com.game.domain.application;
+package com.game.domain.application.command;
 
 import java.util.UUID;
 
 import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.game.domain.application.GameContext;
 import com.game.domain.application.command.InitializeRoverCommand;
 
 public class InitializeRoverCommandTest {
