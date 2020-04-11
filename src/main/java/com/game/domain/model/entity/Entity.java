@@ -1,5 +1,7 @@
 package com.game.domain.model.entity;
 
+import java.util.function.Function;
+
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
@@ -25,9 +27,10 @@ public interface Entity<T, U> {
 	T validate(ValidationNotificationHandler handler);
 
 	/**
-	 * Publish the domain event
+	 * Apply the event to current instance and publish the event
 	 * @param event
+	 * @param function
 	 */
-	void publishEvent(DomainEvent event);
+	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, Void> function); 
 
 }

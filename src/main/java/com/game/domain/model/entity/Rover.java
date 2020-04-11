@@ -1,16 +1,16 @@
 package com.game.domain.model.entity;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
-import com.game.domain.model.event.DomainEventPublisher;
-import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.event.RoverMovedEvent.Builder;
+import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
@@ -25,6 +25,10 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	 * Rover step length - configurable in the GameContext Default = 1
 	 */
 	private int step = GameContext.getInstance().getRoverStepLength();
+	
+	final Function<DomainEvent, Void> moveRoverFunction = event -> {this.position = ((RoverMovedEvent)event).getCurrentPosition(); validate(); return null;};
+	
+	final Function<DomainEvent, Void> turnRoverFunction = event -> {this.orientation = ((RoverTurnedEvent)event).getCurrentOrientation(); return null;};
 
 	/**
 	 * We add this constructor with a name parameter to keep track of a given Rover,
@@ -112,9 +116,9 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 		RoverMovedEvent event = buildRoverMovedEvent(this.position)
 				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)).build();
 
-		// apply event to current in-memory instance
+		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event);
+		applyAndPublishEvent(event, moveRoverFunction);
 	}
 
 	private void moveVertically(int step) {
@@ -123,69 +127,31 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 		RoverMovedEvent event = buildRoverMovedEvent(this.position)
 				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)).build();
 
-		// apply event to current in-memory instance
+		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event);
-
+		applyAndPublishEvent(event, moveRoverFunction);	
 	}
-
-	/**
-	 * Apply the event to the current in-memory instance 
-	 * Publish the event for persistence purpose (DB instance) + event storage
-	 * 
-	 * @param event
-	 */
-	private void applyAndPublishEvent(RoverMovedEvent event) {
-		applyEvent(event);
-		publishEvent(event);
-	}
-
-	/**
-	 * Apply the event to the current instance, which means:
-	 *  - set the position shifted 
-	 *  - validate the position
-	 * 
-	 * @param event
-	 */
-	private void applyEvent(RoverMovedEvent event) {
-		this.position = event.getCurrentPosition();
-		validate();
-	}
-
-	/**
-	 * Publish the event for persistence purpose, which means:
-	 *  - updating the DB instance with current state 
-	 *  - store the Event in event store
-	 * 
-	 * @param event
-	 */
-	@Override
-	public void publishEvent(DomainEvent event) {
-		// publish the event for persistence purpose
-		DomainEventPublisher.instance().publish(event);
-	}
-
+	
 	/**
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnLeft() {
-		Orientation previousOrientation = this.orientation;
-		this.orientation = orientation.turnLeft();
-		publishRoverTurnedEvent(previousOrientation);
+		
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id)
+		.withPreviousOrientation(orientation).withCurrentOrientation(orientation.turnLeft()).build();
+		
+		applyAndPublishEvent(event, turnRoverFunction);
+		
 	}
 
 	/**
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnRight() {
-		Orientation previousOrientation = this.orientation;
-		this.orientation = orientation.turnRight();
-		publishRoverTurnedEvent(previousOrientation);
-	}
-
-	private void publishRoverTurnedEvent(Orientation previousOrientation) {
-		DomainEventPublisher.instance().publish(new RoverTurnedEvent.Builder().withRoverId(id)
-				.withPreviousOrientation(previousOrientation).withCurrentOrientation(orientation).build());
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id)
+				.withPreviousOrientation(orientation).withCurrentOrientation(orientation.turnRight()).build();
+		
+		applyAndPublishEvent(event, turnRoverFunction);
 	}
 
 	private void validate() {

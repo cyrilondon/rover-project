@@ -6,7 +6,6 @@ import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
-import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
@@ -91,9 +90,5 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		return dimensions.getHeight();
 	}
 
-	@Override
-	public void publishEvent(DomainEvent event) {
-		// TODO Auto-generated method stub
-	}
 	
 }
