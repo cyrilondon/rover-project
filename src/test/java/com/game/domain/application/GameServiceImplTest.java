@@ -83,7 +83,7 @@ public class GameServiceImplTest {
 				.withOrdinate(HEIGHT).withObserverSpeed(2 * GameContext.MINIMAL_RELATIVISTIC_SPEED).build());
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 2);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT -2);
-		assertThat(gameContext.getPlateau().getUuid()).isEqualTo(relativisticUUID);
+		assertThat(gameContext.getPlateau().getId()).isEqualTo(relativisticUUID);
 	}
 
 	@Test

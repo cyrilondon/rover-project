@@ -1,5 +1,6 @@
 package com.game.domain.model.entity;
 
+import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 /**
@@ -8,8 +9,25 @@ import com.game.domain.model.validation.ValidationNotificationHandler;
  * @see #validate(ValidationNotificationHandler)
  *
  */
-public interface Entity<T> {
+public interface Entity<T, U> {
 	
-	public T validate(ValidationNotificationHandler handler);
+	/**
+	 * Returns the id
+	 * @return
+	 */
+	 U getId();
+	
+	/**
+	 * Validates the entity with runtime validation handler
+	 * @param handler
+	 * @return
+	 */
+	T validate(ValidationNotificationHandler handler);
+
+	/**
+	 * Publish the domain event
+	 * @param event
+	 */
+	void publishEvent(DomainEvent event);
 
 }

@@ -6,12 +6,12 @@ import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
+public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
 	
-	private UUID uuid;
 
 	private TwoDimensionalSpace dimensions;
 
@@ -21,7 +21,7 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 	boolean[][] locations;
 
 	public Plateau(UUID uuid, TwoDimensionalSpace dimensions) {
-		this.uuid = ArgumentCheck.preNotNull(uuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+		this.id = ArgumentCheck.preNotNull(uuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 
@@ -91,8 +91,9 @@ public class Plateau implements Entity<Plateau>, TwoDimensionalSpace {
 		return dimensions.getHeight();
 	}
 
-	public UUID getUuid() {
-		return uuid;
+	@Override
+	public void publishEvent(DomainEvent event) {
+		// TODO Auto-generated method stub
 	}
 	
 }
