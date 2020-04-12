@@ -13,8 +13,11 @@ LMLMLMLMM
 MMRMMRMRRM
 ```
 
-The first line of input is the upper-right coordinates of the plateau, the lower-left coordinates are assumed to be 0,0. The following input is information pertaining to the rovers that have been deployed, wich gives the rover's position, wich is made up of two integers and a letter separated by spaces, corresponding to the x and y co-ordinates and the rover's orientation. The second line is a series of instructions telling the rover how to explore the plateau and it expects an array of characters, where each character is a command for the robot. 'L' means "turn left", 'R' means "turn right" and 'M' means "move one step towards your direction".
+The first line of input is the upper-right coordinates of the plateau, the lower-left coordinates are assumed to be 0,0. 
 
+The following input is information pertaining to the rovers that have been deployed, wich gives the rover's position, wich is made up of two integers and a letter separated by spaces, corresponding to the x and y co-ordinates and the rover's orientation. 
+
+The second line is a series of instructions telling the rover how to explore the plateau and it expects an array of characters, where each character is a command for the robot. 'L' means "turn left", 'R' means "turn right" and 'M' means "move one step towards your direction".
 
 
 ## Objectives
@@ -50,13 +53,13 @@ public class GameException extends RuntimeException {
 	}
 	
 ```
-All the error codes and error messages labels are grouped together in a single class <code>GameExceptionLabels</code> for better lisibility and overview.
+All the error codes and error messages labels are grouped together in a single class <code>[GameExceptionLabels](src/main/java/com/game/domain/model/exception/GameExceptionLabels.java)</code> for better lisibility and overview.
 
 We consider two types of validation:
 
 - A **Technical validation** which checks the nullity or emptiness of arguments. 
 
-   This is handled by the <code>ArgumentCheck</code> class which throws a <code>IllegalArgumentGameException</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
+   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>IllegalArgumentGameException</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
    
    Say we try to initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong
    
@@ -91,9 +94,9 @@ Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameEx
 
 - A **Business validation** process which ensures the enforcement of the business rules (by example moving the Rover should not let it go out of the plateau).
 
-The base class <code>EntityValidator</code> takes this responsibility. 
+The base class <code>[EntityValidator](/src/main/java/com/game/domain/model/validation/EntityValidator.java)</code> takes this responsibility. 
 
-The interesting thing to note here is that this validator class depends on <code>ValidationNotificationHandler</code> interface by constructor injection.
+The interesting thing to note here is that this validator class depends on <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface by constructor injection.
 
 This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is of great interest as we will see further down to ensure distinct validation processes under different contexts.
 
@@ -133,7 +136,7 @@ public abstract class EntityValidator<T> {
 
   ```
   
- Let's consider by example the validator class dedicated to check that everything is OK after the creation or any action on a Rover.
+ Let's consider by example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that everything is OK after the creation or any action on a Rover.
  
  We have few things to check: the Rover's position X and Y should be both positive, the position X and Y should be inside the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
  
@@ -174,7 +177,7 @@ public abstract class EntityValidator<T> {
    
    In the first case, it would be a good idea to send ALL the error messages to the end user, so that he can re-send the initialization command successfully next time.
    
-   This exactly what the class <code>EntityDefaultValidationNotificationHandler</code> does:
+   This exactly what the class <code>[EntityDefaultValidationNotificationHandler](src/main/java/com/game/domain/model/validation/EntityDefaultValidationNotificationHandler.java)</code> does:
       
    ```
    public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
@@ -207,11 +210,11 @@ public abstract class EntityValidator<T> {
 	at com.game.domain.application.GameServiceImpl.execute(GameServiceImpl.java:57)
 ```
    
-But let's suppose now that the Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but we do not want to throw an initialization error with error code [ERR-001].
+But let's suppose now that the Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but in this new context, we do NOT want to throw an initialization error with the error code [ERR-001].
 
-We want to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the Rover from the Plateau and to mark its last position on the Plateau as free.
+We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the Rover from the Plateau and to mark its last position on the Plateau as free.
 
-This is very easy thanks to our <code>ValidationNotificationHandler</code> interface: we just need to inject another one, which in case of a wrong move will throw this time a <code>IllegalRoverMoveException</code> exception, with error code <code>[ERR-004]</code>.
+This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface: we just need to inject another implementation, which in case of a wrong move will throw this time a <code>[IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java)</code> exception, with error code <code>[ERR-004]</code>.
 
 Below is the exception stacktrace when a Rover asked to move few steps will end up going out of the Plateau. We notice that the error message is exactly the same as above (concerning the Y-position out of the plateau), but the type of exception as well as the error code have changed: *com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]*
 
