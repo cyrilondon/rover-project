@@ -39,7 +39,7 @@ We intentionally don't use any framework in this work, i.e. no framework for dep
 
 ### Exception Handling
 
-The base class of our Exception hierarchy is the GameException which:
+The base class of our Exception hierarchy is the <code>[GameException>](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
 - takes an **error code** as constructor argument along the error message for better understanding/lisibility from the end user
 
@@ -59,7 +59,7 @@ We consider two types of validation:
 
 - A **Technical validation** which checks the nullity or emptiness of arguments. 
 
-   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>IllegalArgumentGameException</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
+   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>[IllegalArgumentGameException](src/main/java/com/game/domain/model/exception/IllegalArgumentGameException.java)</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
    
    Say we try to initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong
    
@@ -214,7 +214,7 @@ But let's suppose now that the Rover has been successfully initialized and has t
 
 We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the Rover from the Plateau and to mark its last position on the Plateau as free.
 
-This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface: we just need to inject another implementation, which in case of a wrong move will throw this time a <code>[IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java)</code> exception, with error code <code>[ERR-004]</code>.
+This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface: we just need to inject another implementation <code>[RoverMovedPositionValidationNotificationHandler](src/main/java/com/game/domain/model/validation/RoverMovedPositionValidationNotificationHandler.java)</code>, which in case of a wrong move will throw this time a <code>[IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java)</code> exception, with error code <code>[ERR-004]</code>.
 
 Below is the exception stacktrace when a Rover asked to move few steps will end up going out of the Plateau. We notice that the error message is exactly the same as above (concerning the Y-position out of the plateau), but the type of exception as well as the error code have changed: *com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]*
 
