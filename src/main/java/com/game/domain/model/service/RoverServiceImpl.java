@@ -9,7 +9,6 @@ import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.repository.RoverRepository;
-import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 
 /**
  * Pure domain service which handles {@link Rover} entity

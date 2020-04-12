@@ -34,6 +34,204 @@ Our goal is to propose a final project covered at least at 90% by unit testing.
 ### No framework
 We intentionally don't use any framework in this work, i.e. no framework for dependency injection and not even a framework for mock testing.
 
+### Exception Handling
+
+The base class of our Exception hierarchy is the GameException which:
+- is a of type **RuntimeException** as we don't expect any retry or action from the end user
+- takes an **error code** as constructor argument along the error message for better understanding/lisibility from the end user
+
+```
+public class GameException extends RuntimeException {
+	
+	private final String errorCode;
+	
+	public GameException(String message, String errorCode) {
+		this(message, errorCode, null);
+	}
+	
+```
+All the error codes and error messages labels are grouped together in a single class <code>GameExceptionLabels</code> for better lisibility and overview.
+
+We consider two types of validation:
+
+- A **Technical validation** which checks the nullity or emptiness of arguments. 
+
+   This is handled by the <code>ArgumentCheck</code> class which throws a <code>IllegalArgumentGameException</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
+   
+   Say we try to initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong
+   
+ ```  
+   new Rover(new RoverIdentifier(UUID.randomUUID(),   GameContext.ROVER_NAME_PREFIX), null, Orientation.SOUTH);
+   
+ ```
+ This would be the corresponding stacktrace:
+
+ ```  
+Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Rover position
+	at com.game.core.validation.ArgumentCheck.requiresNotNull(ArgumentCheck.java:21)
+	at com.game.core.validation.ArgumentCheck.preNotNull(ArgumentCheck.java:17)
+	at com.game.domain.model.entity.Rover.<init>(Rover.java:47)
+   
+ ```
+ 
+ Equivalently if you try to initialize a Rover with only whitespace characters, the <code>ArgumentCheck.requiresNotEmpty</code> check will prevent this action
+ 
+ ``` 
+ new Rover(new RoverIdentifier(UUID.randomUUID(), "  "), new TwoDimensionalCoordinates(2, 3), Orientation.SOUTH);
+ ```
+ 
+ and will throw the following exception
+ 
+  ``` 
+Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Rover name
+	at com.game.core.validation.ArgumentCheck.requiresNotEmpty(ArgumentCheck.java:30)
+	at com.game.core.validation.ArgumentCheck.preNotEmpty(ArgumentCheck.java:26)
+	at com.game.domain.model.entity.RoverIdentifier.<init>(RoverIdentifier.java:29)
+ ```
+
+- A **Business validation** process which ensures the enforcement of the business rules (by example moving the Rover should not let it go out of the plateau).
+
+The base class <code>EntityValidator</code> takes this responsibility. 
+
+The interesting thing to note here is that this validator class depends on <code>ValidationNotificationHandler</code> interface by constructor injection.
+
+This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is of great interest as we will see further down to ensure distinct validation processes under different contexts.
+
+ ```
+public abstract class EntityValidator<T> {
+
+	private T entity;
+
+	private ValidationNotificationHandler notificationHandler;
+
+	public EntityValidator(T entity, ValidationNotificationHandler handler) {
+		super();
+		this.notificationHandler = handler;
+		this.entity = entity;
+	}
+
+	public final T validate() {
+		doValidate();
+		notificationHandler.checkValidationResult();
+		afterValidate();
+		return entity();
+	}
+	
+
+ ```
+ 
+ The notification handler interface defines two methods to be implemented:
+ 
+  ```
+ public interface ValidationNotificationHandler {
+	
+	public void handleError(String errorMessage) ;
+	
+	public void checkValidationResult();
+
+}
+
+  ```
+  
+ Let's consider by example the validator class dedicated to check that everything is OK after the creation or any action on a Rover.
+ 
+ We have few things to check: the Rover's position X and Y should be both positive, the position X and Y should be inside the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
+ 
+   ```
+   public class RoverValidator extends EntityValidator<Rover> {
+
+	public RoverValidator(Rover rover, ValidationNotificationHandler handler) {
+		super(rover, handler);
+	}
+
+	@Override
+	protected void doValidate() {
+
+		if (isXPositionNegative())
+			this.notificationHandler()
+					.handleError(String.format(GameExceptionLabels.ROVER_NEGATIVE_X, entity().getXPosition()));
+
+		if (isYPositionNegative())
+			this.notificationHandler()
+					.handleError(String.format(GameExceptionLabels.ROVER_NEGATIVE_Y, entity().getYPosition()));
+
+		if (isXPositionOutOfBoard())
+			this.notificationHandler().handleError(String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU,
+					entity().getXPosition(), GameContext.getInstance().getPlateau().getWidth()));
+
+		if (isYPositionOutOfBoard())
+			this.notificationHandler().handleError(String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU,
+					entity().getYPosition(), GameContext.getInstance().getPlateau().getHeight()));
+
+		if (areBothCoordinatesPositive() && areBothCoordinatesInsideTheBoard() && positionAlreadyBusy())
+			this.notificationHandler().handleError(String.format(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET,
+					entity().getXPosition(), entity().getYPosition()));
+
+	}
+   
+   ```
+   This validation should happen both at initialization time and later on when the Rover is asked to move.
+   
+   In the first case, it would be a good idea to send ALL the error messages to the end user, so that he can re-send the initialization command successfully next time.
+   
+   This exactly what the class <code>EntityDefaultValidationNotificationHandler</code> does:
+      
+   ```
+   public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
+
+	protected ValidationResult validationResult = new ValidationResult();
+
+	@Override
+	public void handleError(String errorMessage) {
+		validationResult.addErrorMessage(errorMessage);
+	}
+
+	@Override
+	public void checkValidationResult() {
+		if (validationResult.isInError()) {
+			throw new EntityInitialisationException(validationResult.getAllErrorMessages());
+		}
+	}
+}
+  ```
+  
+ For example, if you try to initialize a Rover with coordinates x=-3 and y=8 attached to a Plateau with the dimensions width = 6 and height = 8, that would be the stacktrace of the exception and  the error message contains the information of both invalid coordinates. *[ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]*
+ 
+   ```
+ Exception in thread "main" com.game.domain.model.exception.EntityInitialisationException: [ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]
+	at com.game.domain.model.validation.EntityDefaultValidationNotificationHandler.checkValidationResult(EntityDefaultValidationNotificationHandler.java:25)
+	at com.game.domain.model.validation.EntityValidator.validate(EntityValidator.java:31)
+	at com.game.domain.model.entity.Rover.validate(Rover.java:53)
+	at com.game.domain.model.entity.Rover.validate(Rover.java:57)
+	at com.game.domain.model.service.RoverServiceImpl.initializeRover(RoverServiceImpl.java:28)
+	at com.game.domain.application.GameServiceImpl.execute(GameServiceImpl.java:57)
+```
+   
+But let's suppose now that the Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but we do not want to throw an initialization error with error code [ERR-001].
+
+We want to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the Rover from the Plateau and to mark its last position on the Plateau as free.
+
+This is very easy thanks to our <code>ValidationNotificationHandler</code> interface: we just need to inject another one, which in case of a wrong move will throw this time a <code>IllegalRoverMoveException</code> exception, with error code <code>[ERR-004]</code>.
+
+Below is the exception stacktrace when a Rover asked to move few steps will end up going out of the Plateau. We notice that the error message is exactly the same as above (concerning the Y-position out of the plateau), but the type of exception as well as the error code have changed: *com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]*
+
+  ```
+com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]
+	at com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler.checkValidationResult(RoverMovedPositionValidationNotificationHandler.java:16)
+	at com.game.domain.model.validation.EntityValidator.validate(EntityValidator.java:31)
+	at com.game.domain.model.entity.Rover.validate(Rover.java:53)
+	at com.game.domain.model.entity.Rover.lambda$new$0(Rover.java:30)
+	at com.game.domain.model.entity.IdentifiedDomainEntity.applyAndPublishEvent(IdentifiedDomainEntity.java:19)
+	at com.game.domain.model.entity.Rover.moveVertically(Rover.java:142)
+	at com.game.domain.model.entity.Rover.moveNorth(Rover.java:108)
+	at com.game.domain.model.entity.Rover.lambda$moveNorthNumberOfTimes$2(Rover.java:85)
+	at java.base/java.util.stream.Streams$RangeIntSpliterator.forEachRemaining(Streams.java:104)
+	at java.base/java.util.stream.IntPipeline$Head.forEach(IntPipeline.java:593)
+	at com.game.domain.model.entity.Rover.moveNorthNumberOfTimes(Rover.java:84)
+	at com.game.domain.model.entity.Rover.moveNumberOfTimes(Rover.java:67)
+	
+```
+
 ## Quick start
 
 1. Download and install [maven](http://maven.apache.org/install.html).

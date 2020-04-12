@@ -1,6 +1,6 @@
 package com.game.domain.model.validation;
 
-import com.game.domain.model.exception.IllegalRoverPositionException;
+import com.game.domain.model.exception.IllegalRoverMoveException;
 
 public class RoverMovedPositionValidationNotificationHandler extends EntityDefaultValidationNotificationHandler {
 
@@ -13,7 +13,7 @@ public class RoverMovedPositionValidationNotificationHandler extends EntityDefau
 	@Override
 	public void checkValidationResult() {
 		if (validationResult.isInError()) {
-			throw new IllegalRoverPositionException(validationResult.getAllErrorMessages());
+			throw new IllegalRoverMoveException(validationResult.getAllErrorMessages());
 		}
 	}
 
