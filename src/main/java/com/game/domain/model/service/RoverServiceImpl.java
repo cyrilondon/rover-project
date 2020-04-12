@@ -63,6 +63,11 @@ public class RoverServiceImpl implements RoverService {
 		this.updateRover(rover);
 	}
 	
+	@Override
+	public void removeRover(RoverIdentifier id) {
+		roverRepository.remove(id);
+	}
+	
 	
 	@Override
 	public List<Rover> getAllRoversOnPlateau(UUID  uuid) {

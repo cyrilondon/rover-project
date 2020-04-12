@@ -11,7 +11,8 @@ public class RoverMovedEvent implements DomainEvent {
 
 	TwoDimensionalCoordinates currentPosition;
 
-	private RoverMovedEvent(Builder builder) {
+
+	protected RoverMovedEvent(Builder builder) {
 		this.roverId = builder.roverId;
 		this.previousPosition = builder.previousPosition;
 		this.currentPosition = builder.currentPosition;

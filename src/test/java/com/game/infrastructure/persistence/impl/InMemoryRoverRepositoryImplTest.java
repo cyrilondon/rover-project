@@ -1,6 +1,7 @@
 package com.game.infrastructure.persistence.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.exception.RoverNotFoundException;
 import com.game.domain.model.repository.RoverRepository;
 
 public class InMemoryRoverRepositoryImplTest {
@@ -53,9 +55,8 @@ public class InMemoryRoverRepositoryImplTest {
 		assertThat(roverFromRepo).isNotNull();
 		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(1);
 		roverRepository.remove(roverId);
-		Rover roverFromRepoRemoved = roverRepository.load(roverId);
-		assertThat(roverFromRepoRemoved).isNull();
-		assertThat(roverRepository.getNumberOfRovers()).isEqualTo(0);
+		Throwable thrown = catchThrowable(() -> roverRepository.load(roverId));
+		assertThat(thrown).isInstanceOf(RoverNotFoundException.class);
 	}
 	
 	@Test

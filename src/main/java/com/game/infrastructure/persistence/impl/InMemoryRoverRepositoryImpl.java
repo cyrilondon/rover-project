@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.exception.RoverNotFoundException;
 import com.game.domain.model.repository.RoverRepository;
 
 /**
@@ -19,6 +20,9 @@ public class InMemoryRoverRepositoryImpl implements RoverRepository {
 
 	@Override
 	public Rover load(RoverIdentifier id) {
+		if (rovers.get(id) == null) {
+			throw new RoverNotFoundException(id);
+		}
 		return rovers.get(id);
 	}
 

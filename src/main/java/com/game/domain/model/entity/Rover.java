@@ -1,6 +1,7 @@
 package com.game.domain.model.entity;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -10,6 +11,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.RoverMovedEvent;
 import com.game.domain.model.event.RoverMovedEvent.Builder;
+import com.game.domain.model.event.RoverMovedWithExceptionEvent;
 import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
@@ -26,10 +28,21 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	 * Rover step length - configurable in the GameContext Default = 1
 	 */
 	private int step = GameContext.getInstance().getRoverStepLength();
-	
-	final Function<DomainEvent, Void> moveRoverFunction = event -> {this.position = ((RoverMovedEvent)event).getCurrentPosition(); validate(new RoverMovedPositionValidationNotificationHandler()); return null;};
-	
-	final Function<DomainEvent, Void> turnRoverFunction = event -> {this.orientation = ((RoverTurnedEvent)event).getCurrentOrientation(); return null;};
+
+	final Function<DomainEvent, DomainEvent> moveRover = event -> {
+		this.position = ((RoverMovedEvent) event).getCurrentPosition();
+		validate(new RoverMovedPositionValidationNotificationHandler());
+		return event;
+	};
+
+	final Function<DomainEvent, DomainEvent> turnRover = event -> {
+		this.orientation = ((RoverTurnedEvent) event).getCurrentOrientation();
+		return event;
+	};
+
+	final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverException = (exception, event) -> {
+		return new RoverMovedWithExceptionEvent((RoverMovedEvent) event, exception);
+	};
 
 	/**
 	 * We add this constructor with a name parameter to keep track of a given Rover,
@@ -47,12 +60,12 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 		this.position = ArgumentCheck.preNotNull(coordinates, GameExceptionLabels.MISSING_ROVER_POSITION);
 		this.orientation = ArgumentCheck.preNotNull(orientation, GameExceptionLabels.MISSING_ROVER_ORIENTATION);
 	}
-	
+
 	@Override
 	public Rover validate(ValidationNotificationHandler handler) {
 		return new RoverValidator(this, handler).validate();
 	}
-	
+
 	public Rover validate() {
 		return validate(new EntityDefaultValidationNotificationHandler());
 	}
@@ -128,7 +141,7 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event, moveRoverFunction);
+		applyAndPublishEvent(event, moveRover, moveRoverException);
 	}
 
 	private void moveVertically(int step) {
@@ -139,32 +152,31 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event, moveRoverFunction);	
+		applyAndPublishEvent(event, moveRover, moveRoverException);
 	}
-	
+
 	/**
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnLeft() {
-		
-		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id)
-		.withPreviousOrientation(orientation).withCurrentOrientation(orientation.turnLeft()).build();
-		
-		applyAndPublishEvent(event, turnRoverFunction);
-		
+
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id).withPreviousOrientation(orientation)
+				.withCurrentOrientation(orientation.turnLeft()).build();
+
+		applyAndPublishEvent(event, turnRover);
+
 	}
 
 	/**
 	 * We delegate the turn left command to the orientation object itself
 	 */
 	public void turnRight() {
-		
-		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id)
-				.withPreviousOrientation(orientation).withCurrentOrientation(orientation.turnRight()).build();
-		
-		applyAndPublishEvent(event, turnRoverFunction);
-	}
 
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id).withPreviousOrientation(orientation)
+				.withCurrentOrientation(orientation.turnRight()).build();
+
+		applyAndPublishEvent(event, turnRover);
+	}
 
 	private Builder buildRoverMovedEvent(TwoDimensionalCoordinates previousPosition) {
 		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauUuid(), id.getName()))

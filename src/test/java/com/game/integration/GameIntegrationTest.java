@@ -54,7 +54,10 @@ public class GameIntegrationTest {
 		// Rover [ROVER_2] attached to Plateau [590b0b3e-9c11-4380-9af4-362597d53572] with [Coordinates [abscissa = 2, ordinate = 6]] and [Orientation [SOUTH]]]
 		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
 		
-		gameService.execute(new MoveRoverCommand(plateauUuid, rover2, 1));
+		gameService.execute(new MoveRoverCommand(plateauUuid, rover2, 2));
+		
+		//[Rover [ROVER_1] attached to Plateau [8a2e53a5-2e4d-4feb-b600-970052a6895b] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [WEST]]]
+		// Rover 2 has been deleted
 		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
 
 	}

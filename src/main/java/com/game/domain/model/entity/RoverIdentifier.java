@@ -55,5 +55,10 @@ public class RoverIdentifier implements Serializable {
 	public int hashCode() {
 		return Objects.hash(getPlateauUuid(), getName());
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Name [%s] - Plateau UUID [%s]", name, getPlateauUuid());
+	}
 
 }

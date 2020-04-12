@@ -26,5 +26,7 @@ public interface RoverService extends DomainService {
 
 	void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation);
 
+	void removeRover(RoverIdentifier id);
+
 
 }

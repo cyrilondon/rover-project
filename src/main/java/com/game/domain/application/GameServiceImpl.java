@@ -1,12 +1,11 @@
 package com.game.domain.application;
 
-import com.game.domain.application.command.MakeTurnRoverCommand;
-
 import java.util.List;
 import java.util.UUID;
 
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
+import com.game.domain.application.command.MakeTurnRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
@@ -16,9 +15,12 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.RoverTurnedEvent;
-import com.game.domain.model.event.RoverMovedEvent;
+import com.game.domain.model.event.subscriber.RoverMovedEventSubscriber;
+import com.game.domain.model.event.subscriber.RoverMovedWithExceptionEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
+import com.game.domain.model.exception.IllegalRoverMoveException;
+import com.game.domain.model.exception.PlateauNotFoundException;
 import com.game.domain.model.service.PlateauServiceImpl;
 import com.game.domain.model.service.RoverServiceImpl;
 
@@ -38,8 +40,9 @@ public class GameServiceImpl implements GameService {
 	public void execute(InitializePlateauCommand command) {
 		GameContext gameContext = GameContext.getInstance();
 		Plateau plateau = null;
-		
-		// if speed not very important initialize a classical Plateau otherwise a relativistic Plateau
+
+		// if speed not very important initialize a classical Plateau otherwise a
+		// relativistic Plateau
 		if (command.getObserverSpeed() < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
 			plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
 					new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
@@ -53,17 +56,20 @@ public class GameServiceImpl implements GameService {
 
 	public void execute(InitializeRoverCommand command) {
 		GameContext gameContext = GameContext.getInstance();
-		
+
 		// 1. loads the Plateau
-		if (gameContext.getPlateauService().loadPlateau(command.getPlateauUuid()) == null)
+		try {
+			gameContext.getPlateauService().loadPlateau(command.getPlateauUuid());
+		} catch (PlateauNotFoundException e) {
 			throw new IllegalArgumentGameException(String.format(GameExceptionLabels.ERROR_MESSAGE_SEPARATION_PATTERN,
-					GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION, GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
-		
+					e.getMessage(), GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED));
+		}
+
 		// 2. initializes the rover
 		gameContext.getRoverService().initializeRover(new RoverIdentifier(command.getPlateauUuid(), command.getName()),
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
 				Orientation.get(String.valueOf(command.getOrientation())));
-		
+
 		// 3. marks the Plateau location as busy
 		gameContext.getPlateauService().updatePlateauWithBusyLocation(command.getPlateauUuid(),
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
@@ -93,7 +99,8 @@ public class GameServiceImpl implements GameService {
 			}
 
 			private void updateRoverWithOrientation(RoverTurnedEvent event) {
-				gameContext.getRoverService().updateRoverWithOrientation(event.getRoverId(), event.getCurrentOrientation());
+				gameContext.getRoverService().updateRoverWithOrientation(event.getRoverId(),
+						event.getCurrentOrientation());
 			}
 
 		};
@@ -106,49 +113,22 @@ public class GameServiceImpl implements GameService {
 				Orientation.get(String.valueOf(command.getTurn())));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(MoveRoverCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
 
-		// defines the subscriber for the RoverMovedEvent
-		@SuppressWarnings("rawtypes")
-		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverMovedEvent>() {
-
-			@Override
-			public void handleEvent(RoverMovedEvent event) {
-				// 1. update persistent Rover with last position
-				updateRoverWithLastPosition(event);
-
-				// 2 . update plateau locations
-				updatePlateauWithLastLocations(event);
-
-				// 3. store the event
-				// TODO with Kafka Producer?
-			}
-
-			@Override
-			public Class<RoverMovedEvent> subscribedToEventType() {
-				return RoverMovedEvent.class;
-			}
-
-			private void updateRoverWithLastPosition(RoverMovedEvent event) {
-				gameContext.getRoverService().updateRoverWithPosition(event.getRoverId(), event.getCurrentPosition());
-			}
-
-			private void updatePlateauWithLastLocations(RoverMovedEvent event) {
-				gameContext.getPlateauService().updatePlateauWithLocations(event.getRoverId().getPlateauUuid(),
-						event.getPreviousPosition(), event.getCurrentPosition());
-			}
-		};
-
 		// register the subscriber for the given type of event = RoverMovedEvent
-		DomainEventPublisher.instance().subscribe(subscriber);
+		DomainEventPublisher.instance().subscribe(new RoverMovedEventSubscriber());
+
+		// register the subscriber in case of something went wrong during Rover moves
+		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
 
 		// delegates to the rover service
-		gameContext.getRoverService().moveRoverNumberOfTimes(
-				new RoverIdentifier(command.getPlateauUuid(), command.getRoverName()), command.getNumberOfMoves());
+		RoverIdentifier roverId = new RoverIdentifier(command.getPlateauUuid(), command.getRoverName());
+
+		gameContext.getRoverService().moveRoverNumberOfTimes(roverId, command.getNumberOfMoves());
+
 	}
 
 	/**
