@@ -92,12 +92,11 @@ public class RoverTest {
 	@Test
 	public void testMoveNorthThreeTimesOutOfBoard() {
 		Rover rover = initializeRover(Orientation.NORTH);
-		rover.moveNumberOfTimes(3);
-//		Throwable thrown = catchThrowable(() -> rover.moveNumberOfTimes(3));
-//		assertThat(thrown).isInstanceOf(IllegalRoverMoveException.class)
-//				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
-//						GameExceptionLabels.ROVER_ILLEGAL_POSITION_ERROR_CODE,
-//						String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAU_HEIGHT)));
+		Throwable thrown = catchThrowable(() -> rover.moveNumberOfTimes(3));
+		assertThat(thrown).isInstanceOf(IllegalRoverMoveException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ROVER_ILLEGAL_POSITION_ERROR_CODE,
+						String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU, rover.getYPosition(), PLATEAU_HEIGHT)));
 	}
 
 	@Test

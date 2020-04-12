@@ -48,18 +48,35 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 
 	@Override
-	public void setLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		plateauRepository.load(uuid).setLocationBusy(coordinates);
-	}
-
-	@Override
 	public boolean isLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
 		return plateauRepository.load(uuid).isLocationBusy(coordinates);
 	}
+	
+	@Override
+	public void updatePlateau(Plateau plateau) {
+		plateauRepository.update(plateau);
+	}
 
 	@Override
-	public void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		plateauRepository.load(uuid).setLocationFree(coordinates);
+	public void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		Plateau plateau = this.loadPlateau(uuid);
+		plateau.setLocationFree(coordinates);
+		this.updatePlateau(plateau);	
+	}
+	
+	@Override
+	public void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		Plateau plateau = this.loadPlateau(uuid);
+		plateau.setLocationBusy(coordinates);
+		this.updatePlateau(plateau);	
+	}
+		
+	@Override 
+	public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation, TwoDimensionalCoordinates busyLocation){
+		Plateau plateau = this.loadPlateau(plateauUUID);
+		plateau.setLocationFree(freeLocation);
+		plateau.setLocationBusy(busyLocation);
+		this.updatePlateau(plateau);
 	}
 
 }

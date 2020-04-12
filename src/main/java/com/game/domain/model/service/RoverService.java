@@ -22,5 +22,9 @@ public interface RoverService extends DomainService {
 
 	List<Rover> getAllRoversOnPlateau(UUID uuid);
 
+	void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position);
+
+	void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation);
+
 
 }

@@ -198,7 +198,9 @@ public abstract class EntityValidator<T> {
 }
   ```
   
- For example, if you try to initialize a Rover with coordinates x=-3 and y=8 attached to a Plateau with the dimensions width = 6 and height = 8, that would be the stacktrace of the exception and  the error message contains the information of both invalid coordinates. *[ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]*
+ For example, if you try to initialize a Rover with coordinates x=-3 and y=8 attached to a Plateau with the dimensions width = 6 and height = 8, that would be the stacktrace of the exception.
+ 
+ Please not that the error message contains the information of both invalid coordinates. *[ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]*
  
    ```
  Exception in thread "main" com.game.domain.model.exception.EntityInitialisationException: [ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]

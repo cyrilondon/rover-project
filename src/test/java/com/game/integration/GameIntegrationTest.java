@@ -6,10 +6,6 @@ import com.game.domain.application.GameService;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
-import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
-import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
 public class GameIntegrationTest {
 
@@ -22,9 +18,6 @@ public class GameIntegrationTest {
 		InitializePlateauCommand plateauCommand = new InitializePlateauCommand.Builder().withObserverSpeed(0)
 				.withUuid(plateauUuid).withAbscissa(5).withOrdinate(7).build();
 		
-	//	new Rover(new RoverIdentifier(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX), null, Orientation.SOUTH);
-		new Rover(new RoverIdentifier(UUID.randomUUID(), "  "), new TwoDimensionalCoordinates(2, 3), Orientation.SOUTH);
-
 		// initialize Rover command
 		int x = 3, y = 4;
 		String rover1 = GameContext.ROVER_NAME_PREFIX + 1;
@@ -55,7 +48,7 @@ public class GameIntegrationTest {
 		//s Rover [ROVER_2] attached to Plateau [101d04e5-7ba1-4d73-8ef6-11dd4a746a7a] with [Coordinates [abscissa = 2, ordinate = 6]] and [Orientation [SOUTH]]]
 		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
 	
-		gameService.execute(new MoveRoverCommand(plateauUuid, rover1, 1));
+		gameService.execute(new MoveRoverCommand(plateauUuid, rover1, 2));
 		
 		//[Rover [ROVER_1] attached to Plateau [590b0b3e-9c11-4380-9af4-362597d53572] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [WEST]],
 		// Rover [ROVER_2] attached to Plateau [590b0b3e-9c11-4380-9af4-362597d53572] with [Coordinates [abscissa = 2, ordinate = 6]] and [Orientation [SOUTH]]]

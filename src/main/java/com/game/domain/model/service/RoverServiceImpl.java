@@ -50,6 +50,21 @@ public class RoverServiceImpl implements RoverService {
 	}
 	
 	@Override
+	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
+		Rover rover = this.getRover(id);
+		rover.setPosition(position);
+		this.updateRover(rover);
+	}
+	
+	@Override
+	public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
+		Rover rover = this.getRover(id);
+		rover.setOrientation(orientation);
+		this.updateRover(rover);
+	}
+	
+	
+	@Override
 	public List<Rover> getAllRoversOnPlateau(UUID  uuid) {
 		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauUuid().equals(uuid))     
 				.collect(Collectors.toList());      

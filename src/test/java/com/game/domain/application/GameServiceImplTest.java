@@ -191,6 +191,18 @@ public class GameServiceImplTest {
 			return null;
 		}
 
+		@Override
+		public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 
 	/**
@@ -223,7 +235,7 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void setLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		public void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.TRUE);
 		}
 
@@ -233,7 +245,7 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		public void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.FALSE);
 
 		}
@@ -245,6 +257,19 @@ public class GameServiceImplTest {
 
 		public void reset() {
 			GameServiceImplTest.this.plateau = null;
+		}
+
+		@Override
+		public void updatePlateau(Plateau plateau) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
+				TwoDimensionalCoordinates busyLocation) {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}

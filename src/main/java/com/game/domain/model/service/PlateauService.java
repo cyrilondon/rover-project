@@ -28,12 +28,12 @@ public interface PlateauService extends DomainService {
 	/**
 	 * Mark the current location as busy
 	 */
-	void setLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates);
+	void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates);
 	
 	/**
 	 * Mark the current location as busy
 	 */
-	void setLocationFree(UUID uuid, TwoDimensionalCoordinates coordinates);
+	void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates);
 
 	/**
 	 * Check if the location is busy
@@ -48,5 +48,16 @@ public interface PlateauService extends DomainService {
 	 * @return
 	 */
 	Plateau loadPlateau(UUID plateauUuid);
+
+	void updatePlateau(Plateau plateau);
+
+	/**
+	 * Update the location of the persistent Plateau
+	 * @param plateauUUID
+	 * @param freeLocation
+	 * @param busyLocation
+	 */
+	void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
+			TwoDimensionalCoordinates busyLocation);
 
 }
