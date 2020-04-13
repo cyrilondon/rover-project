@@ -29,12 +29,13 @@ We start by focusing on our domain (entities) and services, which both represent
 If you go through our commits one after the other, you will notice that designing and properly testing our entities is our very first concern.
 
 ### Hexagonal Architecture
-Once our domain is built, we have to isolate properly from the outside world.
+
+<img src="src/main/resources/Rover_hexagonal.png" />
 
 The principles of the Hexagonal Architecture have been presented by its author Alistair CockBurn in his original
 paper, [https://alistair.cockburn.us/hexagonal-architecture/](https://alistair.cockburn.us/hexagonal-architecture/).
 
-The main goal of this architecture is to isolate as much as possible the domain model which has just built. Technically the model is isolated from the outside world by the so called **ports** and **adapters**.
+The main goal of this architecture is to isolate as much as possible the domain model we have just built. Technically the model is isolated from the outside world by the so called **ports** and **adapters**.
 
 On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but only to a **port**, some kind of **facade interface** which hides the model implementation details to the clients.
 
@@ -54,7 +55,7 @@ In our case, the rover application will store its <code>Rover</code> and <code>P
  Finally, please note that the out-adapters <code>InMemoryRoverRepositoryImpl</code> and <code>InMemoryPlateauRepositoryImpl</code> do not belong to the domain and reside in the **infrastructure** package.
 
 
-<img src="src/main/resources/Rover_hexagonal.png" />
+
 
 ### Test driven
 Our goal is to propose a final project covered at least at 90% by unit testing.
