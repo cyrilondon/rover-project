@@ -26,10 +26,35 @@ In this exercise, we would like to present a step-by-step process driven by the 
 
 ### Domain Driven Design 
 We start by focusing on our domain (entities) and services, which both represent the very core of our application.
-If you go through our commits on the flow, you will notice that designing and properly testing our entities is our very first concern.
+If you go through our commits one after the other, you will notice that designing and properly testing our entities is our very first concern.
 
 ### Hexagonal Architecture
-Once our domain is built, we isolate it properly from the in and out systems by the so-called adapters and ports (interfaces).
+Once our domain is built, we have to isolate properly from the outside world.
+
+The principles of the Hexagonal Architecture have been presented by its author Alistair CockBurn in his original
+paper, [https://alistair.cockburn.us/hexagonal-architecture/](https://alistair.cockburn.us/hexagonal-architecture/).
+
+The main goal of this architecture is to isolate as much as possible the domain model which has just built. Technically the model is isolated from the outside world by the so called **ports** and **adapters**.
+
+On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but only to a **port**, some kind of **facade interface** which hides the model implementation details to the clients.
+
+In our case, the **in-adapter** (another way to design a primary adapter) is represented by the file adapter
+[GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) which interacts with the rover application by its port interface [GameService](src/main/java/com/game/domain/application/GameService.java).
+
+On the right side of the hexagon, the **secondary ports** and **secondary adapters** define the way the application itself communicates with the outside world. It could be by example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
+
+In this context, the application should NOT depend on those external systems but in contrast exposes some ports or interfaces (the secondary or out ports) to be implemented by the adapters.
+
+In our case, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) but does NOT depend on them directly.
+
+ On the other hand, the application exposes two interfaces or ports [RoverRepository](src/main/java/com/game/domain/model/repository/RoverRepository.java) and [PlateauRepository](src/main/java/com/game/domain/model/repository/PlateauRepository.java)  which are to be implemented by the adapters.
+ 
+ On the diagram, it is important that **all the arrows are pointing into the direction of the hexagon**  and that none is pointing out from the hexagon, which would mean an undesired dependency from the application to the external world.
+ 
+ Finally, please note that the out-adapters <code>InMemoryRoverRepositoryImpl</code> and <code>InMemoryPlateauRepositoryImpl</code> do not belong to the domain and reside in the **infrastructure** package.
+
+
+<img src="src/main/resources/Rover_hexagonal.png" />
 
 ### Test driven
 Our goal is to propose a final project covered at least at 90% by unit testing.
