@@ -1,6 +1,8 @@
 package com.game.domain.model.entity;
 
-public enum RoverInstruction {
+import com.game.domain.model.entity.enums.GameEnum;
+
+public enum RoverInstruction implements GameEnum<String>{
 	
 	LEFT("L"), RIGHT("R"), MOVE("M");
 	

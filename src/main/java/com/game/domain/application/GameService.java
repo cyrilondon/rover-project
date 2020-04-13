@@ -40,11 +40,4 @@ public interface GameService extends ApplicationService {
 	 */
 	void execute(MakeTurnRoverCommand command);
 
-	/**Get all the rovers of a given plateau at a given time
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	List<Rover> getAllRoversByPlateau(UUID uuid);
-
 }

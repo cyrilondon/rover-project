@@ -8,8 +8,10 @@ import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MakeTurnRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
+import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverInstruction;
+import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.store.EventStore;
 
 public class GameIntegrationTest {
@@ -33,7 +35,7 @@ public class GameIntegrationTest {
 		InitializePlateauCommand initializePlateauCommand = new InitializePlateauCommand.Builder().withObserverSpeed(0)
 				.withUuid(plateauUuid).withAbscissa(plateauWidth).withOrdinate(plateauHeight).build();
 
-		// initialize Rover command
+		// initialize Rover 1 command
 		int x = 1, y = 2;
 		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
 		InitializeRoverCommand intializeRoverCommand = new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid)
@@ -44,14 +46,11 @@ public class GameIntegrationTest {
 
 		gameService.execute(intializeRoverCommand);
 
-		printInfos(plateauUuid);
-
 		RoverIdentifier rover1 = new RoverIdentifier(plateauUuid, rover1Name);
 		
 		//Rover 1 LMLMLMLMM
 
 		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
-
 		executeCommand(new MoveRoverCommand(rover1, 1));
 		
 		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
@@ -65,8 +64,7 @@ public class GameIntegrationTest {
 		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
 
 		executeCommand(new MoveRoverCommand(rover1, 2));
-		
-		
+			
 		
 		// Rover 2 initialization
 		// initialize Rover command
@@ -76,9 +74,7 @@ public class GameIntegrationTest {
 				.withName(rover2Name).withAbscissa(x2).withOrdinate(y2).withOrientation('E').build();
 		
 		gameService.execute(intializeRover2Command);
-		
-		printInfos(plateauUuid);
-		
+				
 		RoverIdentifier rover2 = new RoverIdentifier(plateauUuid, rover2Name);
 		
 		// executes commands
@@ -99,23 +95,27 @@ public class GameIntegrationTest {
 		
 		executeCommand(new MoveRoverCommand(rover2, 1));
 		
+		printInfos(plateauUuid);
 		eventStore.getAllEvents().forEach(System.out::println);
 		
 	}
 	
 	private void executeCommand(MoveRoverCommand command) {
 		gameService.execute(command);
-		printInfos(command.getRoverId().getPlateauUuid());
 	}
 	
 	private void executeCommand(MakeTurnRoverCommand command) {
 		gameService.execute(command);
-		printInfos(command.getRoverId().getPlateauUuid());
 	}
 
 	private void printInfos(UUID plateauUuid) {
+		GameContext.getInstance().getRoverService().getAllRoversOnPlateau(plateauUuid).forEach(System.out::println);
+		Plateau inMemoryPlateau = GameContext.getInstance().getPlateau(plateauUuid);
+		System.out.println(String.format("In-memory Plateau with coordinates 1,3 busy ? [%s]", String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(1, 3)))));
+		System.out.println(String.format("In-memory Plateau with coordinates 5,2 busy ? [%s]", String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(5, 1)))));
+		System.out.println(String.format("Persisent Plateau with coordinates 1,3 busy ? [%s]", String.valueOf(GameContext.getInstance().getPlateauService().isLocationBusy(plateauUuid, new TwoDimensionalCoordinates(1, 3)))));
+		System.out.println(String.format("Persisent Plateau with coordinates 5,2 busy ? [%s]", String.valueOf(GameContext.getInstance().getPlateauService().isLocationBusy(plateauUuid, new TwoDimensionalCoordinates(5, 1)))));
 		
-		gameService.getAllRoversByPlateau(plateauUuid).forEach(System.out::println);
 	}
 
 }

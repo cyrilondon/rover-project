@@ -127,9 +127,4 @@ public class GameServiceImpl implements GameService {
 		GameContext.getInstance().addPlateau(plateau);
 	}
 
-	@Override
-	public List<Rover> getAllRoversByPlateau(UUID uuid) {
-		return GameContext.getInstance().getRoverService().getAllRoversOnPlateau(uuid);
-	}
-
 }
