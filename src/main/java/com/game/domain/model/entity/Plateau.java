@@ -10,7 +10,6 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
 public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
-	
 
 	private TwoDimensionalSpace dimensions;
 
@@ -28,15 +27,16 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		this.dimensions = new TwoDimensions(
 				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
-	
+
 	/**
-	 * The check of negative coordinates is done in the validator
-	 * So this initialization should be called in the validator if all is ok 
-	 * Initializing in the constructor would lead to java.lang.NegativeArraySizeException
-	 * in case of negative coordinates
+	 * The check of negative coordinates is done in the validator So this
+	 * initialization should be called in the validator if all is ok Initializing in
+	 * the constructor would lead to java.lang.NegativeArraySizeException in case of
+	 * negative coordinates
 	 */
 	public Plateau initializeLocations() {
-		this.locations = new boolean[dimensions.getWidth()][dimensions.getHeight()];
+		this.locations = new boolean[getLocationIndexFromDimensions(
+				dimensions.getWidth())][getLocationIndexFromDimensions(dimensions.getHeight())];
 		return this;
 	}
 
@@ -47,10 +47,9 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 	 * @return
 	 */
 	public void setLocationBusy(TwoDimensionalCoordinates coordinates) {
-		locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
-				coordinates.getOrdinate())] = true;
+		locations[coordinates.getAbscissa()][coordinates.getOrdinate()] = true;
 	}
-	
+
 	/**
 	 * Mark the position as busy/already set
 	 * 
@@ -58,8 +57,7 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 	 * @return
 	 */
 	public void setLocationFree(TwoDimensionalCoordinates coordinates) {
-		locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
-				coordinates.getOrdinate())] = false;
+		locations[coordinates.getAbscissa()][coordinates.getOrdinate()] = false;
 	}
 
 	/**
@@ -69,8 +67,7 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 	 * @return
 	 */
 	public boolean isLocationBusy(TwoDimensionalCoordinates coordinates) {
-		return locations[getLocationIndexFromCoordinate(coordinates.getAbscissa())][getLocationIndexFromCoordinate(
-				coordinates.getOrdinate())];
+		return locations[coordinates.getAbscissa()][coordinates.getOrdinate()];
 	}
 
 	@Override
@@ -78,10 +75,10 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		return new PlateauValidator(this, handler).validate();
 	}
 
-	private int getLocationIndexFromCoordinate(int coordinate) {
-		return coordinate - 1;
+	private int getLocationIndexFromDimensions(int coordinate) {
+		return coordinate + 1;
 	}
-	
+
 	public int getWidth() {
 		return dimensions.getWidth();
 	}
@@ -90,5 +87,4 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		return dimensions.getHeight();
 	}
 
-	
 }

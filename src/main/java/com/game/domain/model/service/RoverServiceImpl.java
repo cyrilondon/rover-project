@@ -27,11 +27,15 @@ public class RoverServiceImpl implements RoverService {
 		Rover rover = new Rover(id, coordinates, orientation);
 		roverRepository.add(rover.validate());
 	}
-
+	
 	@Override
-	public void faceToOrientation(RoverIdentifier id, Orientation orientation) {
-		Rover rover = roverRepository.load(id);
-		rover.setOrientation(orientation);
+	public void turnLeft(RoverIdentifier id) {
+		roverRepository.load(id).turnLeft();
+	}
+	
+	@Override
+	public void turnRight(RoverIdentifier id) {
+		roverRepository.load(id).turnRight();
 	}
 
 	@Override

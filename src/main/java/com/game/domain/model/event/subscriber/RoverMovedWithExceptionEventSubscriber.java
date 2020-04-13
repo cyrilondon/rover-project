@@ -15,8 +15,6 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 		// 2. set the last rover position as free on the Plateau
 		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
-		
-		// 3. store the event
 
 	}
 

@@ -1,31 +1,25 @@
 package com.game.domain.application.command;
 
-import java.util.UUID;
+import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverInstruction;
 
 public class MakeTurnRoverCommand {
 	
-	String name;
+	RoverInstruction turn;
 	
-	char turn;
+	RoverIdentifier roverId;
 	
-	UUID plateauUuid;
-	
-	public MakeTurnRoverCommand(UUID plateauUUID, String name, char orientation) {
-		this.plateauUuid = plateauUUID;
-		this.name = name;
-		this.turn = orientation;
+	public MakeTurnRoverCommand(RoverIdentifier roverId,  RoverInstruction turn) {
+		this.roverId = roverId;
+		this.turn = turn;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public char getTurn() {
+	public RoverInstruction getTurn() {
 		return turn;
 	}
 
-	public UUID getPlateauUuid() {
-		return plateauUuid;
+	public RoverIdentifier getRoverId() {
+		return roverId;
 	}
 
 }

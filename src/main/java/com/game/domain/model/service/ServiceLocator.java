@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.game.domain.application.ApplicationService;
 import com.game.domain.application.GameService;
+import com.game.domain.model.event.store.EventStore;
 
 public class ServiceLocator {
 
@@ -13,10 +14,14 @@ public class ServiceLocator {
 	public static String ROVER_SERVICE = "rover_service";
 
 	public static String PLATEAU_SERVICE = "plateau_service";
+	
+	public static String EVENT_STORE = "event_store";
 
 	private Map<String, DomainService> domainServices = new HashMap<>();
 
 	private Map<String, ApplicationService> applicationServices = new HashMap<>();
+	
+	private Map<String, EventStore> eventStore = new HashMap<>();
 
 	private static ServiceLocator soleInstance = new ServiceLocator();
 	
@@ -31,6 +36,10 @@ public class ServiceLocator {
 	public static PlateauService getPlateauService() {
 		return (PlateauService) soleInstance.domainServices.get(PLATEAU_SERVICE);
 	}
+	
+	public static EventStore getEventStore() {
+		return (EventStore) soleInstance.eventStore.get(EVENT_STORE);
+	}
 
 	public static void load(ServiceLocator arg) {
 		soleInstance = arg;
@@ -42,6 +51,10 @@ public class ServiceLocator {
 	
 	public void loadApplicationService(String key, ApplicationService service) {
 		applicationServices.put(key, service);
-	}	
+	}
+	
+	public void loadEventStore(String key, EventStore store) {
+		eventStore.put(key, store);
+	}
 
 }

@@ -1,8 +1,16 @@
 package com.game.domain.application;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
+import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.store.EventStore;
+import com.game.domain.model.event.store.EventStoreImpl;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.service.PlateauService;
 import com.game.domain.model.service.PlateauServiceImpl;
@@ -19,6 +27,10 @@ import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
  * {@link GameContext#getInstance(int step)} if we want the Rover to move with a
  * step length different than the default one = 1 Equivalent to an Application
  * Spring context
+ * Provides the different application and domain services (via service locator) 
+ * to the rest of the application
+ * Defines as well the way the event are stored via a Java 8 function {@link #storeEventFunction}
+ * which simulates a kind of poor AOP (i.e externalize the code to run somewhere in the application)
  *
  */
 public class GameContext {
@@ -40,7 +52,12 @@ public class GameContext {
 
 	private static GameContext GAME_CONTEXT = new GameContext();
 
-	private Plateau plateau;
+	private Map<UUID, Plateau> plateauMap = new ConcurrentHashMap<>();
+	
+	public final Function<DomainEvent, Void> storeEventFunction = event -> {
+		getEventStore().addEvent(event);
+		return null;
+	};
 
 	private GameContext() {
 		configure();
@@ -54,6 +71,7 @@ public class GameContext {
 		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
 		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(new InMemoryRoverRepositoryImpl()));
 		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl()));
+		locator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
 		ServiceLocator.load(locator);
 	}
 
@@ -77,6 +95,10 @@ public class GameContext {
 	public PlateauService getPlateauService() {
 		return ServiceLocator.getPlateauService();
 	}
+	
+	public EventStore getEventStore() {
+		return ServiceLocator.getEventStore();
+	}
 
 	public int getRoverStepLength() {
 		return roverStepLength;
@@ -87,17 +109,17 @@ public class GameContext {
 	 *  Rovers are then allowed to be added/initialized as well
 	 */
 	 public void addPlateau(Plateau plateau) {
-		reset();
-		this.plateau = ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION);
+		 plateauMap.putIfAbsent(plateau.getId(), ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION));
 	}
 
 	public void reset() {
-		plateau = null;
+		plateauMap.clear();
 		roverStepLength = 1;
+		configure();
 	}
 
-	public Plateau getPlateau() {
-		return plateau;
+	public Plateau getPlateau(UUID uuid) {
+		return plateauMap.get(uuid);
 	}
 
 }

@@ -27,7 +27,7 @@ public class GameContextTest {
 
 	@Test
 	public void testGetGameInstance() {
-		assertThat(gameContext.getPlateau()).isNull();
+		assertThat(gameContext.getPlateau(UUID.randomUUID())).isNull();
 	}
 	
 	@Test
@@ -38,22 +38,24 @@ public class GameContextTest {
 	
 	@Test
 	public void testAddPlateau() {
-		gameContext.addPlateau(getPlateau());
-		assertThat(gameContext.getPlateau().getWidth()).isEqualTo(WIDTH);
-		assertThat(gameContext.getPlateau().getHeight()).isEqualTo(HEIGHT);
+		UUID uuid = UUID.randomUUID();
+		gameContext.addPlateau(newPlateau(uuid));
+		assertThat(gameContext.getPlateau(uuid).getWidth()).isEqualTo(WIDTH);
+		assertThat(gameContext.getPlateau(uuid).getHeight()).isEqualTo(HEIGHT);
 	}
 
 	@Test
 	public void testReset() {
-		gameContext.addPlateau(getPlateau());
+		UUID uuid = UUID.randomUUID();
+		gameContext.addPlateau(newPlateau(uuid));
 		gameContext.reset();
-		assertThat(gameContext.getPlateau()).isNull();
+		assertThat(gameContext.getPlateau(uuid)).isNull();
 		assertThat(gameContext.getRoverStepLength()).isEqualTo(GameContext.ROVER_STEP_LENGTH);
 	}
 
-	private Plateau getPlateau() {
+	private Plateau newPlateau(UUID uuid) {
 		TwoDimensions dimensions = new TwoDimensions(new TwoDimensionalCoordinates(3, 3));
-		return new Plateau(UUID.randomUUID(), dimensions);
+		return new Plateau(uuid, dimensions);
 	}
 
 }

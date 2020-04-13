@@ -1,6 +1,6 @@
 package com.game.domain.application.command;
 
-import java.util.UUID;
+import com.game.domain.model.entity.RoverIdentifier;
 
 /**
  * Command sent from the client to move a Rover with given name
@@ -9,28 +9,21 @@ import java.util.UUID;
  */
 public class MoveRoverCommand {
 
-	public UUID plateauUuid;
-
-	public String roverName;
-
-	public int numberOfMoves;
+	private RoverIdentifier roverId;
 	
-	public MoveRoverCommand(UUID plateauUUID, String roverName, int numberOfMoves) {
-		this.plateauUuid = plateauUUID;
-		this.roverName = roverName;
+	private int numberOfMoves;
+	
+	public MoveRoverCommand(RoverIdentifier roverId, int numberOfMoves) {
+		this.roverId = roverId;
 		this.numberOfMoves = numberOfMoves;
 	}
 
-	public String getRoverName() {
-		return roverName;
+	public RoverIdentifier getRoverId() {
+		return roverId;
 	}
 
 	public int getNumberOfMoves() {
 		return numberOfMoves;
 	}
 	
-	public UUID getPlateauUuid() {
-		return plateauUuid;
-	}
-
 }

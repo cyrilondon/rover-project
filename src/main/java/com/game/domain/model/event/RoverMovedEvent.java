@@ -1,5 +1,7 @@
 package com.game.domain.model.event;
 
+import java.util.UUID;
+
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
@@ -21,6 +23,10 @@ public class RoverMovedEvent implements DomainEvent {
 
 	public RoverIdentifier getRoverId() {
 		return roverId;
+	}
+	
+	public UUID getPlateauUUID() {
+		return roverId.getPlateauUuid();
 	}
 
 	public TwoDimensionalCoordinates getPreviousPosition() {
@@ -56,6 +62,11 @@ public class RoverMovedEvent implements DomainEvent {
 			return new RoverMovedEvent(this);
 		}
 
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("RoverMovedEvent published with rover id [%s], previous position [%s], current position [%s]" , roverId, previousPosition, currentPosition);
 	}
 
 }

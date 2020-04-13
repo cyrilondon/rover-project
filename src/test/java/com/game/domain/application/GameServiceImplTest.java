@@ -10,12 +10,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.game.domain.application.GameContext;
-import com.game.domain.application.GameService;
-import com.game.domain.application.GameServiceImpl;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
@@ -26,6 +22,7 @@ import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.event.store.EventStoreImpl;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
@@ -54,37 +51,41 @@ public class GameServiceImplTest {
 
 	UUID relativisticUUID = UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c");
 
-	@BeforeTest
-	public void setup() {
+	
+	private void mockServiceLocator() {
 		ServiceLocator mockServiceLocator = new ServiceLocator();
 		mockServiceLocator.loadDomainService(ServiceLocator.ROVER_SERVICE, new MockRoverServiceImpl());
 		mockServiceLocator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new MockPlateauServiceImpl());
+		mockServiceLocator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
 		ServiceLocator.load(mockServiceLocator);
 	}
 
 	@BeforeMethod
 	public void resetGame() {
-		gameContext.reset();
+		mockServiceLocator();
 		roversList.clear();
-		((MockPlateauServiceImpl) gameContext.getPlateauService()).reset();
+		plateau = null;
 	}
 
 	@Test
 	public void testInitializePlateau() {
-		gameService.execute(new InitializePlateauCommand.Builder().withUuid(UUID.randomUUID()).withAbscissa(WIDTH)
+		System.out.println(gameContext.getPlateauService());
+		UUID uuid  = UUID.randomUUID();
+		gameService.execute(new InitializePlateauCommand.Builder().withUuid(uuid).withAbscissa(WIDTH)
 				.withOrdinate(HEIGHT).build());
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
-		assertThat(gameContext.getPlateau()).isEqualTo(plateau);
+		assertThat(gameContext.getPlateau(uuid)).isEqualTo(plateau);
 	}
 
 	@Test
 	public void testInitializeRelativisticPlateau() {
-		gameService.execute(new InitializePlateauCommand.Builder().withUuid(UUID.randomUUID()).withAbscissa(WIDTH)
+		UUID uuid  = UUID.randomUUID();
+		gameService.execute(new InitializePlateauCommand.Builder().withUuid(uuid).withAbscissa(WIDTH)
 				.withOrdinate(HEIGHT).withObserverSpeed(2 * GameContext.MINIMAL_RELATIVISTIC_SPEED).build());
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 2);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT - 2);
-		assertThat(gameContext.getPlateau().getId()).isEqualTo(relativisticUUID);
+		assertThat(gameContext.getPlateau(relativisticUUID)).isNotNull();
 	}
 
 	@Test
@@ -127,7 +128,7 @@ public class GameServiceImplTest {
 	public void testMoveRoverWithOrientation() {
 		UUID uuid = UUID.randomUUID();
 		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
-		gameService.execute(new MoveRoverCommand(uuid, roverName, 1));
+		gameService.execute(new MoveRoverCommand(new RoverIdentifier(uuid, roverName), 1));
 		assertThat(roversList).contains(
 				new Rover(new RoverIdentifier(uuid, roverName), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
 
@@ -140,7 +141,7 @@ public class GameServiceImplTest {
 	public void testMoveRoverWithOrientationOutOfTheBoard() {
 		String roverName = GameContext.ROVER_NAME_PREFIX + 5;
 		Throwable thrown = catchThrowable(
-				() -> gameService.execute(new MoveRoverCommand(UUID.randomUUID(), roverName, 1)));
+				() -> gameService.execute(new MoveRoverCommand(new RoverIdentifier(UUID.randomUUID(), roverName), 1)));
 		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE, "Error"));
@@ -158,11 +159,6 @@ public class GameServiceImplTest {
 				Orientation orientation) {
 			GameServiceImplTest.this.roversList
 					.add(new Rover(new RoverIdentifier(id.getPlateauUuid(), id.getName()), coordinates, orientation));
-		}
-
-		@Override
-		public void faceToOrientation(RoverIdentifier id, Orientation orientation) {
-
 		}
 
 		@Override
@@ -200,6 +196,18 @@ public class GameServiceImplTest {
 		@Override
 		public void removeRover(RoverIdentifier id) {
 			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void turnLeft(RoverIdentifier id) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void turnRight(RoverIdentifier id) {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}
@@ -255,10 +263,6 @@ public class GameServiceImplTest {
 			if (GameServiceImplTest.this.plateau == null)
 				throw new PlateauNotFoundException(plateauUuid);
 			return GameServiceImplTest.this.plateau;
-		}
-
-		public void reset() {
-			GameServiceImplTest.this.plateau = null;
 		}
 
 		@Override

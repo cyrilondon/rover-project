@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.game.domain.application.GameContext;
@@ -34,11 +35,18 @@ public class RoverTest {
 	List<RoverMovedEvent> capturedEvents = new ArrayList<RoverMovedEvent>();
 	
 	List<RoverMovedWithExceptionEvent> capturedEventsWithExceptions = new ArrayList<RoverMovedWithExceptionEvent>();
+	
+	UUID plateauUUID = UUID.randomUUID();
+	
+	@BeforeTest
+	public void setup() {
+		GameContext.getInstance().reset();
+	}
 
 	@BeforeMethod
 	public void reset() {
 		DomainEventPublisher.instance().clear();
-		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		addPlateau(plateauUUID, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 		capturedEvents.clear();
 		capturedEventsWithExceptions.clear();
 		DomainEventPublisher.instance().subscribe(new MockRoverMovedEventSubscriber());
@@ -72,6 +80,8 @@ public class RoverTest {
 
 	@Test
 	public void testTurnLeft() {
+		GameContext context = GameContext.getInstance();
+		context.getEventStore().getAllEvents();
 		Rover rover = initializeRover(Orientation.SOUTH);
 		rover.turnLeft();
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.EAST);
@@ -97,6 +107,7 @@ public class RoverTest {
 	public void testMoveNorthTwoTimes() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.moveNumberOfTimes(2);
+		assertThat(capturedEvents.size()).isEqualTo(2);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(6);
@@ -106,9 +117,8 @@ public class RoverTest {
 	public void testMoveNorthThreeTimesOutOfBoard() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.moveNumberOfTimes(3);
-		
+		assertThat(capturedEvents.size()).isEqualTo(2);
 		assertThat(capturedEventsWithExceptions.size()).isEqualTo(1);
-		
 		RoverMovedWithExceptionEvent event = capturedEventsWithExceptions.get(0);
 		assertThat(event.getRoverId()).isEqualTo(rover.getId());
 		assertThat(event.getException()).isInstanceOf(IllegalRoverMoveException.class);
@@ -214,12 +224,12 @@ public class RoverTest {
 	}
 
 	private Rover initializeRover(Orientation orientation) {
-		return new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), orientation);
+		return new Rover(new RoverIdentifier(plateauUUID, ROVER_NAME), new TwoDimensionalCoordinates(3, 4), orientation);
 	}
 
-	private void addPlateau(int width, int height) {
+	private void addPlateau(UUID uuid, int width, int height) {
 		gameContext.addPlateau(
-				new Plateau(UUID.randomUUID(), new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
+				new Plateau(uuid, new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 	
 	private class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {

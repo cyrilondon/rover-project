@@ -1,65 +1,121 @@
 package com.game.integration;
+
 import java.util.UUID;
 
 import com.game.domain.application.GameContext;
 import com.game.domain.application.GameService;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
+import com.game.domain.application.command.MakeTurnRoverCommand;
 import com.game.domain.application.command.MoveRoverCommand;
+import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverInstruction;
+import com.game.domain.model.event.store.EventStore;
 
 public class GameIntegrationTest {
 
-	public static void main(String[] args) {
+	GameService gameService = GameContext.getInstance().getGameService();
 
-		GameService gameService = GameContext.getInstance().getGameService();
+	EventStore eventStore = GameContext.getInstance().getEventStore();
+
+	public static void main(String[] args) {
+		
+		GameIntegrationTest integrationTest = new GameIntegrationTest();
+		integrationTest.runExample();
+	}
+
+	private void runExample() {
+
+		int plateauWidth = 5, plateauHeight = 5;
 
 		// initialize plateau command
 		UUID plateauUuid = UUID.randomUUID();
-		InitializePlateauCommand plateauCommand = new InitializePlateauCommand.Builder().withObserverSpeed(0)
-				.withUuid(plateauUuid).withAbscissa(5).withOrdinate(7).build();
-		
+		InitializePlateauCommand initializePlateauCommand = new InitializePlateauCommand.Builder().withObserverSpeed(0)
+				.withUuid(plateauUuid).withAbscissa(plateauWidth).withOrdinate(plateauHeight).build();
+
 		// initialize Rover command
-		int x = 3, y = 4;
-		String rover1 = GameContext.ROVER_NAME_PREFIX + 1;
+		int x = 1, y = 2;
+		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
 		InitializeRoverCommand intializeRoverCommand = new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid)
-				.withName(rover1).withAbscissa(x).withOrdinate(y).withOrientation('W').build();
+				.withName(rover1Name).withAbscissa(x).withOrdinate(y).withOrientation('N').build();
 
 		// executes commands
-		gameService.execute(plateauCommand);
+		gameService.execute(initializePlateauCommand);
 
 		gameService.execute(intializeRoverCommand);
 
-		// then
-		// [Rover [ROVER_1] attached to Plateau [3aa891b8-80e5-473e-a0c5-a9dbefe5af81]
-		// with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [WEST]]]
-		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
+		printInfos(plateauUuid);
 
+		RoverIdentifier rover1 = new RoverIdentifier(plateauUuid, rover1Name);
+		
+		//Rover 1 LMLMLMLMM
+
+		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
+
+		executeCommand(new MoveRoverCommand(rover1, 1));
+		
+		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
+
+		executeCommand(new MoveRoverCommand(rover1, 1));
+		
+		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
+
+		executeCommand(new MoveRoverCommand(rover1, 1));
+		
+		executeCommand(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
+
+		executeCommand(new MoveRoverCommand(rover1, 2));
+		
+		
+		
+		// Rover 2 initialization
 		// initialize Rover command
-		int x2 = 2, y2 = 6;
-		String rover2 = GameContext.ROVER_NAME_PREFIX + 2;
-		InitializeRoverCommand intializeRoverCommand2 = new InitializeRoverCommand.Builder()
-				.withPlateauUuid(plateauUuid).withName(rover2).withAbscissa(x2).withOrdinate(y2).withOrientation('N')
-				.build();
+		int x2 = 3, y2 = 3;
+		String rover2Name = GameContext.ROVER_NAME_PREFIX + 2;
+		InitializeRoverCommand intializeRover2Command = new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid)
+				.withName(rover2Name).withAbscissa(x2).withOrdinate(y2).withOrientation('E').build();
 		
-		gameService.execute(intializeRoverCommand2);
-
-		// then
-		//[Rover [ROVER_1] attached to Plateau [101d04e5-7ba1-4d73-8ef6-11dd4a746a7a] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [WEST]],
-		//s Rover [ROVER_2] attached to Plateau [101d04e5-7ba1-4d73-8ef6-11dd4a746a7a] with [Coordinates [abscissa = 2, ordinate = 6]] and [Orientation [SOUTH]]]
-		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
+		gameService.execute(intializeRover2Command);
+		
+		printInfos(plateauUuid);
+		
+		RoverIdentifier rover2 = new RoverIdentifier(plateauUuid, rover2Name);
+		
+		// executes commands
+		// MMRMMRMRRM
+		executeCommand(new MoveRoverCommand(rover2, 2));
+		
+		executeCommand(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
+		
+		executeCommand(new MoveRoverCommand(rover2, 2));
+		
+		executeCommand(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
+		
+		executeCommand(new MoveRoverCommand(rover2, 1));
+		
+		executeCommand(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
+		
+		executeCommand(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
+		
+		executeCommand(new MoveRoverCommand(rover2, 1));
+		
+		eventStore.getAllEvents().forEach(System.out::println);
+		
+	}
 	
-		gameService.execute(new MoveRoverCommand(plateauUuid, rover1, 2));
-		
-		//[Rover [ROVER_1] attached to Plateau [590b0b3e-9c11-4380-9af4-362597d53572] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [WEST]],
-		// Rover [ROVER_2] attached to Plateau [590b0b3e-9c11-4380-9af4-362597d53572] with [Coordinates [abscissa = 2, ordinate = 6]] and [Orientation [SOUTH]]]
-		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
-		
-		gameService.execute(new MoveRoverCommand(plateauUuid, rover2, 2));
-		
-		//[Rover [ROVER_1] attached to Plateau [8a2e53a5-2e4d-4feb-b600-970052a6895b] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [WEST]]]
-		// Rover 2 has been deleted
-		System.out.println(gameService.getAllRoversByPlateau(plateauUuid));
+	private void executeCommand(MoveRoverCommand command) {
+		gameService.execute(command);
+		printInfos(command.getRoverId().getPlateauUuid());
+	}
+	
+	private void executeCommand(MakeTurnRoverCommand command) {
+		gameService.execute(command);
+		printInfos(command.getRoverId().getPlateauUuid());
+	}
 
+	private void printInfos(UUID plateauUuid) {
+		
+		gameService.getAllRoversByPlateau(plateauUuid).forEach(System.out::println);
 	}
 
 }

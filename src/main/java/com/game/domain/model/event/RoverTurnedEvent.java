@@ -58,5 +58,10 @@ public class RoverTurnedEvent implements DomainEvent {
 				
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("RoverTurnedEvent published with rover id [%s], previous orientation [%s], current orientation [%s]" , roverId, previousOrientation, currentOrientation);
+	}
+	
 
 }

@@ -40,5 +40,10 @@ public class RoverMovedWithExceptionEvent implements DomainEvent {
 	public TwoDimensionalCoordinates getRoverPreviousPosition() {
 		return getMovedEvent().getPreviousPosition();
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("RoverMovedEvent published with Rover Moved Event [%s], exception [%s]" , movedEvent, exception);
+	}
 
 }

@@ -48,12 +48,14 @@ public class RoverValidatorTest {
 	 */
 	@Test
 	public void testValidatorNegativeXPosition() {
+		
+		UUID uuid = UUID.randomUUID();
 
-		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		addPlateau(uuid, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
-		Rover rover = getRover(NEGATIVE_X_POSITION, POSITIVE_Y_POSITION);
+		Rover rover = getRover(uuid, NEGATIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
@@ -68,12 +70,14 @@ public class RoverValidatorTest {
 	 */
 	@Test
 	public void testValidatorNegativeYPosition() {
+		
+		UUID uuid = UUID.randomUUID();
 
-		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		addPlateau(uuid, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
-		Rover rover = getRover(POSITIVE_X_POSITION, NEGATIVE_Y_POSITION);
+		Rover rover = getRover(uuid, POSITIVE_X_POSITION, NEGATIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
@@ -88,12 +92,14 @@ public class RoverValidatorTest {
 	 */
 	@Test
 	public void testValidatorNegativeXYPosition() {
+		
+		UUID uuid = UUID.randomUUID();
 
-		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		addPlateau(uuid, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
-		Rover rover = getRover(NEGATIVE_X_POSITION, NEGATIVE_Y_POSITION);
+		Rover rover = getRover(uuid, NEGATIVE_X_POSITION, NEGATIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
@@ -109,12 +115,14 @@ public class RoverValidatorTest {
 	 */
 	@Test
 	public void testValidatorOutOfPlateauXYPosition() {
+		
+		UUID uuid = UUID.randomUUID();
 
-		addPlateau(PLATEAU_SMALL_X, PLATEAU_SMALL_X);
+		addPlateau(uuid, PLATEAU_SMALL_X, PLATEAU_SMALL_X);
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 
-		Rover rover = getRover(POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
+		Rover rover = getRover(uuid, POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
@@ -130,14 +138,16 @@ public class RoverValidatorTest {
 	 */
 	@Test
 	public void testAlreadySetPosition() {
+		
+		UUID uuid = UUID.randomUUID();
 
-		addPlateau(PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		addPlateau(uuid, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 		
-		gameContext.getPlateau().setLocationBusy(new TwoDimensionalCoordinates(POSITIVE_X_POSITION, POSITIVE_Y_POSITION));
+		gameContext.getPlateau(uuid).setLocationBusy(new TwoDimensionalCoordinates(POSITIVE_X_POSITION, POSITIVE_Y_POSITION));
 
-		Rover rover = getRover(POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
+		Rover rover = getRover(uuid, POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
 		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
@@ -146,13 +156,13 @@ public class RoverValidatorTest {
 						String.format(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET, rover.getXPosition(), rover.getYPosition())));
 	}
 
-	private void addPlateau(int width, int height) {
+	private void addPlateau(UUID uuid, int width, int height) {
 		gameContext.addPlateau(
-				new Plateau(UUID.randomUUID(), new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
+				new Plateau(uuid, new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
 	}
 
-	private Rover getRover(int X, int Y) {
-		return new Rover(new RoverIdentifier(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX), new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
+	private Rover getRover(UUID uuid, int X, int Y) {
+		return new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX), new TwoDimensionalCoordinates(X, Y), Orientation.SOUTH);
 	}
 
 }

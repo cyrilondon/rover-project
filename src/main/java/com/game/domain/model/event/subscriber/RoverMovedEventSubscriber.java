@@ -7,14 +7,17 @@ public class RoverMovedEventSubscriber implements DomainEventSubscriber<RoverMov
 
 	@Override
 	public void handleEvent(RoverMovedEvent event) {
-		// 1. update persistent Rover with last position
+		
+		// 1 . update in memory plateau locations
+	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationFree(event.getPreviousPosition());
+	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationBusy(event.getCurrentPosition());
+	    
+		// 2. update persistent Rover with last position
 		updateRoverWithLastPosition(event);
 
-		// 2 . update plateau locations
+		// 3 . update persistent plateau locations
 		updatePlateauWithLastLocations(event);
-
-		// 3. store the event
-		// TODO with Kafka Producer?
+		
 	}
 
 	@Override

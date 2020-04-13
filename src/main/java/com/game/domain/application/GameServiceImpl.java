@@ -1,5 +1,6 @@
 package com.game.domain.application;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,15 +12,14 @@ import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverInstruction;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEventPublisher;
-import com.game.domain.model.event.DomainEventSubscriber;
-import com.game.domain.model.event.RoverTurnedEvent;
 import com.game.domain.model.event.subscriber.RoverMovedEventSubscriber;
 import com.game.domain.model.event.subscriber.RoverMovedWithExceptionEventSubscriber;
+import com.game.domain.model.event.subscriber.RoverTurnedEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
-import com.game.domain.model.exception.IllegalRoverMoveException;
 import com.game.domain.model.exception.PlateauNotFoundException;
 import com.game.domain.model.service.PlateauServiceImpl;
 import com.game.domain.model.service.RoverServiceImpl;
@@ -36,6 +36,8 @@ import com.game.domain.model.service.RoverServiceImpl;
  * </ol>
  */
 public class GameServiceImpl implements GameService {
+
+	EnumSet<RoverInstruction> turnInstructions = EnumSet.complementOf(EnumSet.of(RoverInstruction.MOVE));
 
 	public void execute(InitializePlateauCommand command) {
 		GameContext gameContext = GameContext.getInstance();
@@ -75,44 +77,6 @@ public class GameServiceImpl implements GameService {
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void execute(MakeTurnRoverCommand command) {
-
-		GameContext gameContext = GameContext.getInstance();
-
-		// defines the subscriber for the FaceToOrientationRoverCommand
-		@SuppressWarnings("rawtypes")
-		DomainEventSubscriber subscriber = new DomainEventSubscriber<RoverTurnedEvent>() {
-
-			@Override
-			public void handleEvent(RoverTurnedEvent event) {
-				// 1. update persistent Rover with last orientation
-				updateRoverWithOrientation(event);
-				// 2. store the event
-				// TODO with Kafka Producer?
-			}
-
-			@Override
-			public Class<RoverTurnedEvent> subscribedToEventType() {
-				return RoverTurnedEvent.class;
-			}
-
-			private void updateRoverWithOrientation(RoverTurnedEvent event) {
-				gameContext.getRoverService().updateRoverWithOrientation(event.getRoverId(),
-						event.getCurrentOrientation());
-			}
-
-		};
-
-		// register the subscriber for the given type of event = RoverMovedEvent
-		DomainEventPublisher.instance().subscribe(subscriber);
-
-		gameContext.getRoverService().faceToOrientation(
-				new RoverIdentifier(command.getPlateauUuid(), command.getName()),
-				Orientation.get(String.valueOf(command.getTurn())));
-	}
-
 	@Override
 	public void execute(MoveRoverCommand command) {
 
@@ -125,9 +89,29 @@ public class GameServiceImpl implements GameService {
 		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
 
 		// delegates to the rover service
-		RoverIdentifier roverId = new RoverIdentifier(command.getPlateauUuid(), command.getRoverName());
+		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
 
-		gameContext.getRoverService().moveRoverNumberOfTimes(roverId, command.getNumberOfMoves());
+	}
+
+	@Override
+	public void execute(MakeTurnRoverCommand command) {
+
+		GameContext gameContext = GameContext.getInstance();
+
+		// register the subscriber for the given type of event = RoverMovedEvent
+		DomainEventPublisher.instance().subscribe(new RoverTurnedEventSubscriber());
+
+		// delegates to rover service
+		switch (command.getTurn()) {
+		case LEFT:
+			gameContext.getRoverService().turnLeft(command.getRoverId());
+			break;
+		case RIGHT:
+			gameContext.getRoverService().turnRight(command.getRoverId());
+			break;
+		case MOVE:
+			break;
+		}
 
 	}
 

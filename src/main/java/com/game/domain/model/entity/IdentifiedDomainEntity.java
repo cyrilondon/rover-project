@@ -3,6 +3,7 @@ package com.game.domain.model.entity;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.game.domain.application.GameContext;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.DomainEventPublisher;
 
@@ -15,24 +16,29 @@ public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
 		return this.id;
 	}
 	
-	final Function<DomainEvent, Void> publishEventFunction = event -> {
+	final Function<DomainEvent, DomainEvent> publishEventFunction = event -> {
 		DomainEventPublisher.instance().publish(event);
-		return null;
+		return event;
 	};
+	
+	/**
+	 * Event Store function defined in GameContext for more flexibility
+	 */
+	final Function<DomainEvent, Void> eventStoreFunction = GameContext.getInstance().storeEventFunction;
 
 	@Override
 	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,
 			BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction) {
 		try {
-			function.andThen(publishEventFunction).apply(event);
+			function.andThen(publishEventFunction).andThen(eventStoreFunction).apply(event);
 		} catch (Exception exception) {
-			exceptionFunction.andThen(publishEventFunction).apply(exception, event);
+			exceptionFunction.andThen(publishEventFunction).andThen(eventStoreFunction).apply(exception, event);
 		}
 	}
 
 	@Override
 	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function) {
-		function.andThen(publishEventFunction).apply(event);
+		function.andThen(publishEventFunction).andThen(eventStoreFunction).apply(event);
 	}
 
 }

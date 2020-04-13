@@ -10,17 +10,16 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
 public interface RoverService extends DomainService {
 		
-	void updateRover(Rover rover);
-
+	
 	void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation);
-
-	void faceToOrientation(RoverIdentifier id, Orientation orientation);
 
 	void moveRoverNumberOfTimes(RoverIdentifier id, int times);
 
-	Rover getRover(RoverIdentifier id);
+	void turnLeft(RoverIdentifier id);
 
-	List<Rover> getAllRoversOnPlateau(UUID uuid);
+	void turnRight(RoverIdentifier id);
+	
+	void updateRover(Rover rover);
 
 	void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position);
 
@@ -28,5 +27,8 @@ public interface RoverService extends DomainService {
 
 	void removeRover(RoverIdentifier id);
 
+	Rover getRover(RoverIdentifier id);
+
+	List<Rover> getAllRoversOnPlateau(UUID uuid);
 
 }
