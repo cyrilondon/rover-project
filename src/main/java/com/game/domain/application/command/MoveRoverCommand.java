@@ -1,5 +1,6 @@
 package com.game.domain.application.command;
 
+import com.game.domain.application.CommandVisitor;
 import com.game.domain.model.entity.RoverIdentifier;
 
 /**
@@ -7,7 +8,7 @@ import com.game.domain.model.entity.RoverIdentifier;
  * by a certain number of moves
  *
  */
-public class MoveRoverCommand {
+public class MoveRoverCommand implements DomainCommand {
 
 	private RoverIdentifier roverId;
 	
@@ -24,6 +25,11 @@ public class MoveRoverCommand {
 
 	public int getNumberOfMoves() {
 		return numberOfMoves;
+	}
+
+	@Override
+	public void acceptVisitor(CommandVisitor visitor) {
+		visitor.visit(this);
 	}
 	
 }

@@ -1,9 +1,10 @@
 package com.game.domain.application.command;
 
+import com.game.domain.application.CommandVisitor;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverInstruction;
 
-public class MakeTurnRoverCommand {
+public class MakeTurnRoverCommand implements DomainCommand  {
 	
 	RoverInstruction turn;
 	
@@ -20,6 +21,11 @@ public class MakeTurnRoverCommand {
 
 	public RoverIdentifier getRoverId() {
 		return roverId;
+	}
+
+	@Override
+	public void acceptVisitor(CommandVisitor visitor) {
+		visitor.visit(this);
 	}
 
 }

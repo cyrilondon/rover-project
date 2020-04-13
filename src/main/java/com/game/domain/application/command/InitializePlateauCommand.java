@@ -2,7 +2,9 @@ package com.game.domain.application.command;
 
 import java.util.UUID;
 
-public class InitializePlateauCommand {
+import com.game.domain.application.CommandVisitor;
+
+public class InitializePlateauCommand implements DomainCommand {
 
 	private UUID plateauUuid;
 
@@ -48,7 +50,7 @@ public class InitializePlateauCommand {
 		public InitializePlateauCommand build() {
 			return new InitializePlateauCommand(this);
 		}
-	
+
 	}
 
 	public UUID getPlateauUuid() {
@@ -62,10 +64,14 @@ public class InitializePlateauCommand {
 	public int getOrdinate() {
 		return ordinate;
 	}
-	
+
 	public int getObserverSpeed() {
 		return observerSpeed;
 	}
 
+	@Override
+	public void acceptVisitor(CommandVisitor visitor) {
+		visitor.visit(this);
+	}
 
 }
