@@ -1,5 +1,7 @@
 package com.game.domain.application;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,6 +122,10 @@ public class GameContext {
 
 	public Plateau getPlateau(UUID uuid) {
 		return plateauMap.get(uuid);
+	}
+	
+	public List<Plateau> getAllPlateau(){
+		return new ArrayList<Plateau>(plateauMap.values());
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.game.domain.application;
 
 import java.util.EnumSet;
+import java.util.List;
 
+import com.game.domain.application.command.DomainCommand;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MakeTurnRoverCommand;
@@ -74,7 +76,6 @@ class GameServiceImpl implements GameService {
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 
-	@Override
 	public void execute(MoveRoverCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
@@ -90,7 +91,6 @@ class GameServiceImpl implements GameService {
 
 	}
 
-	@Override
 	public void execute(MakeTurnRoverCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
@@ -103,9 +103,11 @@ class GameServiceImpl implements GameService {
 		case LEFT:
 			gameContext.getRoverService().turnLeft(command.getRoverId());
 			break;
+			
 		case RIGHT:
 			gameContext.getRoverService().turnRight(command.getRoverId());
 			break;
+			
 		case MOVE:
 			break;
 		}
@@ -122,6 +124,12 @@ class GameServiceImpl implements GameService {
 	 */
 	private void addPlateauToContext(Plateau plateau) {
 		GameContext.getInstance().addPlateau(plateau);
+	}
+
+	@Override
+	public void execute(List<DomainCommand> commands) {
+		CommandVisitor commandVisitor = new CommandVisitor();
+		commands.forEach(command -> command.acceptVisitor(commandVisitor));
 	}
 
 }

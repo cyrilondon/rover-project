@@ -1,91 +1,36 @@
 package com.game.integration;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 import java.util.UUID;
 
-import com.game.domain.application.CommandVisitor;
+import com.game.adapter.file.GameFileAdapter;
 import com.game.domain.application.GameContext;
-import com.game.domain.application.GameService;
-import com.game.domain.application.command.InitializePlateauCommand;
-import com.game.domain.application.command.InitializeRoverCommand;
-import com.game.domain.application.command.MakeTurnRoverCommand;
-import com.game.domain.application.command.MoveRoverCommand;
 import com.game.domain.model.entity.Plateau;
-import com.game.domain.model.entity.RoverIdentifier;
-import com.game.domain.model.entity.RoverInstruction;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.event.store.EventStore;
-
-import com.game.domain.application.command.DomainCommand;
 
 public class GameIntegrationTest {
-
-	GameService gameService = GameContext.getInstance().getGameService();
-
-	EventStore eventStore = GameContext.getInstance().getEventStore();
-
-	// random plateau UUID
-	UUID plateauUuid = UUID.randomUUID();
-
-	CommandVisitor visitor = new CommandVisitor();
+	
 
 	public static void main(String[] args) {
 
 		GameIntegrationTest integrationTest = new GameIntegrationTest();
-		integrationTest.runExample();
+		integrationTest.runWithFileAdapter();
 	}
 
-	private void runExample() {
 
-		// ********* Given **********
-		// plateau command
-		List<DomainCommand> commands = new ArrayList<>();
-		commands.add(new InitializePlateauCommand.Builder().withObserverSpeed(0).withUuid(plateauUuid).withAbscissa(5)
-				.withOrdinate(5).build());
-
-		// rover1 commands
-		// Rover 1 initialization + sLMLMLMLMMs
-		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
-		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover1Name)
-				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
-		RoverIdentifier rover1 = new RoverIdentifier(plateauUuid, rover1Name);
-		commands.add(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 2));
-
-		// rover2 commands
-		// rover 2 initialization + MMRMMRMRRM
-		String rover2Name = GameContext.ROVER_NAME_PREFIX + 2;
-		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover2Name)
-				.withAbscissa(3).withOrdinate(3).withOrientation('E').build());
-		RoverIdentifier rover2 = new RoverIdentifier(plateauUuid, rover2Name);
-		commands.add(new MoveRoverCommand(rover2, 2));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 2));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 1));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 1));
+	private void runWithFileAdapter() {
 		
-		// ******** When **************
-		// execute the commands
-		commands.forEach(command -> command.acceptVisitor(visitor));
-		
+		// the client will run only this part
+		GameFileAdapter adapter = new GameFileAdapter();
+		adapter.executeGame(new File("C:/toto"));
 
-		// ******* Then **************
-		// print the results
+		// extra part just to print the results
+		UUID plateauUuid = GameContext.getInstance().getAllPlateau().get(0).getId();
 		printInfos(plateauUuid);
-		eventStore.getAllEvents().forEach(System.out::println);
-
+		GameContext.getInstance().getEventStore().getAllEvents().forEach(System.out::println);
+	
 	}
-
+	
 	private void printInfos(UUID plateauUuid) {
 		// prints all the Persistent rovers
 		GameContext.getInstance().getRoverService().getAllRoversOnPlateau(plateauUuid).forEach(System.out::println);

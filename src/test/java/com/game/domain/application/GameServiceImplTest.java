@@ -43,7 +43,7 @@ public class GameServiceImplTest {
 
 	private GameContext gameContext = GameContext.getInstance();
 
-	private GameService gameService = new GameServiceImpl();
+	private GameServiceImpl gameService = new GameServiceImpl();
 
 	public List<Rover> roversList = new ArrayList<Rover>();
 

@@ -7,7 +7,7 @@ import com.game.domain.application.command.MoveRoverCommand;
 
 public class CommandVisitor {
 	
-	private GameService gameService = GameContext.getInstance().getGameService();
+	private GameServiceImpl gameService = new GameServiceImpl();
 	
 	public void visit(InitializePlateauCommand command) {
 		gameService.execute(command);

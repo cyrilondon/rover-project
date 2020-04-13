@@ -7,7 +7,6 @@ import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.event.DomainEvent;
 
 public interface RoverService extends DomainService {
 		
