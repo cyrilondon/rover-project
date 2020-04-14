@@ -69,7 +69,7 @@ The base class of our Exception hierarchy is the <code>[GameException>](src/main
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
 - takes an **error code** as constructor argument along the error message for better understanding/lisibility from the end user
 
-```
+```java
 public class GameException extends RuntimeException {
 	
 	private final String errorCode;
@@ -89,13 +89,13 @@ We consider two types of validation:
    
    Say we try to initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong
    
- ```  
+ ```java 
    new Rover(new RoverIdentifier(UUID.randomUUID(),   GameContext.ROVER_NAME_PREFIX), null, Orientation.SOUTH);
    
  ```
  This would be the corresponding stacktrace:
 
- ```  
+ ```java  
 Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Rover position
 	at com.game.core.validation.ArgumentCheck.requiresNotNull(ArgumentCheck.java:21)
 	at com.game.core.validation.ArgumentCheck.preNotNull(ArgumentCheck.java:17)
@@ -105,13 +105,13 @@ Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameEx
  
  Equivalently if you try to initialize a Rover with only whitespace characters, the <code>ArgumentCheck.requiresNotEmpty</code> check will prevent this action
  
- ``` 
+ ```java
  new Rover(new RoverIdentifier(UUID.randomUUID(), "  "), new TwoDimensionalCoordinates(2, 3), Orientation.SOUTH);
  ```
  
  and will throw the following exception
  
-  ``` 
+  ```java 
 Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Rover name
 	at com.game.core.validation.ArgumentCheck.requiresNotEmpty(ArgumentCheck.java:30)
 	at com.game.core.validation.ArgumentCheck.preNotEmpty(ArgumentCheck.java:26)
@@ -126,7 +126,7 @@ The interesting thing to note here is that this validator class depends on <code
 
 This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is of great interest as we will see further down to ensure distinct validation processes under different contexts.
 
- ```
+ ```java
 public abstract class EntityValidator<T> {
 
 	private T entity;
@@ -151,7 +151,7 @@ public abstract class EntityValidator<T> {
  
  The notification handler interface defines two methods to be implemented:
  
-  ```
+  ```java
  public interface ValidationNotificationHandler {
 	
 	public void handleError(String errorMessage) ;
@@ -166,7 +166,7 @@ public abstract class EntityValidator<T> {
  
  We have few things to check: the Rover's position X and Y should be both positive, the position X and Y should be inside the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
  
-   ```
+   ```java
    public class RoverValidator extends EntityValidator<Rover> {
 
 	public RoverValidator(Rover rover, ValidationNotificationHandler handler) {
@@ -205,7 +205,7 @@ public abstract class EntityValidator<T> {
    
    This exactly what the class <code>[EntityDefaultValidationNotificationHandler](src/main/java/com/game/domain/model/validation/EntityDefaultValidationNotificationHandler.java)</code> does:
       
-   ```
+   ```java
    public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
 
 	protected ValidationResult validationResult = new ValidationResult();
@@ -228,7 +228,7 @@ public abstract class EntityValidator<T> {
  
  Please not that the error message contains the information of both invalid coordinates. *[ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]*
  
-   ```
+   ```java
  Exception in thread "main" com.game.domain.model.exception.EntityInitialisationException: [ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]
 	at com.game.domain.model.validation.EntityDefaultValidationNotificationHandler.checkValidationResult(EntityDefaultValidationNotificationHandler.java:25)
 	at com.game.domain.model.validation.EntityValidator.validate(EntityValidator.java:31)
@@ -246,7 +246,7 @@ This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/j
 
 Below is the exception stacktrace when a Rover asked to move few steps will end up going out of the Plateau. We notice that the error message is exactly the same as above (concerning the Y-position out of the plateau), but the type of exception as well as the error code have changed: *com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]*
 
-  ```
+  ```java
 com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]
 	at com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler.checkValidationResult(RoverMovedPositionValidationNotificationHandler.java:16)
 	at com.game.domain.model.validation.EntityValidator.validate(EntityValidator.java:31)
