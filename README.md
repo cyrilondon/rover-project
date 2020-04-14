@@ -22,11 +22,93 @@ The second line is a series of instructions telling the rover how to explore the
 
 ## Objectives
 
-In this exercise, we would like to present a step-by-step process driven by the three following software practices
+In this exercise, we would like to present a step-by-step process driven by the three following software practices: `Domain and Event Driven Design`, `Hexagonal Architecture` and `Test Driven Design`.
 
 ### Domain Driven Design 
-We start by focusing on our domain (entities) and services, which both represent the very core of our application.
-If you go through our commits one after the other, you will notice that designing and properly testing our entities is our very first concern.
+
+Our primary concern, before focusing on the input file parsing, should be to identify the main components of our domain.
+
+<img src="src/main/resources/domain_diagram.png" />
+
+
+
+
+The Domain Driven Design usually recommands to define the following elements:
+ 
+##### Application Services
+
+ An `Application Service` is inside the domain boundary and acts as a facade between the client and the domain. Its responsibilities, among others are:
+  - to map the `Commands` objects received from the outside world to the objects/arguments understood by the model and to start the execution of the domain logic.
+  - to acts as a service orchestration by integrating two or more domain services.
+  - to register the required event subscribers (in case of event-driven applications).
+  - to provide security and transaction management (not covered here).
+  
+ In our case the [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) represents our single Application Service and represents the bridge between the File Adapter and the domain.
+ 
+ Below is an extract of the GameServiceImpl's method to initialize a Rover:
+ 
+ - it takes a [InitializeRoverCommand](src/main/java/com/game/domain/application/command/InitializeRoverCommand.java) and will map this command object to meaningful services arguments, like the rover id and the number of moves
+ 
+ - it registers an event subscriber to handle a Domain Event of type `RoverMovedEvent`
+ 
+ - it registers another event subscriber to handle a Domain Event of type `RoverMovedWithExceptionEvent`
+ 
+ -  it finally delegates the action to move the rover to the `RoverService`
+ 
+ 
+ ```java
+ public void execute(MoveRoverCommand command) {
+
+		GameContext gameContext = GameContext.getInstance();
+
+		// register the subscriber for the given type of event = RoverMovedEvent
+		DomainEventPublisher.instance().subscribe(new RoverMovedEventSubscriber());
+
+		// register the subscriber in case of something went wrong during Rover moves
+		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+
+		// delegates to the rover service
+		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
+
+	}
+ 
+ ```
+
+##### Domain Services
+
+In contrary to Application Services, the Domain Services hold domain logic on top of domain entities and value objects.
+
+Two domain services are present in our model: the [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) (backed by the interface `RoverService`) dedicated to Rover's operations and the [PlateauServiceImpl](src/main/java/com/game/domain/model/service/PlateauServiceImpl.java) (backed by the interface `PlateauService`) which handles all the processes concerning the Plateau.
+
+Those services are needed when the direct access to the entities would not be sufficient or would require to call several entities methods in a same atomic 'transaction'.
+
+Let's look at an extract of the RoverServiceImpl
+
+ ```java
+@Override
+	public void updateRover(Rover rover) {
+		roverRepository.update(rover);
+	}
+
+	@Override
+	public Rover getRover(RoverIdentifier id) {
+		return roverRepository.load(id);
+	}
+	
+	@Override
+	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
+		Rover rover = this.getRover(id);
+		rover.setPosition(position);
+		this.updateRover(rover);
+	}
+	
+	@Override
+	public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
+		Rover rover = this.getRover(id);
+		rover.setOrientation(orientation);
+		this.updateRover(rover);
+	}
+ ```
 
 ### Hexagonal Architecture
 
@@ -35,9 +117,9 @@ If you go through our commits one after the other, you will notice that designin
 The principles of the Hexagonal Architecture have been presented by its author Alistair CockBurn in his original
 paper, [https://alistair.cockburn.us/hexagonal-architecture/](https://alistair.cockburn.us/hexagonal-architecture/).
 
-The main goal of this architecture is to isolate as much as possible the domain model we have just built. Technically the model is isolated from the outside world by the so called **ports** and **adapters**.
+The main goal of this architecture is to isolate, as much as possible, the domain model we have just built. Technically the model is isolated from the outside world by the so-called **ports** and **adapters**.
 
-On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but only to a **port**, some kind of **facade interface** which hides the model implementation details to the clients.
+On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but rather on a **port**, some kind of **facade interface** which hides the model implementation details from the clients.
 
 In our case, the **in-adapter** (another way to design a primary adapter) is represented by the file adapter
 [GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) which interacts with the rover application by its port interface [GameService](src/main/java/com/game/domain/application/GameService.java).
@@ -62,11 +144,11 @@ public class GameFileAdapter {
 }
 ```
 
-On the right side of the hexagon, the **secondary ports** and **secondary adapters** define the way the application itself communicates with the outside world. It could be by example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
+On the right side of the hexagon, the **secondary ports** and **secondary adapters** define the way the application itself communicates with the outside world. It could be for example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
 
-In this context, the application should NOT depend on those external systems but in contrast exposes some ports or interfaces (the secondary or out ports) to be implemented by the adapters.
+In this context, the application should NOT depend on those external systems. Instead, it should expose ports or interfaces (the secondary or out ports) that need to be implemented by the adapters.
 
-In our case, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) but does NOT depend on them directly.
+In our case, at the end, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) but does NOT depend on them directly.
 
  On the other hand, the application exposes two interfaces or ports [RoverRepository](src/main/java/com/game/domain/model/repository/RoverRepository.java) and [PlateauRepository](src/main/java/com/game/domain/model/repository/PlateauRepository.java)  which are to be implemented by the adapters.
  
@@ -117,7 +199,7 @@ We intentionally don't use any framework in this work, i.e. no framework for dep
 
 The base class of our Exception hierarchy is the <code>[GameException>](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
-- takes an **error code** as constructor argument along the error message for better understanding/lisibility from the end user
+- takes an **Error code** as constructor argument along the error message for better understanding/readability from the end user
 
 ```java
 public class GameException extends RuntimeException {
@@ -135,15 +217,15 @@ We consider two types of validation:
 
 - A **Technical validation** which checks the nullity or emptiness of arguments. 
 
-   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>[IllegalArgumentGameException](src/main/java/com/game/domain/model/exception/IllegalArgumentGameException.java)</code> with a specific error code <code>[ERR-000]</code> in case of a non present required argument.
+   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>[IllegalArgumentGameException](src/main/java/com/game/domain/model/exception/IllegalArgumentGameException.java)</code> with a specific error code <code>[ERR-000]</code> when a required argument is not present or empty.
    
-   Say we try to initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong
+ If you initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong,
    
  ```java 
    new Rover(new RoverIdentifier(UUID.randomUUID(),   GameContext.ROVER_NAME_PREFIX), null, Orientation.SOUTH);
    
  ```
- This would be the corresponding stacktrace:
+ this would be the corresponding stacktrace:
 
  ```java  
 Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Rover position
@@ -199,7 +281,7 @@ public abstract class EntityValidator<T> {
 
  ```
  
- The notification handler interface defines two methods to be implemented:
+The notification handler interface defines two methods to be implemented:
  
   ```java
  public interface ValidationNotificationHandler {
@@ -211,10 +293,9 @@ public abstract class EntityValidator<T> {
 }
 
   ```
-  
- Let's consider by example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that everything is OK after the creation or any action on a Rover.
+Let's consider for example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that everything is OK after the creation or any action on a Rover.
  
- We have few things to check: the Rover's position X and Y should be both positive, the position X and Y should be inside the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
+We have a few things to check: the Rover's position X and Y should be both positive, the position X and Y should be on the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
  
    ```java
    public class RoverValidator extends EntityValidator<Rover> {
@@ -249,7 +330,7 @@ public abstract class EntityValidator<T> {
 	}
    
    ```
-   This validation should happen both at initialization time and later on when the Rover is asked to move.
+   These validations should be made both at the time of initialization time and later whenever the Rover is asked to move.
    
    In the first case, it would be a good idea to send ALL the error messages to the end user, so that he can re-send the initialization command successfully next time.
    
