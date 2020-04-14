@@ -33,7 +33,7 @@ public class GameIntegrationTest {
 	
 	private void printInfos(UUID plateauUuid) {
 		// prints all the Persistent rovers
-		GameContext.getInstance().getRoverService().getAllRoversOnPlateau(plateauUuid).forEach(System.out::println);
+		GameContext.getInstance().getRoverService().getAllRoversOnPlateau(plateauUuid).forEach(rover -> System.out.println("Persistent Rover: " + rover));
 		// print the Plateau in-memory state
 		Plateau inMemoryPlateau = GameContext.getInstance().getPlateau(plateauUuid);
 		System.out.println(String.format("In-memory Plateau with coordinates 1,3 busy ? [%s]",

@@ -42,6 +42,26 @@ On the left side of the hexagon, you can find the **primary adapters** which are
 In our case, the **in-adapter** (another way to design a primary adapter) is represented by the file adapter
 [GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) which interacts with the rover application by its port interface [GameService](src/main/java/com/game/domain/application/GameService.java).
 
+
+```java
+
+/**
+ * Primary adapter as defined by Hexagonal Architecture
+ * Clients using a File to start a game should use this adapter as unique contact point to
+ * the rest of the application.
+ * The bridge with the Domain is done via the  application service interface {@link GameService}
+ */
+public class GameFileAdapter {
+
+	GameService gameService = GameContext.getInstance().getGameService();
+
+	public void executeGame(File file) {
+		gameService.execute(getCommandsFromFile(file));
+	}
+	...
+}
+```
+
 On the right side of the hexagon, the **secondary ports** and **secondary adapters** define the way the application itself communicates with the outside world. It could be by example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
 
 In this context, the application should NOT depend on those external systems but in contrast exposes some ports or interfaces (the secondary or out ports) to be implemented by the adapters.
@@ -49,6 +69,36 @@ In this context, the application should NOT depend on those external systems but
 In our case, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) but does NOT depend on them directly.
 
  On the other hand, the application exposes two interfaces or ports [RoverRepository](src/main/java/com/game/domain/model/repository/RoverRepository.java) and [PlateauRepository](src/main/java/com/game/domain/model/repository/PlateauRepository.java)  which are to be implemented by the adapters.
+ 
+```java
+
+/**
+ * Domain service dedicated to handle {@link Rover} entity
+ *
+ */
+public class RoverServiceImpl implements RoverService {
+
+	private RoverRepository roverRepository;
+
+	public RoverServiceImpl(RoverRepository roverRepository) {
+		this.roverRepository = roverRepository;
+	}
+
+	@Override
+	public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		Rover rover = new Rover(id, coordinates, orientation);
+		roverRepository.add(rover.validate());
+	}
+	
+	@Override
+	public void turnLeft(RoverIdentifier id) {
+		roverRepository.load(id).turnLeft();
+	}
+	
+	...
+	
+}
+```
  
  On the diagram, it is important that **all the arrows are pointing into the direction of the hexagon**  and that none is pointing out from the hexagon, which would mean an undesired dependency from the application to the external world.
  
