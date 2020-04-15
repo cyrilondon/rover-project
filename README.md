@@ -110,13 +110,16 @@ Those three distinct Rover's operations together represent an unique operation f
  
 ##### Domain Entities
 
+<img src="src/main/resources/entity_diagram_new.png" />
+
+
 In `Domain Driven Architecture`, we design a domain concept as an `Entity` when we care about its **individuality**, when distinguishing it from all other objects in a system is a mandatory constraint.
 
 An `Entity` is a unique thing and is capable of being changed continuously over a long period of time.
  
 Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/model/entity/Rover.java) as a `Domain Entity` in our application. We do not want to confuse a Rover with another one and we want to keep track of all its moves over the time.
 
-Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not necessarily model it as an Entity. However, as we have decided that moving rovers over multiple Plateau at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Rover.java) as entity as well..
+Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not necessarily model it as an Entity. However, as we have decided that moving rovers over multiple Plateau at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Rover.java) as an `Entity` as well.
 
 ### Hexagonal Architecture
 
