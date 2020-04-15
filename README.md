@@ -53,7 +53,7 @@ The Domain Driven Design usually recommands to define the following elements:
  
  - it registers another event subscriber to handle a Domain Event of type `RoverMovedWithExceptionEvent`
  
- -  it finally delegates the action to move the rover to the `RoverService`
+ -  it finally delegates the action to move the rover to the `RoverService` a certain number of times.
  
  
  ```java
@@ -76,24 +76,16 @@ The Domain Driven Design usually recommands to define the following elements:
 
 ##### Domain Services
 
-In contrary to Application Services, the Domain Services hold domain logic on top of domain entities and value objects.
+In contrary to `Application Services`, the `Domain Services` hold domain logic on top of domain entities and value objects.
 
-Two domain services are present in our model: the [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) (backed by the interface `RoverService`) dedicated to Rover's operations and the [PlateauServiceImpl](src/main/java/com/game/domain/model/service/PlateauServiceImpl.java) (backed by the interface `PlateauService`) which handles all the processes concerning the Plateau.
+Two domain services are present in our model: the [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) (backed by the interface [RoverService](src/main/java/com/game/domain/model/service/RoverService.java)) dedicated to Rover's operations and the [PlateauServiceImpl](src/main/java/com/game/domain/model/service/PlateauServiceImpl.java) (backed by the interface [PlateauService](src/main/java/com/game/domain/model/service/PlateauService.java)) which handles all the business processes on the Plateau entity.
 
-Those services are needed when the direct access to the entities would not be sufficient or would require to call several entities methods in a same atomic 'transaction'.
+Those services are needed every time we need to group various entity methods in a same atomic business process.
 
-Let's look at an extract of the RoverServiceImpl
+For example `RoverServiceImpl` implements the method *updateRoverWithPosition* and *updateRoverWithOrientation* each of them loading, updating and finally saving the Rover.
 
  ```java
 @Override
-	public void updateRover(Rover rover) {
-		roverRepository.update(rover);
-	}
-
-	@Override
-	public Rover getRover(RoverIdentifier id) {
-		return roverRepository.load(id);
-	}
 	
 	@Override
 	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
@@ -117,12 +109,12 @@ Let's look at an extract of the RoverServiceImpl
 The principles of the Hexagonal Architecture have been presented by its author Alistair CockBurn in his original
 paper, [https://alistair.cockburn.us/hexagonal-architecture/](https://alistair.cockburn.us/hexagonal-architecture/).
 
-The main goal of this architecture is to isolate, as much as possible, the domain model we have just built. Technically the model is isolated from the outside world by the so-called **ports** and **adapters**.
+The main goal of this architecture is to isolate, as much as possible, the domain model we have just built. Technically the model is isolated from the outside world by the so-called `Ports` and `Adapters`.
 
-On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but rather on a **port**, some kind of **facade interface** which hides the model implementation details from the clients.
+On the left side of the hexagon, you can find the **primary adapters** which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model details but rather on a `Port`, some kind of **facade interface** which hides the model implementation details from the clients.
 
 In our case, the **in-adapter** (another way to design a primary adapter) is represented by the file adapter
-[GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) which interacts with the rover application by its port interface [GameService](src/main/java/com/game/domain/application/GameService.java).
+[GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) (pink box) which interacts with the rover application through its port interface [GameService](src/main/java/com/game/domain/application/GameService.java) by sending some [DomainCommand](src/main/java/com/game/domain/application/application/DomainCommand.java) instructions.
 
 
 ```java
@@ -142,6 +134,25 @@ public class GameFileAdapter {
 	}
 	...
 }
+```
+
+You can notice the very light dependency between the adapter and the application service (so at the end with the model) as it is limited only to the `DomainCommand` interface.
+
+```java
+
+/**
+ * "Primary" port interface as described by Alistair CockBurn in his original
+ * paper, i.e. port on the right side of the hexagon.
+ * https://alistair.cockburn.us/hexagonal-architecture/ 
+ * The application client will interact with this interface only
+ *
+ */
+public interface GameService extends ApplicationService {
+	
+	void execute(List<DomainCommand> commands);
+
+}
+
 ```
 
 On the right side of the hexagon, the **secondary ports** and **secondary adapters** define the way the application itself communicates with the outside world. It could be for example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
@@ -182,7 +193,7 @@ public class RoverServiceImpl implements RoverService {
 }
 ```
  
- On the diagram, it is important that **all the arrows are pointing into the direction of the hexagon**  and that none is pointing out from the hexagon, which would mean an undesired dependency from the application to the external world.
+ On the diagram, it is important to notice that **all the arrows are pointing into the direction of the hexagon**  and that none is pointing out from the hexagon, which would reflect an undesired dependency from the application to the external world.
  
  Finally, please note that the out-adapters <code>InMemoryRoverRepositoryImpl</code> and <code>InMemoryPlateauRepositoryImpl</code> do not belong to the domain and reside in the **infrastructure** package.
 
