@@ -8,7 +8,7 @@ import com.game.domain.model.entity.RoverIdentifier;
  * by a certain number of moves
  *
  */
-public class MoveRoverCommand implements DomainCommand {
+public class MoveRoverCommand implements ApplicationCommand {
 
 	private RoverIdentifier roverId;
 	

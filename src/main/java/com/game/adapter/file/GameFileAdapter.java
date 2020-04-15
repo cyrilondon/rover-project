@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.game.domain.application.GameContext;
 import com.game.domain.application.GameService;
-import com.game.domain.application.command.DomainCommand;
+import com.game.domain.application.command.ApplicationCommand;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MakeTurnRoverCommand;
@@ -29,12 +29,12 @@ public class GameFileAdapter {
 		gameService.execute(getCommandsFromFile(file));
 	}
 
-	private List<DomainCommand> getCommandsFromFile(File file) {
+	private List<ApplicationCommand> getCommandsFromFile(File file) {
 		
 		UUID plateauUuid = UUID.randomUUID();
 		// ********* Given **********
 		// plateau command
-		List<DomainCommand> commands = new ArrayList<>();
+		List<ApplicationCommand> commands = new ArrayList<>();
 		commands.add(new InitializePlateauCommand.Builder().withObserverSpeed(0).withUuid(plateauUuid).withAbscissa(5)
 				.withOrdinate(5).build());
 

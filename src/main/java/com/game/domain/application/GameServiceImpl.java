@@ -2,7 +2,7 @@ package com.game.domain.application;
 
 import java.util.List;
 
-import com.game.domain.application.command.DomainCommand;
+import com.game.domain.application.command.ApplicationCommand;
 import com.game.domain.application.command.InitializePlateauCommand;
 import com.game.domain.application.command.InitializeRoverCommand;
 import com.game.domain.application.command.MakeTurnRoverCommand;
@@ -35,7 +35,7 @@ import com.game.domain.model.service.RoverServiceImpl;
 class GameServiceImpl implements GameService {
 
 	@Override
-	public void execute(List<DomainCommand> commands) {
+	public void execute(List<ApplicationCommand> commands) {
 		CommandVisitor commandVisitor = new CommandVisitor();
 		commands.forEach(command -> command.acceptVisitor(commandVisitor));
 	}

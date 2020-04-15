@@ -8,7 +8,7 @@ import com.game.domain.application.CommandVisitor;
  * Initializes a rover with coordinates and orientation
  *
  */
-public class InitializeRoverCommand implements DomainCommand {
+public class InitializeRoverCommand implements ApplicationCommand {
 
 	String name;
 

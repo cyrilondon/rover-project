@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.game.domain.application.CommandVisitor;
 
-public class InitializePlateauCommand implements DomainCommand {
+public class InitializePlateauCommand implements ApplicationCommand {
 
 	private UUID plateauUuid;
 

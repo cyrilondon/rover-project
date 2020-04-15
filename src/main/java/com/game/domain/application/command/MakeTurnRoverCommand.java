@@ -4,7 +4,7 @@ import com.game.domain.application.CommandVisitor;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverInstruction;
 
-public class MakeTurnRoverCommand implements DomainCommand  {
+public class MakeTurnRoverCommand implements ApplicationCommand  {
 	
 	RoverInstruction turn;
 	

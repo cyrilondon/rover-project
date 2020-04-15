@@ -43,7 +43,7 @@ public class RoverMovedWithExceptionEvent implements DomainEvent {
 	
 	@Override
 	public String toString() {
-		return String.format("RoverMovedEvent published with Rover Moved Event [%s], exception [%s]" , movedEvent, exception);
+		return String.format("RoverMovedWithExceptionEvent published with Rover Moved Event [%s], exception [%s]" , movedEvent, exception);
 	}
 
 }

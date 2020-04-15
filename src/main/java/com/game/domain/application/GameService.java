@@ -2,7 +2,7 @@ package com.game.domain.application;
 
 import java.util.List;
 
-import com.game.domain.application.command.DomainCommand;
+import com.game.domain.application.command.ApplicationCommand;
 
 /**
  * "Primary" port interface as described by Alistair CockBurn in his original
@@ -13,6 +13,6 @@ import com.game.domain.application.command.DomainCommand;
  */
 public interface GameService extends ApplicationService {
 	
-	void execute(List<DomainCommand> commands);
+	void execute(List<ApplicationCommand> commands);
 
 }
