@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverTurnInstruction;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.repository.RoverRepository;
 
@@ -27,15 +28,21 @@ public class RoverServiceImpl implements RoverService {
 		Rover rover = new Rover(id, coordinates, orientation);
 		roverRepository.add(rover.validate());
 	}
-	
+
 	@Override
-	public void turnLeft(RoverIdentifier id) {
-		roverRepository.load(id).turnLeft();
-	}
-	
-	@Override
-	public void turnRight(RoverIdentifier id) {
-		roverRepository.load(id).turnRight();
+	public void turnRover(RoverIdentifier id, RoverTurnInstruction turn) {
+		switch (turn) {
+		case LEFT:
+			roverRepository.load(id).turnLeft();
+			break;
+
+		case RIGHT:
+			roverRepository.load(id).turnRight();
+			break;
+
+		default:
+			// do nothing
+		}
 	}
 
 	@Override
@@ -52,31 +59,30 @@ public class RoverServiceImpl implements RoverService {
 	public Rover getRover(RoverIdentifier id) {
 		return roverRepository.load(id);
 	}
-	
+
 	@Override
 	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
 		Rover rover = this.getRover(id);
 		rover.setPosition(position);
 		this.updateRover(rover);
 	}
-	
+
 	@Override
 	public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
 		Rover rover = this.getRover(id);
 		rover.setOrientation(orientation);
 		this.updateRover(rover);
 	}
-	
+
 	@Override
 	public void removeRover(RoverIdentifier id) {
 		roverRepository.remove(id);
 	}
-	
-	
+
 	@Override
-	public List<Rover> getAllRoversOnPlateau(UUID  uuid) {
-		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauUuid().equals(uuid))     
-				.collect(Collectors.toList());      
+	public List<Rover> getAllRoversOnPlateau(UUID uuid) {
+		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauUuid().equals(uuid))
+				.collect(Collectors.toList());
 	}
 
 }

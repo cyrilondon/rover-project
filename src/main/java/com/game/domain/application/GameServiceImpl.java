@@ -24,6 +24,7 @@ import com.game.domain.model.service.RoverServiceImpl;
 /**
  * Application service which acts as a facade to the application
  * <ol>
+ * <li>Exposes only one public method to the rest of the world {@link #execute(List)}</li>
  * <li>Delegates the execution of the process to the two Domain services
  * {@link RoverServiceImpl}, {@link PlateauServiceImpl} and the Application
  * State {@link GameContext}</li>
@@ -101,18 +102,7 @@ class GameServiceImpl implements GameService {
 		DomainEventPublisher.instance().subscribe(new RoverTurnedEventSubscriber());
 
 		// delegates to rover service
-		switch (command.getTurn()) {
-		case LEFT:
-			gameContext.getRoverService().turnLeft(command.getRoverId());
-			break;
-
-		case RIGHT:
-			gameContext.getRoverService().turnRight(command.getRoverId());
-			break;
-
-		case MOVE:
-			break;
-		}
+		gameContext.getRoverService().turnRover(command.getRoverId(), command.getTurn());
 
 	}
 

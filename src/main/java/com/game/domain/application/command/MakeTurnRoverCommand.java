@@ -2,20 +2,20 @@ package com.game.domain.application.command;
 
 import com.game.domain.application.CommandVisitor;
 import com.game.domain.model.entity.RoverIdentifier;
-import com.game.domain.model.entity.RoverInstruction;
+import com.game.domain.model.entity.RoverTurnInstruction;
 
 public class MakeTurnRoverCommand implements ApplicationCommand  {
 	
-	RoverInstruction turn;
+	RoverTurnInstruction turn;
 	
 	RoverIdentifier roverId;
 	
-	public MakeTurnRoverCommand(RoverIdentifier roverId,  RoverInstruction turn) {
+	public MakeTurnRoverCommand(RoverIdentifier roverId,  RoverTurnInstruction turn) {
 		this.roverId = roverId;
 		this.turn = turn;
 	}
 
-	public RoverInstruction getTurn() {
+	public RoverTurnInstruction getTurn() {
 		return turn;
 	}
 

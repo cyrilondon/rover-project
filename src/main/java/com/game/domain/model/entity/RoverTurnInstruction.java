@@ -2,13 +2,13 @@ package com.game.domain.model.entity;
 
 import com.game.domain.model.entity.enums.GameEnum;
 
-public enum RoverInstruction implements GameEnum<String>{
+public enum RoverTurnInstruction implements GameEnum<String>{
 	
-	LEFT("L"), RIGHT("R"), MOVE("M");
+	LEFT("L"), RIGHT("R");
 	
 	private String value;
 	
-	RoverInstruction(String value){
+	RoverTurnInstruction(String value){
 		this.value= value;
 	}
 	

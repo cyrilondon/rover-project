@@ -45,13 +45,13 @@ The Domain Driven Design usually recommands to define the following elements:
   
  In our case the [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) represents our single `Application Service` and represents the bridge between the File Adapter and the domain.
  
- Below is an extract of the GameServiceImpl's method to initialize a rover:
+Let us consider below an extract of the GameServiceImpl's method to initialize a rover:
  
- - it takes a [InitializeRoverCommand](src/main/java/com/game/domain/application/command/InitializeRoverCommand.java) and will map this command object to meaningful services arguments, like the rover id and the number of moves.
+ - it takes a [InitializeRoverCommand](src/main/java/com/game/domain/application/command/InitializeRoverCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
  
- - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event.DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java)
+ - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java)
  
- - it registers another `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event.DomainEvent.java)  of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java)
+ - it registers another `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java)  of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java)
  
  - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/RoverServiceImpl.java).
  
@@ -76,17 +76,19 @@ The Domain Driven Design usually recommands to define the following elements:
 
 ##### Domain Services
 
-In contrary to `Application Services`, the `Domain Services` hold domain logic on top of domain entities and value objects.
+In contrary to `Application Services`, the `Domain Services` hold domain logic on top of `Domain Entities` and `Value Objects`.
 
-Our domain model includes two `Application Services`: 
+Our domain model includes two `Application Services`
 
 - the [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) (which implements the interface [RoverService](src/main/java/com/game/domain/model/service/RoverService.java)) dedicated to Rover's operations
 
 - the [PlateauServiceImpl](src/main/java/com/game/domain/model/service/PlateauServiceImpl.java) (which implements the interface [PlateauService](src/main/java/com/game/domain/model/service/PlateauService.java)) dedicated to Plateau entity's operations.
 
-Those services are needed every time we need to group various entity methods in a same meaningful business process.
+Those services are `stateless` components and are needed every time we need to group various entity methods in a same meaningful business process.
 
-For example [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) implements the method *updateRoverWithPosition* and *updateRoverWithOrientation* each of them loading, updating and finally saving the Rover. Those three distinct Rover's operations together represent an unique operation from a business perspective and thus are exposed as a `Domain Service` method to the `Application Service`.
+For example, [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java) implements the methods *updateRoverWithPosition* and *updateRoverWithOrientation*, each of them loading, updating and finally saving the Rover. 
+
+Those three distinct Rover's operations together represent an unique operation from a business perspective and thus are exposed as a `Domain Service` method to the `Application Service`.
 
  ```java
 @Override
@@ -105,20 +107,30 @@ For example [RoverServiceImpl](src/main/java/com/game/domain/model/service/Rover
 		this.updateRover(rover);
 	}
  ```
+ 
+##### Domain Entities
+
+In `Domain Driven Architecture`, we design a domain concept as an `Entity` when we care about its **individuality**, when distinguishing it from all other objects in a system is a mandatory constraint.
+
+An `Entity` is a unique thing and is capable of being changed continuously over a long period of time.
+ 
+Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/model/entity/Rover.java) as a `Domain Entity` in our application. We do not want to confuse a Rover with another one and we want to keep track of all its moves over the time.
+
+Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not necessarily model it as an Entity. However, as we have decided that moving rovers over multiple Plateau at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Rover.java) as entity as well..
 
 ### Hexagonal Architecture
 
 <img src="src/main/resources/Rover_hexagonal.png" />
 
-The principles of the Hexagonal Architecture have been presented by its author Alistair CockBurn in his original
+The principles of the `Hexagonal Architecture` have been presented by its author Alistair CockBurn in his original
 paper, [https://alistair.cockburn.us/hexagonal-architecture/](https://alistair.cockburn.us/hexagonal-architecture/).
 
-The main goal of this architecture is to isolate, as much as possible, the domain model we have just built. Technically the model is isolated from the outside world by the so-called `Ports` and `Adapters`.
+The main goal of this architecture is to isolate, as much as possible, the `Domain Model` we have just built. Technically the model is isolated from the outside world by the so-called `Ports` and `Adapters`.
 
 On the left side of the hexagon, you can find the `Primary Adapters` which are used by the external clients who want to interact with the application. These adapters should not depend directly on the model various implementations but rather on a `Port`, some kind of **facade interface** which hides the model details from the clients.
 
 In our case, the `In Adapter` (another way to design a `Primary Adapter`) is represented by the file adapter
-[GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) (pink box) which interacts with the application through its port interface [GameService](src/main/java/com/game/domain/application/GameService.java) (green circle) by sending some [DomainCommand](src/main/java/com/game/domain/application/application/DomainCommand.java) instructions.
+[GameFileAdapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) (pink box) which interacts with the application through its port interface [GameService](src/main/java/com/game/domain/application/GameService.java) (green circle) by sending some [ApplicationCommand](src/main/java/com/game/domain/application/command/ApplicationCommand.java) instructions.
 
 
 ```java
@@ -140,7 +152,7 @@ public class GameFileAdapter {
 }
 ```
 
-You can notice the very light dependency between the adapter and the application service (so at the end with the model) as it is limited only to the [DomainCommand](src/main/java/com/game/domain/application/command/DomainCommand.java) interface.
+You can notice the very light dependency between the [File Adapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) and the [Application Service](src/main/java/com/game/domain/application/GameService.java) (so at the end with the entire model) as it is limited only to the [DomainCommand](src/main/java/com/game/domain/application/command/DomainCommand.java) interface.
 
 ```java
 
@@ -161,9 +173,9 @@ public interface GameService extends ApplicationService {
 
 On the right side of the hexagon, the `Secondary Ports` and `Secondary Adapters` define the way the application itself communicates with the outside world. It could be for example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
 
-In this context, the application should NOT depend on those external systems. Instead, it should expose `Ports` or interfaces (the Secondary or Out ports) that need to be implemented by the adapters.
+In this context, the application should NOT depend on those external systems. Instead, it should expose `Ports` or interfaces that need to be implemented by the `Out Adapters`.
 
-In our case, at the end, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) but does NOT depend on them directly.
+In our case, at the end, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) (top right pink box on the diagram) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) (bottom right pink box) but does NOT depend on them directly.
 
  On the other hand, the application exposes two interfaces or ports [RoverRepository](src/main/java/com/game/domain/model/repository/RoverRepository.java) and [PlateauRepository](src/main/java/com/game/domain/model/repository/PlateauRepository.java)  which are to be implemented by the adapters.
  
@@ -205,15 +217,22 @@ public class RoverServiceImpl implements RoverService {
 
 
 ### Test driven
-Our goal is to propose a final project covered at least at 90% by unit testing.
 
-### No framework
-We intentionally don't use any framework in this work, i.e. no framework for dependency injection and not even a framework for mock testing.
+From a testing perspective, our goal before to start to code the application was very clear:
+
+- We did not want to use any framework, i.e. no framework for dependency injection and not even a framework for mock testing. The only pre-built framework we have on-boarded is purely 100% dedicated to unit testing assertions: [Test NG](https://testng.org/doc/)
+
+
+- We expected however a high unit testing coverage rate, at least at 90% of the application should have been tested.
+
+
 
 ### Exception Handling
 
 The base class of our Exception hierarchy is the <code>[GameException>](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
+
+
 - takes an **Error code** as constructor argument along the error message for better understanding/readability from the end user
 
 ```java

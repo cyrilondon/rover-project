@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverTurnInstruction;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 
 public interface RoverService extends DomainService {
@@ -14,10 +15,8 @@ public interface RoverService extends DomainService {
 	void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation);
 
 	void moveRoverNumberOfTimes(RoverIdentifier id, int times);
-
-	void turnLeft(RoverIdentifier id);
-
-	void turnRight(RoverIdentifier id);
+	
+	void turnRover(RoverIdentifier roverId, RoverTurnInstruction turn);
 	
 	void updateRover(Rover rover);
 
@@ -31,4 +30,5 @@ public interface RoverService extends DomainService {
 
 	List<Rover> getAllRoversOnPlateau(UUID uuid);
 
+	
 }

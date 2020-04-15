@@ -19,6 +19,7 @@ import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.Rover;
 import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.RoverTurnInstruction;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
@@ -199,13 +200,7 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void turnLeft(RoverIdentifier id) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void turnRight(RoverIdentifier id) {
+		public void turnRover(RoverIdentifier roverId, RoverTurnInstruction turn) {
 			// TODO Auto-generated method stub
 			
 		}
