@@ -108,18 +108,90 @@ Those three distinct Rover's operations together represent an unique operation f
 	}
  ```
  
+ 
 ##### Domain Entities
+
 
 <img src="src/main/resources/entity_diagram_new.png" />
 
-
 In `Domain Driven Architecture`, we design a domain concept as an `Entity` when we care about its **individuality**, when distinguishing it from all other objects in a system is a mandatory constraint.
 
-An `Entity` is a unique thing and is capable of being changed continuously over a long period of time.
- 
+An `Entity` is a **unique thing** and is capable of being changed continuously over a long period of time.
+
 Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/model/entity/Rover.java) as a `Domain Entity` in our application. We do not want to confuse a Rover with another one and we want to keep track of all its moves over the time.
 
-Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not necessarily model it as an Entity. However, as we have decided that moving rovers over multiple Plateau at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Rover.java) as an `Entity` as well.
+Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) as an `Entity` as well.
+
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) classes extend [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java) which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+
+
+ ```java
+public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
+
+	protected U id;
+
+	@Override
+	public U getId() {
+		return this.id;
+	}
+ ```
+
+The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to remind each entity about its identity.
+
+Remark: an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section) and to **apply to itself and publish events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`.
+
+ ```java
+public interface Entity<T, U> {
+	
+	/**
+	 * Returns the id
+	 * @return
+	 */
+	 U getId();
+	
+	/**T
+	 * Validates the entity with runtime validation handler
+	 * @param handler
+	 * @return
+	 */
+	T validate(ValidationNotificationHandler handler);
+
+	/**
+	 * Apply the event to current instance and publish the event
+	 * In case of exception, call the exceptionFunction
+	 * @param event
+	 * @param function
+	 */
+	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,  BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction);s
+ ```
+
+Once we know each `Entity` has to be assigned an Identity, we have to define more precisely the nature of its identifier.
+
+We have decided to identify a Plateau by a `Universally Unique Identifier (UUID)` , a 128-bit unique value, which is provided since Java 1.5 by the class [UUID](https://docs.oracle.com/javase/8/docs/api/java/util/class-use/UUID.html). This implementation supports four different generator algorithms based on *the Leach-Salz variant* and is relatively fast to generate. Even if NASA has to drive rovers on new different zones every second, the UUID generator can keep this pace easily.
+
+The application can easily generates a new random UUID as needed:
+
+```java
+	UUID uuid  = UUID.randomUUID();
+
+ ```
+ This generated UUID is assigned to a Plateau via its constructor
+
+ ```java
+public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
+
+	private TwoDimensionalSpace dimensions;
+
+	/**
+	 * Matrix to keep track of the occupied locations
+	 */
+	boolean[][] locations;
+
+	public Plateau(UUID uuid, TwoDimensionalSpace dimensions) {
+		this.id = ArgumentCheck.preNotNull(uuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
+	}
+```
 
 ### Hexagonal Architecture
 
@@ -232,7 +304,7 @@ From a testing perspective, our goal before to start to code the application was
 
 ### Exception Handling
 
-The base class of our Exception hierarchy is the <code>[GameException>](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
+The base class of our Exception hierarchy is the <code>[GameException](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
 
 

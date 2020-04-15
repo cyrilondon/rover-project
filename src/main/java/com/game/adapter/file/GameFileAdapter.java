@@ -29,21 +29,29 @@ public class GameFileAdapter {
 		gameService.execute(getCommandsFromFile(file));
 	}
 
+	/**
+	 * We mock the File Parsing here as we are only
+	 * interested in the domain model in this presentation.
+	 * We leave it to you as an exercise ;-)
+	 * @param file
+	 * @return
+	 */
 	private List<ApplicationCommand> getCommandsFromFile(File file) {
 		
 		UUID plateauUuid = UUID.randomUUID();
 		// ********* Given **********
-		// plateau command
+		// initialization plateau command (5,5)
 		List<ApplicationCommand> commands = new ArrayList<>();
 		commands.add(new InitializePlateauCommand.Builder().withObserverSpeed(0).withUuid(plateauUuid).withAbscissa(5)
 				.withOrdinate(5).build());
 
 		// rover1 commands
-		// Rover 1 initialization + sLMLMLMLMMs
+		// Rover 1 initialization (1,2) and Orientation 'N' 
 		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
 		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover1Name)
 				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
 		RoverIdentifier rover1 = new RoverIdentifier(plateauUuid, rover1Name);
+		// Rover 1 move commands  LMLMLMLMMs
 		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
 		commands.add(new MoveRoverCommand(rover1, 1));
 		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
@@ -54,11 +62,12 @@ public class GameFileAdapter {
 		commands.add(new MoveRoverCommand(rover1, 2));
 
 		// rover2 commands
-		// rover 2 initialization + MMRMMRMRRM
+		// rover 2 initialization  (3,2) and Orientation 'E'
 		String rover2Name = GameContext.ROVER_NAME_PREFIX + 2;
 		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover2Name)
 				.withAbscissa(3).withOrdinate(3).withOrientation('E').build());
 		RoverIdentifier rover2 = new RoverIdentifier(plateauUuid, rover2Name);
+		// Rover 2 move commands  MMRMMRMRRM
 		commands.add(new MoveRoverCommand(rover2, 2));
 		commands.add(new MakeTurnRoverCommand(rover2, RoverTurnInstruction.RIGHT));
 		commands.add(new MoveRoverCommand(rover2, 2));
