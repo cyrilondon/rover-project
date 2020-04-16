@@ -122,7 +122,7 @@ Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/m
 
 Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) as an `Entity` as well.
 
-As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) classes extend [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java) which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
 
 
  ```java
@@ -136,9 +136,9 @@ public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
 	}
  ```
 
-The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to remind each entity about its identity.
+The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to enforce each entity class to define and expose its identity.
 
-Remark: an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section) and to **apply to itself and publish events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`.
+**Remark**: an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section) and to **apply to itself and publish events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`.
 
  ```java
 public interface Entity<T, U> {
@@ -167,15 +167,15 @@ public interface Entity<T, U> {
 
 Once we know each `Entity` has to be assigned an Identity, we have to define more precisely the nature of its identifier.
 
-We have decided to identify a Plateau by a `Universally Unique Identifier (UUID)` , a 128-bit unique value, which is provided since Java 1.5 by the class [UUID](https://docs.oracle.com/javase/8/docs/api/java/util/class-use/UUID.html). This implementation supports four different generator algorithms based on *the Leach-Salz variant* and is relatively fast to generate. Even if NASA has to drive rovers on new different zones every second, the UUID generator can keep this pace easily.
+We have decided to identify a Plateau by a `Universally Unique Identifier (UUID)` , a 128-bit unique value, which is provided since Java 1.5 by the class [UUID](https://docs.oracle.com/javase/8/docs/api/java/util/class-use/UUID.html). This implementation supports four different generator algorithms based on *the Leach-Salz variant* and is relatively fast to generate. Even if NASA has to drive rovers on new different zones every second, the `UUID` generator can keep this pace easily.
 
-The application can easily generates a new random UUID as needed:
+The application can easily generates a new random `UUID` as needed:
 
 ```java
 	UUID uuid  = UUID.randomUUID();
 
  ```
- This generated UUID is assigned to a Plateau via its constructor
+ This generated `UUID` is assigned to a `Plateau` via its constructor
 
  ```java
 public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
@@ -192,6 +192,175 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 ```
+Concerning the [Rover](src/main/java/com/game/domain/model/entity/Rover.java) entity, each `Rover` belongs to a particular `Plateau`. Hence, the Rover has a `Many-To-One` relationship with the `Plateau` entity and should keep a reference to the `Plateau` it belongs to via the property `plateauUuid`.
+
+The `Rover` is therefore identified by the unique combination (`name` + `plateauUuid`) and those two properties are encapsulated together in the [RoverIdentifier](src/main/java/com/game/domain/model/entity/RoverIdentifier.java) class.
+
+ ```java
+/**
+ * Rover identifier which includes Plateau UUID + Rover name
+ * This combination identifies the Rover with absolute uniqueness
+ * Remark: two Rovers can have the same name assuming they each belong to a distinct Plateau
+ */
+public class RoverIdentifier implements Serializable {
+	
+	/**
+	 * Many-to-one association to a Plateau instance
+	 * We keep track of the plateau UUID
+	 */
+	private UUID plateauUuid;
+	
+	private String name;
+	
+	public RoverIdentifier(UUID plateauUuid, String name) {
+		this.plateauUuid = ArgumentCheck.preNotNull(plateauUuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROVER_NAME);
+	}
+```
+
+We are done with our domain Entities.
+
+##### Value Objects
+
+`Value Objects` have **no identity**. They are purely for describing domain-relevant **attributes of entities**. As mentioned previously, if entities are fundamentally about identity, focusing on the "who", the Value Objects focus on the "what" and they are known only by their characteristics.
+
+Something important to note, because they are defined by their attributes, `Value Objects` are treated as **immutable**; that is, once constructed, they can never alter their state.
+
+The first `Value Object` which can be easily designed in our case is the object representing some two-dimensional coordinates. Those can be used to set up the `Plateau` dimensions as well as to determine the `Rover`'s position.
+
+It is a perfect example of `Value Object` as it is always associated with one of those two `Entity` instances and it has real meaning only within the context of being attached either to the `Plateau` or the `Rover`.
+
+These 2D-coordinates are defined by the immutable class [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java)
+
+ ```java
+ public class TwoDimensionalCoordinates {
+s
+	private int abscissa, ordinate;
+
+	public TwoDimensionalCoordinates(int x, int y) {
+		this.abscissa = x;
+		this.ordinate = y;
+	}
+	
+	public int getAbscissa() {
+		return abscissa;
+	}
+
+	public int getOrdinate() {
+		return ordinate;
+	}
+ 
+  ```
+
+Every time the `Rover` has to update its position when asked to moves, it will receive **new** [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java) attributes 
+
+ ```java
+
+/**
+	 * We don't mutate the state
+	 * @param step
+	 * @return new coordinates
+	 */
+	public TwoDimensionalCoordinates shiftAlongAbscissa(int step) {
+		return new TwoDimensionalCoordinates(abscissa + step, ordinate);
+	}
+
+	/**
+	 * We don't mutate the state
+	 * @param step
+	 * @return new coordinates
+	 */
+	public TwoDimensionalCoordinates shiftAlongOrdinate(int step) {
+		return new TwoDimensionalCoordinates(abscissa, ordinate + step);
+	}
+ ```
+We need another `Value Object` close to the [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java). A [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) does not have coordinates but dimensions. 
+
+Although distinct these two concepts are close from each other as:
+
+- they share the same number of space dimensions (2D in our case)
+
+- dimensions can be specified by coordinates
+
+We thus create the `Value Object` [TwoDimensions](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensions.java) which encapsulates the [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java) and exposes the method *getWidth()* and *getHeight()* instead of *getAbscissa()* and *getOrdinate()*
+
+
+ ```java
+/**
+ * Plateau dimensions are linked to the coordinates by the number of dimensions (x,y as per now
+ * but we could imagine a 3D game.
+ * However, we want to hide some methods like {@link TwoDimensionalCoordinates#shiftXXX} which have
+ * no sense for the plateau so {@link TwoDimensions} class encapsulates {@link TwoDimensionalCoordinates}
+ *
+ */
+public class TwoDimensions implements TwoDimensionalSpace {
+	
+	private TwoDimensionalCoordinates coordinates;
+	
+	public TwoDimensions(TwoDimensionalCoordinates coordinates) {
+		this.coordinates = coordinates;
+	}
+	
+	public int getWidth() {
+		return coordinates.getAbscissa();
+	}
+	
+	public int getHeight() {
+		return coordinates.getOrdinate();
+	}
+
+}
+ ```
+ 
+ 
+ Aside from the coordinates and the dimensionss, there is clearly another attribute which can be set to the `Rover`: its orientation. An orientation is not defined by any identity, but by a its value: either West, East, North or South.
+
+This four predefined values make a perfect choice to design the [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) as a java enum.
+
+Now an interesting question comes up: should we assign the responsibility to change the orientation to the `Rover` or to the `Orientation` itself? In general, keeping entities focused on the responsibility of identity is important because it prevents them from becoming bloated - an easy trap to fall into when they pull together many related behaviors.
+
+Achieving this focus requires delegating related behavior to value objects and domain services.
+
+In the case of [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java), we decide to push the behavior into the `Value Object` itself for enhanced domain clarity.
+
+ ```java
+
+public enum Orientation implements GameEnum<String> {
+
+
+	NORTH("N") {
+
+		@Override
+		Orientation turnLeft() {
+			return WEST;
+		}
+
+		@Override
+		Orientation turnRight() {
+			return EAST;
+		}
+	},
+
+	EAST("E") {
+
+		@Override
+		Orientation turnLeft() {
+			return NORTH;
+		}
+
+		@Override
+		Orientation turnRight() {
+			return SOUTH;
+		}
+	},
+	
+	abstract Orientation turnLeft();
+
+	abstract Orientation turnRight();s
+...
+}
+ ```
+
 
 ### Hexagonal Architecture
 
@@ -302,7 +471,7 @@ From a testing perspective, our goal before to start to code the application was
 
 
 
-### Exception Handling
+### Validation and Exception Handling
 
 The base class of our Exception hierarchy is the <code>[GameException](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
@@ -361,11 +530,13 @@ Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameEx
 
 - A **Business validation** process which ensures the enforcement of the business rules (by example moving the Rover should not let it go out of the plateau).
 
-The base class <code>[EntityValidator](/src/main/java/com/game/domain/model/validation/EntityValidator.java)</code> takes this responsibility. 
+The base class <code>[EntityValidator](/src/main/java/com/game/domain/model/validation/EntityValidator.java)</code> takes this responsibility. Actually, in addition to identity, a primary implementation requirement for entities is ensuring they are **self-validating** and **always valid**.
 
-The interesting thing to note here is that this validator class depends on <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface by constructor injection.
+This is similar to the self-validating nature of value objects, although it is usually much more **context dependent** due to entities having a life-cycle.
 
-This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is of great interest as we will see further down to ensure distinct validation processes under different contexts.
+To make this context dependency effective, we make the entity validator class depends on <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface by constructor injection.
+
+This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is exactly what we need to ensure distinct validation processes under different contexts. 
 
  ```java
 public abstract class EntityValidator<T> {
@@ -402,7 +573,7 @@ The notification handler interface defines two methods to be implemented:
 }
 
   ```
-Let's consider for example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that everything is OK after the creation or any action on a Rover.
+Let's consider for example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that the entity is in a valid state after its creation or any action.
  
 We have a few things to check: the Rover's position X and Y should be both positive, the position X and Y should be on the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
  
@@ -439,7 +610,7 @@ We have a few things to check: the Rover's position X and Y should be both posit
 	}
    
    ```
-   These validations should be made both at the time of initialization time and later whenever the Rover is asked to move.
+   These validations should be made both at the time of initialization time and later whenever the `Rover` is asked to move.
    
    In the first case, it would be a good idea to send ALL the error messages to the end user, so that he can re-send the initialization command successfully next time.
    
@@ -464,7 +635,7 @@ We have a few things to check: the Rover's position X and Y should be both posit
 }
   ```
   
- For example, if you try to initialize a Rover with coordinates x=-3 and y=8 attached to a Plateau with the dimensions width = 6 and height = 8, that would be the stacktrace of the exception.
+ For example, if you try to initialize a Rover with coordinates x=-3 and y=8 attached to a `Plateau` with the dimensions width = 6 and height = 8, that would be the stacktrace of the exception.
  
  Please not that the error message contains the information of both invalid coordinates. *[ERR-001] Rover X-position [-3] should be strictly positive, Rover with Y-position [8] is out of the Plateau with height [7]*
  
@@ -478,9 +649,9 @@ We have a few things to check: the Rover's position X and Y should be both posit
 	at com.game.domain.application.GameServiceImpl.execute(GameServiceImpl.java:57)
 ```
    
-But let's suppose now that the Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but in this new context, we do NOT want to throw an initialization error with the error code [ERR-001].
+But let's suppose now that the `Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but in this new context, we do NOT want to throw an initialization error with the error code [ERR-001].
 
-We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the Rover from the Plateau and to mark its last position on the Plateau as free.
+We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the `Rover` from the `Plateau` and to mark its last position on the Plateau as free.
 
 This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface: we just need to inject another implementation <code>[RoverMovedPositionValidationNotificationHandler](src/main/java/com/game/domain/model/validation/RoverMovedPositionValidationNotificationHandler.java)</code>, which in case of a wrong move will throw this time a <code>[IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java)</code> exception, with error code <code>[ERR-004]</code>.
 
