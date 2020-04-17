@@ -22,9 +22,11 @@ The second line is a series of instructions telling the rover how to explore the
 
 ## Objectives
 
-In this exercise, we would like to present a step-by-step process driven by the three following software practices: `Domain and Event Driven Design`, `Hexagonal Architecture` and `Test Driven Design`.
+In this exercise, we would like to present a step-by-step process driven by the three following software practices: `Domain-Driven Design`, `Event-Driven Design`, `Hexagonal Architecture` and `Test Driven Design`.
 
 ### Domain Driven Design 
+
+> Domain-driven design (DDD) is an approach to software development placing the project's primary focus on the core domain and domain logic, which aims at connecting the implementation to an evolving model. The term was coined by Eric Evans in his book of the same title.
 
 Our primary concern, before focusing on the input file parsing, should be to identify the main components of our domain.
 
@@ -435,8 +437,21 @@ public enum Orientation implements GameEnum<String> {
 }
  ```
 
+##### Repositories
+
+A repository commonly refers to a storage location, usually considered a place of safety or preservation of the items stored in it.
+
+This principle apply to `Domain Driven Design Repository`. Placing an `Entity` instance in its corresponding `Repository`, and later using that repository to retrieve the same instance, yields the expected whole object.
+
+Generally speaking, there is a one-to-one relationship between an `Entity` and a `Repository`.
+
+A fundamental feature of a pure domain model resides in that it should be **persistent ignorant**; i.e. it should be immune to changes required by the needs of any underlying persistence framework. We will dive deeper into this subject in the below section dedicated to `Hexagonal Architecture`.
 
 ### Hexagonal Architecture
+
+> The Hexagonal Architecture, or Ports and Adapters Architecture, is an architectural pattern used in software design. 
+  It aims at creating loosely coupled application components that can be easily connected to their software environment by means of ports and adapters.
+  This makes components exchangeable at any level and facilitates test automation.
 
 <img src="src/main/resources/Rover_hexagonal.png" />
 
@@ -491,7 +506,7 @@ public interface GameService extends ApplicationService {
 
 On the right side of the hexagon, the `Secondary Ports` and `Secondary Adapters` define the way the application itself communicates with the outside world. It could be for example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
 
-In this context, the application should NOT depend on those external systems. Instead, it should expose `Ports` or interfaces that need to be implemented by the `Out Adapters`.
+In this context, the application should NOT depend on those external systems. Instead, it should expose `Ports` or interfaces that need to be implemented by the `Out Adapters`. 
 
 In our case, at the end, the rover application will store its <code>Rover</code> and <code>Plateau</code> entities respectively via the [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) (top right pink box on the diagram) and the [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) (bottom right pink box) but does NOT depend on them directly.
 
@@ -530,9 +545,40 @@ public class RoverServiceImpl implements RoverService {
  On the diagram, it is important to notice that **all the arrows are pointing into the direction of the hexagon**  and that none is pointing out from the hexagon, which would reflect an undesired dependency from the application to the external world.
  
  Finally, please note that the `Out Adapters` [InMemoryRoverRepositoryImpl](src/main/java/com/game/infrastructure/persistence/impl/InMemoryRoverRepositoryImpl.java) and [InMemoryPlateauRepositoryImpl.java](src/main/java/com/game/infrastructure/persistence/impl/InMemoryPlateauRepositoryImpl.java) do not belong to the domain and reside in the **infrastructure** package.
+ 
+The `Infrastructure Layer` is logically above all others, making references unidirectional and downward to the `Domain Layer`.
 
 
+### Event-Driven Architecture
 
+> Event-driven architecture (EDA) is a software architecture promoting the production, detection, consumption of, and reactions to events.
+
+In the context of `Domain-Driven Architecture`, we use a `Domain Event` to capture an occurrence of something that happened in the domain.
+
+How do we model an `Event`? An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
+
+For example, we have designed the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) to notify each move of a Rover: it includes the Rover's id, its current and previous postions.
+
+ 
+```java
+
+public class RoverMovedEvent implements DomainEvent {
+
+	private RoverIdentifier roverId;
+
+	TwoDimensionalCoordinates previousPosition;
+
+	TwoDimensionalCoordinates currentPosition;
+
+
+	protected RoverMovedEvent(Builder builder) {
+		this.roverId = builder.roverId;
+		this.previousPosition = builder.previousPosition;
+		this.currentPosition = builder.currentPosition;
+
+	}
+	
+```
 
 ### Test driven
 
