@@ -122,7 +122,7 @@ Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/m
 
 Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) as an `Entity` as well.
 
-As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) inherit from [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
 
 
  ```java
@@ -222,7 +222,12 @@ We are done with our domain Entities.
 
 ##### Value Objects
 
-`Value Objects` have **no identity**. They are purely for describing domain-relevant **attributes of entities**. As mentioned previously, if entities are fundamentally about identity, focusing on the "who", the Value Objects focus on the "what" and they are known only by their characteristics.
+
+<img src="src/main/resources/value_objects.png" />
+
+
+
+`Value Objects` have **no identity**. They are purely for describing domain-relevant **attributes of entities**. As mentioned previously, if entities are fundamentally about identity, focusing on the "who", the `Value Objects` focus on the "what" and they are known only by their characteristics.
 
 Something important to note, because they are defined by their attributes, `Value Objects` are treated as **immutable**; that is, once constructed, they can never alter their state.
 
@@ -252,7 +257,7 @@ s
  
   ```
 
-Every time the `Rover` has to update its position when asked to moves, it will receive **new** [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java) attributes 
+Every time the `Rover` has to update its position when asked to moves, it will receive **new** [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java) attributes (because of its immutability)
 
  ```java
 
@@ -312,16 +317,85 @@ public class TwoDimensions implements TwoDimensionalSpace {
 }
  ```
  
+Just for fun and because we are into physics, we have also built a relativistic Dimensions object, called [RelativisticTwoDimensions](src/main/java/com/game/domain/model/entity/dimensions/RelativisticTwoDimensions.java), which calculate the `Plateau`'s dimensions according to the more accurate Einstein's Special Relativity. After all, nothing is said whether the commands are sent from Earth, or from a Nasa's space module orbiting with high speed around Mars. 
+
+In this case, the `width` and `length` would be contracted by a factor called the `Lorentz Factor`, calculated by the method *calculateLorentzFactor*
+
+ ```java
+
+/**
+ * Plateau dimensions according to more accurate Einstein's special relativity
+ * theory. What would  the {@link TwoDimensionalCoordinates#getWidth()} and
+ * {@link TwoDimensionalCoordinates#getHeight()} be as measured from a observer
+ * traveling at a speed close to the speed of light ;-) 
+ * In case of an observer's high speed, the lengths are contracted in the direction of the movement by
+ * the Lorentz factor (usually referred as to the Greek letter gamma). 
+ * Example of Gang of Four <b>Decorator pattern</b>, which  allows us to extend or alter the functionality of objects at run-time 
+ * by wrapping them in an object of a decorator class.
+ * In our case, at {@link Plateau} building time, we will chose a relativistic or classical algorithm.
+ * {@see https://en.wikipedia.org/wiki/Special_relativity#Length_contraction}
+ *
+ */
+public class RelativisticTwoDimensions implements TwoDimensionalSpace {
+
+	private TwoDimensions dimensions;
+
+	public static final int SPEED_OF_LIGHT = Math.multiplyExact(3, (int) Math.pow(10, 8));
+
+	/**
+	 * speed in m/s
+	 */
+	private double observerSpeed;
+
+	private double lorentzFactor;
+
+	public RelativisticTwoDimensions(int speed, TwoDimensions dimensions) {
+		this(dimensions);
+		this.observerSpeed = speed;
+		this.lorentzFactor = calculateLorentzFactor(observerSpeed);
+	}
+
+	private RelativisticTwoDimensions(TwoDimensions dimensions) {
+		this.dimensions = dimensions;
+	}
+
+	/**
+	 * Calculate the Lorentz factor based on the observer's speed
+	 * 
+	 * @param observerSpeed2
+	 * @return Lorentz factor
+	 */
+	private double calculateLorentzFactor(double observerSpeed) {
+		MathContext precision = new MathContext(2); 
+		return Math.sqrt(new BigDecimal(1)
+				.subtract(
+						new BigDecimal(Math.pow(observerSpeed, 2), precision).divide(new BigDecimal(Math.pow(SPEED_OF_LIGHT, 2)), precision))
+				.doubleValue());
+	}
+
+	@Override
+	public int getWidth() {
+		return (int)(lorentzFactor * dimensions.getWidth());
+	}
+
+	@Override
+	public int getHeight() {
+		return (int)(lorentzFactor * dimensions.getHeight());
+	}
+
+}
+
+ ```
  
- Aside from the coordinates and the dimensionss, there is clearly another attribute which can be set to the `Rover`: its orientation. An orientation is not defined by any identity, but by a its value: either West, East, North or South.
+ Aside from the coordinates and the dimensions, there is clearly another attribute which can be set to the `Rover`as a `Value Object`: its orientation. An orientation is not defined by any identity, but by a its value: either West, East, North or South.
 
-This four predefined values make a perfect choice to design the [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) as a java enum.
+This four predefined values make a perfect choice to design the [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) as a java Enum.
 
-Now an interesting question comes up: should we assign the responsibility to change the orientation to the `Rover` or to the `Orientation` itself? In general, keeping entities focused on the responsibility of identity is important because it prevents them from becoming bloated - an easy trap to fall into when they pull together many related behaviors.
+Now an interesting question comes up: should we assign the responsibility to change the orientation to the `Rover` or to the `Orientation` itself? In general, **keeping entities focused on the responsibility of identity** is important because it prevents them from becoming bloated - an easy trap to fall into when they pull together many related behaviors.
 
-Achieving this focus requires delegating related behavior to value objects and domain services.
+Achieving this focus requires delegating related behavior to `Value Objects` and `Domain Services`.
 
-In the case of [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java), we decide to push the behavior into the `Value Object` itself for enhanced domain clarity.
+In the case of [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java), we decide to push the behaviors *turnLeft* and *turnRight* into the `Value Object` itself for enhanced domain clarity.
 
  ```java
 
