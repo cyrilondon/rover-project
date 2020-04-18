@@ -403,8 +403,7 @@ In the case of [Orientation](src/main/java/com/game/domain/model/entity/Orientat
 
 public enum Orientation implements GameEnum<String> {
 
-
-	NORTH("N") {
+	NORTH("N", 1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -417,7 +416,7 @@ public enum Orientation implements GameEnum<String> {
 		}
 	},
 
-	EAST("E") {
+	EAST("E", 1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -429,12 +428,80 @@ public enum Orientation implements GameEnum<String> {
 			return SOUTH;
 		}
 	},
-	
+
+	...
+
 	abstract Orientation turnLeft();
 
-	abstract Orientation turnRight();s
-...
-}
+	abstract Orientation turnRight();
+ ```
+ 
+ So that calling the *turn* method on the `Rover` will just delegate the required behavior to the underlying `Orientation`
+ 
+More precisely, as we will see further down in the section `Event-Driven Architecture` this will be possible by building a `Domain Event` with the new orientation  *orientation.turnXXX* and applying this `Event` to the `Rover`
+
+ ```java
+
+/**
+ * We delegate the turn left command to the orientation object itself
+ */
+   public void turnLeft() {
+
+		RoverTurnedEvent event = new   RoverTurnedEvent.Builder().withRoverId(id).withPreviousOrientation(orientation)
+				.withCurrentOrientation(orientation.turnLeft()).build();
+
+		applyAndPublishEvent(event, turnRover);
+
+	}
+ ```
+ 
+ Similarly, in the context of a Rover's move, we can push the information of the movement direction in the `Value Object`  [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) itself, via another property `axisDirection` and method `isHorizontal`
+ 
+```java
+
+public enum Orientation implements GameEnum<String> {
+
+	NORTH("N", 1) {
+       ...
+	},
+
+	EAST("E", 1) {
+       ...
+   },
+   
+   SOUTH("S", -1) {
+       ...
+	},
+
+	WEST("W", -1) {
+       ...
+	};
+	
+	private static final Orientation[] HORIZONTAL_ORIENTATIONS = {WEST, EAST};
+
+	Orientation(String value, int axisDirection) {
+		this.value = value;
+		this.axisDirection = axisDirection;
+	}
+	
+	public boolean isHorizontal(Orientation orientation) {
+		return isTypeInArray(orientation, HORIZONTAL_ORIENTATIONS);
+	}
+	...
+ ```
+We thus reduce the coupling from the application to the `Orientation` by a **factor of four** (compared on a switch case on the four cardinal points), as the only left useful information to handle is to check its horizontality or verticality.
+
+```java
+
+public void moveNumberOfTimes(int numberOfTimes) {
+
+		if (orientation.isHorizontal(orientation)) {
+			moveHorizontallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
+		} else {
+			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
+		}
+	}
+
  ```
 
 ##### Repositories

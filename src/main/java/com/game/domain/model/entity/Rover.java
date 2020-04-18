@@ -75,17 +75,11 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	}
 
 	public void moveNumberOfTimes(int numberOfTimes) {
-		switch (orientation) {
-		case NORTH:
-		case SOUTH:
-			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
-			break;
-		case WEST:
-		case EAST:
+
+		if (orientation.isHorizontal(orientation)) {
 			moveHorizontallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
-			break;
-		default:
-			throw new IllegalArgumentException(GameExceptionLabels.ILLEGAL_ORIENTATION_VALUE);
+		} else {
+			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
 		}
 	}
 
