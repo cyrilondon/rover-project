@@ -519,7 +519,8 @@ We have thus **completely removed the coupling** from the `Rover` entity to the 
 
 		// build event with previous and updated position
 		RoverMovedEvent event = buildRoverMovedEvent(this.position)
-				.withCurrentPosition(getCoordinates().shiftWithOrientation(this.orientation, step)).build();
+		// delegation of the current position derivation to the Value Object Coordinates  
+		.withCurrentPosition(getCoordinates().shiftWithOrientation(this.orientation, step)).build();
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
@@ -644,11 +645,13 @@ The `Infrastructure Layer` is logically above all others, making references unid
 
 > Event-driven architecture (EDA) is a software architecture promoting the production, detection, consumption of, and reactions to events.
 
+<img src="src/main/resources/event_sequence_diagram.png" />
+
 In the context of `Domain-Driven Architecture`, we use a `Domain Event` to capture an occurrence of something that happened in the domain.
 
 **How do we name an Event?**
 
-The `Event` name states what occurred (past tense) in the Entity after the requested operation succeeded; usually as the `Event` is the result of executing a `Command` operation on the `Aggregate` or `Entity`, the name is usually derived from the command that was executed.
+The `Event` name states what occurred (past tense) in the `Entity` after the requested operation succeeded; usually as the `Event` is the result of executing a `Command` operation on the `Aggregate` or `Entity`, the name is usually derived from the command that was executed.
 
 Command operation: *RoverMovedCommand*
 
@@ -683,6 +686,179 @@ public class RoverMovedEvent implements DomainEvent {
 
 	}
 	
+```
+
+One of the simplest and most effective ways to publish `Domain Events` without coupling to components outside the domain model is to create a lightweight [Observer](https://en.wikipedia.org/wiki/Observer_pattern), or a `Publish/Subscribe`, which is acknowledged as another name for the same pattern. 
+
+In this example, for the sake of simplicity, all registered subscribers execute in the same process space with the publisher and run on the same thread. When an `Event` is published, each registered subscriber will be notified synchronously, one by one (this also implies that all subscribers are running within the same transaction, probably controlled by the `Application Service` that is the direct client of the domain model).
+
+**Publish/Subscribe**
+
+Below is the `Publish/Subscribe` [DomainEventPublisher](src/main/java/com/game/domain/model/event/DomainEventPublisher.java) used in our Rover application. Since every incoming request from users of the system is handled on a separated dedicated thread (please remind yourself that we have extended the basic requirements to allow many distinct clients to send commands separately), we divide subscribers per thread. So the two `ThreadLocal` variables, `subscribers` and `publishing`, are allocated per thread. 
+
+
+```java
+
+public class DomainEventPublisher {
+
+	private static final ThreadLocal<List> subscribers = new ThreadLocal<>();
+
+	private static final ThreadLocal<Boolean> publishing = new ThreadLocal<>();
+
+	public static DomainEventPublisher instance() {
+		return new DomainEventPublisher();
+	}
+
+	public <T extends DomainEvent> void publish(final T domainEvent) {
+		if (null !=publishing.get() && publishing.get()) return;
+
+		try {
+			publishing.set(Boolean.TRUE);
+			List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+			if (registeredSubscribers != null) {
+				Class<?> eventType = domainEvent.getClass();
+				registeredSubscribers.forEach(subscriber -> {
+					handleEvent(subscriber, eventType, domainEvent);
+				});
+			}
+
+		} finally {
+			publishing.set(Boolean.FALSE);
+		}
+
+	}
+
+	
+	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T> subscriber) {
+		if (null !=publishing.get() && publishing.get()) return;
+		
+		List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+		if (registeredSubscribers == null) {
+			registeredSubscribers = new ArrayList<DomainEventSubscriber<T>>();
+			subscribers.set(registeredSubscribers);
+		}
+		registeredSubscribers.add(subscriber);
+	}
+
+	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T> subscriber, Class<?> eventType, T domainEvent) {
+		Class<?> subscribedTo = subscriber.subscribedToEventType();
+		if (subscribedTo == eventType || subscribedTo == DomainEvent.class) {
+			subscriber.handleEvent(domainEvent);
+		}
+
+	}
+	
+	public void clear() {
+		subscribers.remove();
+	}
+	
+```
+Publishing an `Event` will go through the list of all `Subscribers` registered, and will match a `Subscriber` with the corresponding exact `Event` type if it exists in the `subscribers` list.
+
+Then the selected `Subscriber` will be asked to handle the `Event` via the method *handleEvent*.
+
+To enforce this process, each subscriber should implement the interface [DomainEventSubscriber](src/main/java/com/game/domain/model/event/DomainEventSubscriber.java).
+
+```java
+
+public interface DomainEventSubscriber<T> {
+
+	public void handleEvent(T event);
+
+	public Class<T> subscribedToEventType();
+
+}
+```
+
+Depending on the context, threads may be pooled and reused request by request. We don't want subscribers registered on the thread for a previous request to remain registered, so when a new request is received by the application, it should use the *clear()* operation to clear any previous subscriber (this could be done by via a servlet filter in a web application).
+
+Since `Application Services` are the direct client of the domain model when using `Hexagonal Architecture`, they are in an ideal position  to register a subscriber with the publisher before they execute the domain services execution.
+
+Below is the code extract from our Application Service's implementation [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) which registers two specific subscribers for the `RoverMoveCommand`.
+
+```java
+
+void execute(RoverMoveCommand command) {
+
+		// register the subscriber for the given type of event = RoverMovedEvent
+		DomainEventPublisher.instance().subscribe(new RoverMovedEventSubscriber());
+
+		// register the subscriber in case of something went wrong during Rover moves
+		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+
+		// delegates to the rover service
+		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
+
+	}
+```
+
+The subscriber [RoverMovedEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/RoverMovedEventSubscriber.java) has the responsibility to handle the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) in case of everything went fine, which means:
+
+- updating the in-memory `Plateau` location (freeing up the rover's previous position and marking the current one as busy)
+- persisting the `Rover` with its last location
+- persisting the `Plateau` with its last state
+
+
+```java
+public class RoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
+
+	@Override
+	public void handleEvent(RoverMovedEvent event) {
+		
+		// 1 . update in memory plateau locations
+	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationFree(event.getPreviousPosition());
+	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationBusy(event.getCurrentPosition());
+	    
+		// 2. update persistent Rover with last position
+		updateRoverWithLastPosition(event);
+
+		// 3 . update persistent plateau locations
+		updatePlateauWithLastLocations(event);
+		
+	}
+
+	@Override
+	public Class<RoverMovedEvent> subscribedToEventType() {
+		return RoverMovedEvent.class;
+	}
+
+	private void updateRoverWithLastPosition(RoverMovedEvent event) {
+		GameContext.getInstance().getRoverService().updateRoverWithPosition(event.getRoverId(), event.getCurrentPosition());
+	}
+
+	private void updatePlateauWithLastLocations(RoverMovedEvent event) {
+		GameContext.getInstance().getPlateauService().updatePlateauWithLocations(event.getRoverId().getPlateauUuid(),
+				event.getPreviousPosition(), event.getCurrentPosition());
+	}
+
+}
+```
+
+On his side, the [RoverMovedWithExceptionEventSubscriber](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java) handle the Event of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java), which is published when an exception occurs during the `Rover`'s move.
+
+In this case, the `RoverMovedWithExceptionEventSubscriber` should:
+- remove the persistent `Rover` from the `Plateau`
+- set the last `Rover`'s position as free on the `Plateau`
+
+```java
+public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscriber<RoverMovedWithExceptionEvent> {
+
+	@Override
+	public void handleEvent(RoverMovedWithExceptionEvent event) {
+
+		// 1. remove the persistent rover from the game
+		GameContext.getInstance().getRoverService().removeRover(event.getRoverId());
+
+		// 2. set the last rover position as free on the Plateau
+		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(
+				event.getPlateauUuid(), event.getRoverPreviousPosition());
+
+	}
+
+	@Override
+	public Class<RoverMovedWithExceptionEvent> subscribedToEventType() {
+		return RoverMovedWithExceptionEvent.class;
+	}
 ```
 
 ### Test driven
