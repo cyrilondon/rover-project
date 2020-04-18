@@ -76,41 +76,17 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 
 	public void moveNumberOfTimes(int numberOfTimes) {
 
-		if (orientation.isHorizontal(orientation)) {
-			moveHorizontallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
-		} else {
-			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
-		}
-	}
-
-	private void moveVerticallyNumberOfTimes(int axisDirection, int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveVertically(axisDirection * step);
+			moveWithEvent(step);
 		});
+		
 	}
 
-	private void moveHorizontallyNumberOfTimes(int axisDirection, int numberOfTimes) {
-		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveHorizontally(axisDirection * step);
-		});
-	}
-
-	private void moveHorizontally(int step) {
+	private void moveWithEvent(int step) {
 
 		// build event with previous and updated position
 		RoverMovedEvent event = buildRoverMovedEvent(this.position)
-				.withCurrentPosition(getCoordinates().shiftAlongAbscissa(step)).build();
-
-		// apply the event to the current in-memory instance
-		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event, moveRover, moveRoverException);
-	}
-
-	private void moveVertically(int step) {
-
-		// build event with the previous and the updated position
-		RoverMovedEvent event = buildRoverMovedEvent(this.position)
-				.withCurrentPosition(getCoordinates().shiftAlongOrdinate(step)).build();
+				.withCurrentPosition(getCoordinates().shiftWithOrientation(this.orientation, step)).build();
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)

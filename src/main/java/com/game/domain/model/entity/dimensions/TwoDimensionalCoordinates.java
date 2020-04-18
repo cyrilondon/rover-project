@@ -2,6 +2,8 @@ package com.game.domain.model.entity.dimensions;
 
 import java.util.Objects;
 
+import com.game.domain.model.entity.Orientation;
+
 public class TwoDimensionalCoordinates {
 
 	private int abscissa, ordinate;
@@ -42,14 +44,20 @@ public class TwoDimensionalCoordinates {
 	public int getOrdinate() {
 		return ordinate;
 	}
-
+	
 	/**
-	 * We don't mutate the state, i.e. functional behaviour
-	 * @param step
-	 * @return new coordinates
+	 * Given an initial orientation, shift the coordinates when asked to move forward
+	 * with a given step length 
+	 * @param orientation
+	 * @param stepLength
+	 * @return
 	 */
-	public TwoDimensionalCoordinates shiftAlongAbscissa(int step) {
-		return new TwoDimensionalCoordinates(abscissa + step, ordinate);
+	public TwoDimensionalCoordinates shiftWithOrientation(Orientation orientation, int stepLength) {
+		if (orientation.isHorizontal()) {
+			return shiftAlongAbscissa(stepLength * orientation.getAxisDirection());
+		} else {
+			return shiftAlongOrdinate(stepLength * orientation.getAxisDirection());
+		}
 	}
 
 	/**
@@ -57,8 +65,17 @@ public class TwoDimensionalCoordinates {
 	 * @param step
 	 * @return new coordinates
 	 */
-	public TwoDimensionalCoordinates shiftAlongOrdinate(int step) {
-		return new TwoDimensionalCoordinates(abscissa, ordinate + step);
+	private TwoDimensionalCoordinates shiftAlongAbscissa(int stepLength) {
+		return new TwoDimensionalCoordinates(abscissa + stepLength, ordinate);
+	}
+
+	/**
+	 * We don't mutate the state, i.e. functional behaviour
+	 * @param step
+	 * @return new coordinates
+	 */
+	private TwoDimensionalCoordinates shiftAlongOrdinate(int stepLength) {
+		return new TwoDimensionalCoordinates(abscissa, ordinate + stepLength);
 	}
 	
 	@Override

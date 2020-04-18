@@ -489,17 +489,41 @@ public enum Orientation implements GameEnum<String> {
 	}
 	...
  ```
-We thus reduce the coupling from the application to the `Orientation` by a **factor of four** (compared on a switch case on the four cardinal points), as the only left useful information to handle is to check its horizontality or verticality.
+It is then the responsibility of the [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java) to know how to be shifted given an initial `Orientation` and step length (by default set to 1 but can be chosen to be of any value).
 
 ```java
 
-public void moveNumberOfTimes(int numberOfTimes) {
-
-		if (orientation.isHorizontal(orientation)) {
-			moveHorizontallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
+	/**
+	 * Given an initial orientation, shift the coordinates when asked to move forward
+	 * with a given step length 
+	 * @param orientation
+	 * @param stepLength
+	 * @return
+	 */
+	public TwoDimensionalCoordinates shiftWithOrientation(Orientation orientation, int stepLength) {
+		if (orientation.isHorizontal()) {
+			return shiftAlongAbscissa(stepLength * orientation.getAxisDirection());
 		} else {
-			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
+			return shiftAlongOrdinate(stepLength * orientation.getAxisDirection());
 		}
+	}
+ ```
+
+
+We have thus **completely removed the coupling** from the `Rover` entity to the `Orientation` four values. The responsibility on how to move is delegated at the end to the Value Objects `Orientation` and `TwoDimensionalCoordinates`
+
+```java
+   
+   // Rover move method
+	private void moveWithEvent(int step) {
+
+		// build event with previous and updated position
+		RoverMovedEvent event = buildRoverMovedEvent(this.position)
+				.withCurrentPosition(getCoordinates().shiftWithOrientation(this.orientation, step)).build();
+
+		// apply the event to the current in-memory instance
+		// and publish the event for persistence purpose (DB instance + event store)
+		applyAndPublishEvent(event, moveRover, moveRoverException);
 	}
 
  ```

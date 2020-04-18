@@ -70,12 +70,13 @@ public enum Orientation implements GameEnum<String> {
 	 * along the corresponding axis
 	 */
 	private int axisDirection;
+		
+	private static final Orientation[] HORIZONTAL_ORIENTATIONS = {WEST, EAST};
 
-	
 
-	Orientation(String value, int direction) {
+	Orientation(String value, int axisDirection) {
 		this.value = value;
-		this.axisDirection = direction;
+		this.axisDirection = axisDirection;
 	}
 
 	public String getValue() {
@@ -89,6 +90,14 @@ public enum Orientation implements GameEnum<String> {
 	abstract Orientation turnLeft();
 
 	abstract Orientation turnRight();
+	
+	public boolean isHorizontal() {
+		return isTypeInArray(this, HORIZONTAL_ORIENTATIONS);
+	}
+	
+	private static boolean isTypeInArray(final Orientation orientation, final Orientation[] array) {
+		return Arrays.stream(array).anyMatch(orientation::equals);
+	}
 
 	private static final Map<String, Orientation> lookup = new HashMap<>();
 
