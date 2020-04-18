@@ -35,13 +35,13 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 		return event;
 	};
 
+	final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverException = (exception, event) -> {
+		return new RoverMovedWithExceptionEvent((RoverMovedEvent) event, exception);
+	};
+
 	final Function<DomainEvent, DomainEvent> turnRover = event -> {
 		this.orientation = ((RoverTurnedEvent) event).getCurrentOrientation();
 		return event;
-	};
-
-	final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverException = (exception, event) -> {
-		return new RoverMovedWithExceptionEvent((RoverMovedEvent) event, exception);
 	};
 
 	/**
@@ -77,60 +77,28 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	public void moveNumberOfTimes(int numberOfTimes) {
 		switch (orientation) {
 		case NORTH:
-			moveNorthNumberOfTimes(numberOfTimes);
+		case SOUTH:
+			moveVerticallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
 			break;
 		case WEST:
-			moveWestNumberOfTimes(numberOfTimes);
-			break;
 		case EAST:
-			moveEastNumberOfTimes(numberOfTimes);
-			break;
-		case SOUTH:
-			moveSouthNumberOfTimes(numberOfTimes);
+			moveHorizontallyNumberOfTimes(orientation.getAxisDirection(), numberOfTimes);
 			break;
 		default:
 			throw new IllegalArgumentException(GameExceptionLabels.ILLEGAL_ORIENTATION_VALUE);
 		}
 	}
 
-	private void moveNorthNumberOfTimes(int numberOfTimes) {
+	private void moveVerticallyNumberOfTimes(int axisDirection, int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveNorth();
+			moveVertically(axisDirection * step);
 		});
 	}
 
-	private void moveWestNumberOfTimes(int numberOfTimes) {
+	private void moveHorizontallyNumberOfTimes(int axisDirection, int numberOfTimes) {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveWest();
+			moveHorizontally(axisDirection * step);
 		});
-	}
-
-	private void moveEastNumberOfTimes(int numberOfTimes) {
-		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveEast();
-		});
-	}
-
-	private void moveSouthNumberOfTimes(int numberOfTimes) {
-		IntStream.range(0, numberOfTimes).forEach(i -> {
-			moveSouth();
-		});
-	}
-
-	private void moveNorth() {
-		moveVertically(step);
-	}
-
-	private void moveWest() {
-		moveHorizontally(-step);
-	}
-
-	private void moveEast() {
-		moveHorizontally(step);
-	}
-
-	private void moveSouth() {
-		moveVertically(-step);
 	}
 
 	private void moveHorizontally(int step) {

@@ -11,7 +11,7 @@ import com.game.domain.model.entity.enums.GameEnum;
 
 public enum Orientation implements GameEnum<String> {
 
-	NORTH("N") {
+	NORTH("N", 1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -24,7 +24,7 @@ public enum Orientation implements GameEnum<String> {
 		}
 	},
 
-	EAST("E") {
+	EAST("E", 1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -37,7 +37,7 @@ public enum Orientation implements GameEnum<String> {
 		}
 	},
 
-	SOUTH("S") {
+	SOUTH("S", -1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -50,7 +50,7 @@ public enum Orientation implements GameEnum<String> {
 		}
 	},
 
-	WEST("W") {
+	WEST("W", -1) {
 
 		@Override
 		Orientation turnLeft() {
@@ -64,13 +64,26 @@ public enum Orientation implements GameEnum<String> {
 	};
 
 	private String value;
+	
+	/**
+	 * The sign of the move direction
+	 * along the corresponding axis
+	 */
+	private int axisDirection;
 
-	Orientation(String value) {
+	
+
+	Orientation(String value, int direction) {
 		this.value = value;
+		this.axisDirection = direction;
 	}
 
 	public String getValue() {
 		return value;
+	}
+	
+	public int getAxisDirection() {
+		return axisDirection;
 	}
 
 	abstract Orientation turnLeft();

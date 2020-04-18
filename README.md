@@ -557,7 +557,7 @@ In the context of `Domain-Driven Architecture`, we use a `Domain Event` to captu
 
 How do we model an `Event`? An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
 
-For example, we have designed the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) to notify each move of a Rover: it includes the Rover's id, its current and previous postions.
+For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the Rover's id, as well as its current and previous positions.
 
  
 ```java
