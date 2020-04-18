@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.game.domain.application.CommandVisitor;
 
-public class InitializePlateauCommand implements ApplicationCommand {
+public class PlateauInitializeCommand implements ApplicationCommand {
 
 	private UUID plateauUuid;
 
@@ -12,7 +12,7 @@ public class InitializePlateauCommand implements ApplicationCommand {
 
 	private int observerSpeed;
 
-	private InitializePlateauCommand(Builder builder) {
+	private PlateauInitializeCommand(Builder builder) {
 		this.plateauUuid = builder.plateauUuid;
 		this.abscissa = builder.abscissa;
 		this.ordinate = builder.ordinate;
@@ -47,8 +47,8 @@ public class InitializePlateauCommand implements ApplicationCommand {
 			return this;
 		}
 
-		public InitializePlateauCommand build() {
-			return new InitializePlateauCommand(this);
+		public PlateauInitializeCommand build() {
+			return new PlateauInitializeCommand(this);
 		}
 
 	}

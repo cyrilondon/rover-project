@@ -4,13 +4,13 @@ import com.game.domain.application.CommandVisitor;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverTurnInstruction;
 
-public class MakeTurnRoverCommand implements ApplicationCommand  {
+public class RoverTurnCommand implements ApplicationCommand  {
 	
 	RoverTurnInstruction turn;
 	
 	RoverIdentifier roverId;
 	
-	public MakeTurnRoverCommand(RoverIdentifier roverId,  RoverTurnInstruction turn) {
+	public RoverTurnCommand(RoverIdentifier roverId,  RoverTurnInstruction turn) {
 		this.roverId = roverId;
 		this.turn = turn;
 	}

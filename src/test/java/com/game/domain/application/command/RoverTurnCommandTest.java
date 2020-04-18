@@ -10,7 +10,7 @@ import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverTurnInstruction;
 
-public class MakeTurnRoverCommandTest {
+public class RoverTurnCommandTest {
 	
 	@Test
 	public void testCommand() {
@@ -18,7 +18,7 @@ public class MakeTurnRoverCommandTest {
 		String name = GameContext.ROVER_NAME_PREFIX;
 		RoverTurnInstruction turn = RoverTurnInstruction.LEFT;
 		RoverIdentifier roverId = new RoverIdentifier(uuid, name);
-		MakeTurnRoverCommand command = new MakeTurnRoverCommand(roverId, turn);
+		RoverTurnCommand command = new RoverTurnCommand(roverId, turn);
 		assertThat(command.getRoverId()).isEqualTo(roverId);
 		assertThat(command.getTurn()).isEqualTo(turn);
 	}

@@ -8,10 +8,10 @@ import java.util.UUID;
 import com.game.domain.application.GameContext;
 import com.game.domain.application.GameService;
 import com.game.domain.application.command.ApplicationCommand;
-import com.game.domain.application.command.InitializePlateauCommand;
-import com.game.domain.application.command.InitializeRoverCommand;
-import com.game.domain.application.command.MakeTurnRoverCommand;
-import com.game.domain.application.command.MoveRoverCommand;
+import com.game.domain.application.command.PlateauInitializeCommand;
+import com.game.domain.application.command.RoverInitializeCommand;
+import com.game.domain.application.command.RoverTurnCommand;
+import com.game.domain.application.command.RoverMoveCommand;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverTurnInstruction;
 
@@ -42,40 +42,40 @@ public class GameFileAdapter {
 		// ********* Given **********
 		// initialization plateau command (5,5)
 		List<ApplicationCommand> commands = new ArrayList<>();
-		commands.add(new InitializePlateauCommand.Builder().withObserverSpeed(0).withUuid(plateauUuid).withAbscissa(5)
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withUuid(plateauUuid).withAbscissa(5)
 				.withOrdinate(5).build());
 
 		// rover1 commands
 		// Rover 1 initialization (1,2) and Orientation 'N' 
 		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
-		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover1Name)
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauUuid).withName(rover1Name)
 				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
 		RoverIdentifier rover1 = new RoverIdentifier(plateauUuid, rover1Name);
 		// Rover 1 move commands  LMLMLMLMMs
-		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 1));
-		commands.add(new MakeTurnRoverCommand(rover1, RoverTurnInstruction.LEFT));
-		commands.add(new MoveRoverCommand(rover1, 2));
+		commands.add(new RoverTurnCommand(rover1, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover1, 1));
+		commands.add(new RoverTurnCommand(rover1, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover1, 1));
+		commands.add(new RoverTurnCommand(rover1, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover1, 1));
+		commands.add(new RoverTurnCommand(rover1, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover1, 2));
 
 		// rover2 commands
 		// rover 2 initialization  (3,2) and Orientation 'E'
 		String rover2Name = GameContext.ROVER_NAME_PREFIX + 2;
-		commands.add(new InitializeRoverCommand.Builder().withPlateauUuid(plateauUuid).withName(rover2Name)
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauUuid).withName(rover2Name)
 				.withAbscissa(3).withOrdinate(3).withOrientation('E').build());
 		RoverIdentifier rover2 = new RoverIdentifier(plateauUuid, rover2Name);
 		// Rover 2 move commands  MMRMMRMRRM
-		commands.add(new MoveRoverCommand(rover2, 2));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverTurnInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 2));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverTurnInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 1));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverTurnInstruction.RIGHT));
-		commands.add(new MakeTurnRoverCommand(rover2, RoverTurnInstruction.RIGHT));
-		commands.add(new MoveRoverCommand(rover2, 1));
+		commands.add(new RoverMoveCommand(rover2, 2));
+		commands.add(new RoverTurnCommand(rover2, RoverTurnInstruction.RIGHT));
+		commands.add(new RoverMoveCommand(rover2, 2));
+		commands.add(new RoverTurnCommand(rover2, RoverTurnInstruction.RIGHT));
+		commands.add(new RoverMoveCommand(rover2, 1));
+		commands.add(new RoverTurnCommand(rover2, RoverTurnInstruction.RIGHT));
+		commands.add(new RoverTurnCommand(rover2, RoverTurnInstruction.RIGHT));
+		commands.add(new RoverMoveCommand(rover2, 1));
 		
 		return commands;
 	}

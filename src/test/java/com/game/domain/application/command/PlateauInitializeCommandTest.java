@@ -6,13 +6,13 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
-public class InititializePlateauCommandTest {
+public class PlateauInitializeCommandTest {
 
 	@Test
 	public void testBuilder() {
 		int x = 3, y = 4;
 		UUID uuid = UUID.randomUUID();
-		InitializePlateauCommand command = new InitializePlateauCommand.Builder().withUuid(uuid).withAbscissa(x)
+		PlateauInitializeCommand command = new PlateauInitializeCommand.Builder().withUuid(uuid).withAbscissa(x)
 				.withOrdinate(y).build();
 		assertThat(command.getAbscissa()).isEqualTo(x);
 		assertThat(command.getOrdinate()).isEqualTo(y);

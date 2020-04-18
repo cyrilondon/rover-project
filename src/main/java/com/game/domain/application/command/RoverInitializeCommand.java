@@ -8,7 +8,7 @@ import com.game.domain.application.CommandVisitor;
  * Initializes a rover with coordinates and orientation
  *
  */
-public class InitializeRoverCommand implements ApplicationCommand {
+public class RoverInitializeCommand implements ApplicationCommand {
 
 	String name;
 
@@ -18,7 +18,7 @@ public class InitializeRoverCommand implements ApplicationCommand {
 
 	UUID plateauUuid;
 
-	private InitializeRoverCommand(Builder builder) {
+	private RoverInitializeCommand(Builder builder) {
 		this.name = builder.name;
 		this.plateauUuid = builder.plateauUuid;
 		this.abscissa = builder.abscissa;
@@ -81,8 +81,8 @@ public class InitializeRoverCommand implements ApplicationCommand {
 			return this;
 		}
 
-		public InitializeRoverCommand build() {
-			return new InitializeRoverCommand(this);
+		public RoverInitializeCommand build() {
+			return new RoverInitializeCommand(this);
 		}
 
 	}

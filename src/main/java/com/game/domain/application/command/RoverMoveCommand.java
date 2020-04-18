@@ -8,13 +8,13 @@ import com.game.domain.model.entity.RoverIdentifier;
  * by a certain number of moves
  *
  */
-public class MoveRoverCommand implements ApplicationCommand {
+public class RoverMoveCommand implements ApplicationCommand {
 
 	private RoverIdentifier roverId;
 	
 	private int numberOfMoves;
 	
-	public MoveRoverCommand(RoverIdentifier roverId, int numberOfMoves) {
+	public RoverMoveCommand(RoverIdentifier roverId, int numberOfMoves) {
 		this.roverId = roverId;
 		this.numberOfMoves = numberOfMoves;
 	}

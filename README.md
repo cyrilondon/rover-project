@@ -47,9 +47,9 @@ The Domain Driven Design usually recommands to define the following elements:
   
  In our case the [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) represents our single `Application Service` and represents the bridge between the File Adapter and the domain.
  
-Let us consider below an extract of the GameServiceImpl's method to initialize a rover:
+Let us consider below an extract of the GameServiceImpl's method to move a rover:
  
- - it takes a [InitializeRoverCommand](src/main/java/com/game/domain/application/command/InitializeRoverCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
+ - it takes a [RoverMoveCommand](src/main/java/com/game/domain/application/command/RoverMoveCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
  
  - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java)
  
@@ -59,7 +59,7 @@ Let us consider below an extract of the GameServiceImpl's method to initialize a
  
  
  ```java
- public void execute(MoveRoverCommand command) {
+ public void execute(RoverMoveCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
 
@@ -510,7 +510,7 @@ It is then the responsibility of the [TwoDimensionalCoordinates](src/main/java/c
  ```
 
 
-We have thus **completely removed the coupling** from the `Rover` entity to the `Orientation` four values. The responsibility on how to move is delegated at the end to the Value Objects `Orientation` and `TwoDimensionalCoordinates`
+We have thus **completely removed the coupling** from the `Rover` entity to the `Orientation` four values (we have seen too many times during interviews candidates using the four-conditions switch/case in the Rover class itself). The responsibility on how to move is delegated at the end to the Value Objects `Orientation` and `TwoDimensionalCoordinates` through the method *getCoordinates().shiftWithOrientation(this.orientation, step)*
 
 ```java
    
@@ -646,7 +646,21 @@ The `Infrastructure Layer` is logically above all others, making references unid
 
 In the context of `Domain-Driven Architecture`, we use a `Domain Event` to capture an occurrence of something that happened in the domain.
 
-How do we model an `Event`? An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
+**How do we name an Event?**
+
+The `Event` name states what occurred (past tense) in the Entity after the requested operation succeeded; usually as the `Event` is the result of executing a `Command` operation on the `Aggregate` or `Entity`, the name is usually derived from the command that was executed.
+
+Command operation: *RoverMovedCommand*
+
+Event outcome: *RoverMovedEvent*
+
+Command operation: *RoverTurnCommand*
+
+Event outcome: *RoverTurnedEvent*
+
+**How do we model an `Event`?**
+
+An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
 
 For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the Rover's id, as well as its current and previous positions.
 

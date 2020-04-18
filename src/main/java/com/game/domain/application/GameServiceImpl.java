@@ -3,10 +3,10 @@ package com.game.domain.application;
 import java.util.List;
 
 import com.game.domain.application.command.ApplicationCommand;
-import com.game.domain.application.command.InitializePlateauCommand;
-import com.game.domain.application.command.InitializeRoverCommand;
-import com.game.domain.application.command.MakeTurnRoverCommand;
-import com.game.domain.application.command.MoveRoverCommand;
+import com.game.domain.application.command.PlateauInitializeCommand;
+import com.game.domain.application.command.RoverInitializeCommand;
+import com.game.domain.application.command.RoverTurnCommand;
+import com.game.domain.application.command.RoverMoveCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.RoverIdentifier;
@@ -41,7 +41,7 @@ class GameServiceImpl implements GameService {
 		commands.forEach(command -> command.acceptVisitor(commandVisitor));
 	}
 
-	void execute(InitializePlateauCommand command) {
+	void execute(PlateauInitializeCommand command) {
 		GameContext gameContext = GameContext.getInstance();
 		Plateau plateau = null;
 
@@ -58,7 +58,7 @@ class GameServiceImpl implements GameService {
 		addPlateauToContext(plateau);
 	}
 
-	void execute(InitializeRoverCommand command) {
+	void execute(RoverInitializeCommand command) {
 		GameContext gameContext = GameContext.getInstance();
 
 		// 1. loads the Plateau
@@ -79,7 +79,7 @@ class GameServiceImpl implements GameService {
 				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
 	}
 
-	void execute(MoveRoverCommand command) {
+	void execute(RoverMoveCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
 
@@ -94,7 +94,7 @@ class GameServiceImpl implements GameService {
 
 	}
 
-	void execute(MakeTurnRoverCommand command) {
+	void execute(RoverTurnCommand command) {
 
 		GameContext gameContext = GameContext.getInstance();
 
