@@ -1,9 +1,10 @@
-package com.game.domain.model.event;
+package com.game.domain.model.event.rover;
 
 import java.util.UUID;
 
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.event.DomainEvent;
 
 /**
  * Event published in case of something went wrong
@@ -34,7 +35,7 @@ public class RoverMovedWithExceptionEvent implements DomainEvent {
 	}
 	
 	public UUID getPlateauUuid() {
-		return getRoverId().getPlateauUuid();
+		return getRoverId().getPlateauId();
 	}
 	
 	public TwoDimensionalCoordinates getRoverPreviousPosition() {

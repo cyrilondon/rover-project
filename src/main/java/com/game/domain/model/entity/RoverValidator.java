@@ -25,11 +25,11 @@ public class RoverValidator extends EntityValidator<Rover> {
 
 		if (isXPositionOutOfBoard())
 			this.notificationHandler().handleError(String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU,
-					entity().getXPosition(), GameContext.getInstance().getPlateau(entity().getId().getPlateauUuid()).getWidth()));
+					entity().getXPosition(), GameContext.getInstance().getPlateau(entity().getId().getPlateauId()).getWidth()));
 
 		if (isYPositionOutOfBoard())
 			this.notificationHandler().handleError(String.format(GameExceptionLabels.ROVER_Y_OUT_OF_PLATEAU,
-					entity().getYPosition(), GameContext.getInstance().getPlateau(entity().getId().getPlateauUuid()).getHeight()));
+					entity().getYPosition(), GameContext.getInstance().getPlateau(entity().getId().getPlateauId()).getHeight()));
 
 		if (areBothCoordinatesPositive() && areBothCoordinatesInsideTheBoard() && positionAlreadyBusy())
 			this.notificationHandler().handleError(String.format(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET,
@@ -51,11 +51,11 @@ public class RoverValidator extends EntityValidator<Rover> {
 	}
 
 	private boolean isXPositionOutOfBoard() {
-		return entity().getXPosition() > GameContext.getInstance().getPlateau(entity().getId().getPlateauUuid()).getWidth();
+		return entity().getXPosition() > GameContext.getInstance().getPlateau(entity().getId().getPlateauId()).getWidth();
 	}
 
 	private boolean isYPositionOutOfBoard() {
-		return entity().getYPosition() > GameContext.getInstance().getPlateau(entity().getId().getPlateauUuid()).getHeight();
+		return entity().getYPosition() > GameContext.getInstance().getPlateau(entity().getId().getPlateauId()).getHeight();
 	}
 
 	private boolean areBothCoordinatesInsideTheBoard() {
@@ -63,7 +63,7 @@ public class RoverValidator extends EntityValidator<Rover> {
 	}
 	
 	private boolean positionAlreadyBusy() {
-		return GameContext.getInstance().getPlateau(entity().getId().getPlateauUuid())
+		return GameContext.getInstance().getPlateau(entity().getId().getPlateauId())
 				.isLocationBusy(new TwoDimensionalCoordinates(entity().getXPosition(), entity().getYPosition()));
 	}
 

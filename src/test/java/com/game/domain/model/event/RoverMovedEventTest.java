@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.event.rover.RoverMovedEvent;
 
 public class RoverMovedEventTest {
 

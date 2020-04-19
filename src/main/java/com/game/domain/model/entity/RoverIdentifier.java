@@ -20,17 +20,17 @@ public class RoverIdentifier implements Serializable {
 	 * Many-to-one association to a Plateau instance
 	 * We keep track of the plateau UUID
 	 */
-	private UUID plateauUuid;
+	private UUID plateauId;
 	
 	private String name;
 	
-	public RoverIdentifier(UUID plateauUuid, String name) {
-		this.plateauUuid = ArgumentCheck.preNotNull(plateauUuid, GameExceptionLabels.MISSING_PLATEAU_UUID);
+	public RoverIdentifier(UUID plateauId, String name) {
+		this.plateauId = ArgumentCheck.preNotNull(plateauId, GameExceptionLabels.MISSING_PLATEAU_UUID);
 		this.name = ArgumentCheck.preNotEmpty(name, GameExceptionLabels.MISSING_ROVER_NAME);
 	}
 
-	public UUID getPlateauUuid() {
-		return plateauUuid;
+	public UUID getPlateauId() {
+		return plateauId;
 	}
 
 	public String getName() {
@@ -45,7 +45,7 @@ public class RoverIdentifier implements Serializable {
 
 		if (obj instanceof RoverIdentifier) {
 			RoverIdentifier other = (RoverIdentifier) obj;
-			return Objects.equals(plateauUuid, other.getPlateauUuid()) && Objects.equals(name, other.getName());
+			return Objects.equals(plateauId, other.getPlateauId()) && Objects.equals(name, other.getName());
 		}
 
 		return false;
@@ -53,12 +53,12 @@ public class RoverIdentifier implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getPlateauUuid(), getName());
+		return Objects.hash(getPlateauId(), getName());
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("Name [%s] - Plateau UUID [%s]", name, getPlateauUuid());
+		return String.format("Name [%s] - Plateau UUID [%s]", name, getPlateauId());
 	}
 
 }

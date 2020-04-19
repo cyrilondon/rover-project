@@ -42,4 +42,11 @@ public interface Entity<T, U> {
 	 */
 	void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function);
 
+	/**
+	 * Publish and stores the event
+	 * Used in case of inter-Aggregates communication
+	 * @param event
+	 */
+	void publishEvent(DomainEvent event);
+
 }

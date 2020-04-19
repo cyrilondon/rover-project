@@ -24,6 +24,47 @@ The second line is a series of instructions telling the rover how to explore the
 
 In this exercise, we would like to present a step-by-step process driven by the three following software practices: `Domain-Driven Design`, `Event-Driven Design`, `Hexagonal Architecture` and `Test Driven Design`.
 
+In our implementation, all the actions to be executed are driven by published and stored `Domain Events`
+
+```java
+Persistent Rover: Rover [ROVER_1] attached to Plateau [06c6be12-7445-4f44-8aae-378e9b91d9ba] with [Coordinates [abscissa = 1, ordinate = 3]] and [Orientation [NORTH]]
+Persistent Rover: Rover [ROVER_2] attached to Plateau [06c6be12-7445-4f44-8aae-378e9b91d9ba] with [Coordinates [abscissa = 5, ordinate = 1]] and [Orientation [EAST]]
+In-Memory Plateau with coordinates 1,3 busy ? [true]
+In-Memory Plateau with coordinates 5,2 busy ? [true]
+Persistent Plateau with coordinates 1,3 busy ? [true]
+Persistent Plateau with coordinates 5,2 busy ? [true]
+RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [NORTH]], current orientation [Orientation [WEST]]
+RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 2]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 2]]
+RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [WEST]], current orientation [Orientation [SOUTH]]
+RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 0, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 1]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 0, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 1]]
+RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [EAST]]
+RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 0, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 1]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 0, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 1]]
+RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [EAST]], current orientation [Orientation [NORTH]]
+RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 2]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 2]]
+RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 1, ordinate = 3]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 1, ordinate = 3]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 3, ordinate = 3]], current position [Coordinates [abscissa = 4, ordinate = 3]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 3, ordinate = 3]], position occupied [Coordinates [abscissa = 4, ordinate = 3]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 4, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 3]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 4, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 3]]
+RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [EAST]], current orientation [Orientation [SOUTH]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 2]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 2]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 2]], current position [Coordinates [abscissa = 5, ordinate = 1]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 2]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
+RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [WEST]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 1]], current position [Coordinates [abscissa = 4, ordinate = 1]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 1]], position occupied [Coordinates [abscissa = 4, ordinate = 1]]
+RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [WEST]], current orientation [Orientation [NORTH]]
+RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [NORTH]], current orientation [Orientation [EAST]]
+RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 4, ordinate = 1]], current position [Coordinates [abscissa = 5, ordinate = 1]]
+PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 4, ordinate = 1]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
+```
+
 ### Domain Driven Design 
 
 > Domain-driven design (DDD) is an approach to software development placing the project's primary focus on the core domain and domain logic, which aims at connecting the implementation to an evolving model. The term was coined by Eric Evans in his book of the same title.
@@ -665,7 +706,7 @@ Event outcome: *RoverTurnedEvent*
 
 An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
 
-For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the Rover's id, as well as its current and previous positions.
+For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the Rover's id, as well as its current and previous positions.
 
  
 ```java
@@ -753,6 +794,10 @@ public class DomainEventPublisher {
 	}
 	
 ```
+
+**Subscribing**
+
+
 Publishing an `Event` will go through the list of all `Subscribers` registered, and will match a `Subscriber` with the corresponding exact `Event` type if it exists in the `subscribers` list.
 
 Then the selected `Subscriber` will be asked to handle the `Event` via the method *handleEvent*.
@@ -774,7 +819,7 @@ Depending on the context, threads may be pooled and reused request by request. W
 
 Since `Application Services` are the direct client of the domain model when using `Hexagonal Architecture`, they are in an ideal position  to register a subscriber with the publisher before they execute the domain services execution.
 
-Below is the code extract from our Application Service's implementation [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) which registers two specific subscribers for the `RoverMoveCommand`.
+Below is the code extract from our Application Service's implementation [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) which registers three specific subscribers required for a proper`RoverMoveCommand` execution
 
 ```java
 
@@ -785,6 +830,9 @@ void execute(RoverMoveCommand command) {
 
 		// register the subscriber in case of something went wrong during Rover moves
 		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+		
+		// register the subscriber for the plateau to release and occupy the locations
+		DomainEventPublisher.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
 
 		// delegates to the rover service
 		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
@@ -792,11 +840,9 @@ void execute(RoverMoveCommand command) {
 	}
 ```
 
-The subscriber [RoverMovedEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/RoverMovedEventSubscriber.java) has the responsibility to handle the [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java) in case of everything went fine, which means:
+The subscriber [RoverMovedEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/rover/RoverMovedEventSubscriber.java) has the responsibility to handle the [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) in case of everything went fine, which means:
 
-- updating the in-memory `Plateau` location (freeing up the rover's previous position and marking the current one as busy)
 - persisting the `Rover` with its last location
-- persisting the `Plateau` with its last state
 
 
 ```java
@@ -804,37 +850,15 @@ public class RoverMovedEventSubscriber implements DomainEventSubscriber<RoverMov
 
 	@Override
 	public void handleEvent(RoverMovedEvent event) {
-		
-		// 1 . update in memory plateau locations
-	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationFree(event.getPreviousPosition());
-	    GameContext.getInstance().getPlateau(event.getPlateauUUID()).setLocationBusy(event.getCurrentPosition());
 	    
-		// 2. update persistent Rover with last position
-		updateRoverWithLastPosition(event);
-
-		// 3 . update persistent plateau locations
-		updatePlateauWithLastLocations(event);
+		// update persistent Rover with last position
+		GameContext.getInstance().getRoverService().updateRoverWithPosition(event.getRoverId(), event.getCurrentPosition());
 		
 	}
-
-	@Override
-	public Class<RoverMovedEvent> subscribedToEventType() {
-		return RoverMovedEvent.class;
-	}
-
-	private void updateRoverWithLastPosition(RoverMovedEvent event) {
-		GameContext.getInstance().getRoverService().updateRoverWithPosition(event.getRoverId(), event.getCurrentPosition());
-	}
-
-	private void updatePlateauWithLastLocations(RoverMovedEvent event) {
-		GameContext.getInstance().getPlateauService().updatePlateauWithLocations(event.getRoverId().getPlateauUuid(),
-				event.getPreviousPosition(), event.getCurrentPosition());
-	}
-
 }
 ```
 
-On his side, the [RoverMovedWithExceptionEventSubscriber](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java) handle the Event of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java), which is published when an exception occurs during the `Rover`'s move.
+On his side, the [RoverMovedWithExceptionEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/rover/RoverMovedWithExceptionEventSubscriber.java) handle the Event of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedWithExceptionEvent.java), which is published when an exception occurs during the `Rover`'s move.
 
 In this case, the `RoverMovedWithExceptionEventSubscriber` should:
 - remove the persistent `Rover` from the `Plateau`
@@ -855,11 +879,39 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 
 	}
 
+```
+
+Finally the last subscriber [PlateauSwitchedLocationEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/plateau/PlateauSwitchedLocationEventSubscriber.java) is in charge of updating the Plateau's location after the Rover's move: freeing up the previous Rover's location and marking the current one as busy.
+
+```java
+
+public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscriber<PlateauSwitchedLocationEvent> {
+
 	@Override
-	public Class<RoverMovedWithExceptionEvent> subscribedToEventType() {
-		return RoverMovedWithExceptionEvent.class;
+	public void handleEvent(PlateauSwitchedLocationEvent event) {
+		
+		// 1 . update in memory plateau locations
+	    GameContext.getInstance().getPlateau(event.getPlateauId()).setLocationFree(event.getPreviousPosition());
+	    GameContext.getInstance().getPlateau(event.getPlateauId()).setLocationBusy(event.getCurrentPosition());
+	    
+	 // 3 . update persistent plateau locations
+	 		updatePlateauWithLastLocations(event);
+		
+	}
+	
+	private void updatePlateauWithLastLocations(PlateauSwitchedLocationEvent event) {
+		GameContext.getInstance().getPlateauService().updatePlateauWithLocations(event.getPlateauId(),
+				event.getPreviousPosition(), event.getCurrentPosition());
 	}
 ```
+
+We have then a clear segregation of responsabilities:
+- the `Application Service` publish Events and delegates to the Domain Services but has no business responsibility
+- Each `Event` is clearly assigned a single responsibility in a very clear context of a particular `Entity`.
+
+```
+
+**Publishing**
 
 ### Test driven
 

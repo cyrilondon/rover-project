@@ -16,8 +16,8 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.event.DomainEventSubscriber;
-import com.game.domain.model.event.RoverMovedEvent;
-import com.game.domain.model.event.RoverMovedWithExceptionEvent;
+import com.game.domain.model.event.rover.RoverMovedEvent;
+import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.IllegalRoverMoveException;
@@ -61,7 +61,7 @@ public class RoverTest {
 		assertThat(rover.getCoordinates()).isEqualTo(new TwoDimensionalCoordinates(3, 4));
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 		assertThat(rover.getId().getName()).isEqualTo(ROVER_NAME);
-		assertThat(rover.getId().getPlateauUuid()).isEqualTo(plateauUuid);
+		assertThat(rover.getId().getPlateauId()).isEqualTo(plateauUuid);
 	}
 
 	@Test

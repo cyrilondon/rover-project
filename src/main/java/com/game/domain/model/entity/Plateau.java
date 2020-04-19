@@ -46,7 +46,7 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 	 * @param coordinates
 	 * @return
 	 */
-	public void setLocationBusy(TwoDimensionalCoordinates coordinates) {
+	public void setLocationOccupied(TwoDimensionalCoordinates coordinates) {
 		locations[coordinates.getAbscissa()][coordinates.getOrdinate()] = true;
 	}
 

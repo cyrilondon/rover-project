@@ -3,18 +3,19 @@ package com.game.domain.application;
 import java.util.List;
 
 import com.game.domain.application.command.ApplicationCommand;
-import com.game.domain.application.command.PlateauInitializeCommand;
-import com.game.domain.application.command.RoverInitializeCommand;
-import com.game.domain.application.command.RoverTurnCommand;
-import com.game.domain.application.command.RoverMoveCommand;
+import com.game.domain.application.command.plateau.PlateauInitializeCommand;
+import com.game.domain.application.command.rover.RoverInitializeCommand;
+import com.game.domain.application.command.rover.RoverMoveCommand;
+import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.model.entity.Orientation;
 import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEventPublisher;
-import com.game.domain.model.event.subscriber.RoverMovedEventSubscriber;
-import com.game.domain.model.event.subscriber.RoverMovedWithExceptionEventSubscriber;
-import com.game.domain.model.event.subscriber.RoverTurnedEventSubscriber;
+import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverTurnedEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.PlateauNotFoundException;
@@ -81,28 +82,27 @@ class GameServiceImpl implements GameService {
 
 	void execute(RoverMoveCommand command) {
 
-		GameContext gameContext = GameContext.getInstance();
-
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisher.instance().subscribe(new RoverMovedEventSubscriber());
 
 		// register the subscriber in case of something went wrong during Rover moves
 		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+		
+		// register the subscriber for the plateau
+		DomainEventPublisher.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
 
 		// delegates to the rover service
-		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
+		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
 
 	}
 
 	void execute(RoverTurnCommand command) {
 
-		GameContext gameContext = GameContext.getInstance();
-
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisher.instance().subscribe(new RoverTurnedEventSubscriber());
 
 		// delegates to rover service
-		gameContext.getRoverService().turnRover(command.getRoverId(), command.getTurn());
+		GameContext.getInstance().getRoverService().turnRover(command.getRoverId(), command.getTurn());
 
 	}
 

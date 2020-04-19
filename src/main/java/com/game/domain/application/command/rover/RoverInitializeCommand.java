@@ -1,8 +1,9 @@
-package com.game.domain.application.command;
+package com.game.domain.application.command.rover;
 
 import java.util.UUID;
 
 import com.game.domain.application.CommandVisitor;
+import com.game.domain.application.command.ApplicationCommand;
 
 /**
  * Initializes a rover with coordinates and orientation

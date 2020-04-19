@@ -145,7 +145,7 @@ public class RoverValidatorTest {
 
 		ValidationNotificationHandler errorHandler = new EntityDefaultValidationNotificationHandler();
 		
-		gameContext.getPlateau(uuid).setLocationBusy(new TwoDimensionalCoordinates(POSITIVE_X_POSITION, POSITIVE_Y_POSITION));
+		gameContext.getPlateau(uuid).setLocationOccupied(new TwoDimensionalCoordinates(POSITIVE_X_POSITION, POSITIVE_Y_POSITION));
 
 		Rover rover = getRover(uuid, POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
 

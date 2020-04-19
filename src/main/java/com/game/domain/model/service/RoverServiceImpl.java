@@ -81,7 +81,7 @@ public class RoverServiceImpl implements RoverService {
 
 	@Override
 	public List<Rover> getAllRoversOnPlateau(UUID uuid) {
-		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauUuid().equals(uuid))
+		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauId().equals(uuid))
 				.collect(Collectors.toList());
 	}
 

@@ -1,8 +1,8 @@
-package com.game.domain.model.event.subscriber;
+package com.game.domain.model.event.subscriber.rover;
 
 import com.game.domain.application.GameContext;
 import com.game.domain.model.event.DomainEventSubscriber;
-import com.game.domain.model.event.RoverTurnedEvent;
+import com.game.domain.model.event.rover.RoverTurnedEvent;
 
 public class RoverTurnedEventSubscriber implements DomainEventSubscriber<RoverTurnedEvent> {
 

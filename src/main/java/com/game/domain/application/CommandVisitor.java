@@ -1,9 +1,9 @@
 package com.game.domain.application;
 
-import com.game.domain.application.command.PlateauInitializeCommand;
-import com.game.domain.application.command.RoverInitializeCommand;
-import com.game.domain.application.command.RoverTurnCommand;
-import com.game.domain.application.command.RoverMoveCommand;
+import com.game.domain.application.command.plateau.PlateauInitializeCommand;
+import com.game.domain.application.command.rover.RoverInitializeCommand;
+import com.game.domain.application.command.rover.RoverMoveCommand;
+import com.game.domain.application.command.rover.RoverTurnCommand;
 
 public class CommandVisitor {
 	

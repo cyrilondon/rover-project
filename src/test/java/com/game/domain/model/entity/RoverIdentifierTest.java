@@ -18,7 +18,7 @@ public class RoverIdentifierTest {
 		UUID uuid = UUID.randomUUID();
 		RoverIdentifier id = new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX);
 		assertThat(id.getName()).isEqualTo(GameContext.ROVER_NAME_PREFIX);
-		assertThat(id.getPlateauUuid()).isEqualTo(uuid);
+		assertThat(id.getPlateauId()).isEqualTo(uuid);
 	}
 	
 	@Test

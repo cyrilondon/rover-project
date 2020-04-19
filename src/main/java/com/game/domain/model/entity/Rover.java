@@ -9,10 +9,11 @@ import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
-import com.game.domain.model.event.RoverMovedEvent;
-import com.game.domain.model.event.RoverMovedEvent.Builder;
-import com.game.domain.model.event.RoverMovedWithExceptionEvent;
-import com.game.domain.model.event.RoverTurnedEvent;
+import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
+import com.game.domain.model.event.rover.RoverMovedEvent;
+import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
+import com.game.domain.model.event.rover.RoverTurnedEvent;
+import com.game.domain.model.event.rover.RoverMovedEvent.Builder;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler;
@@ -79,18 +80,27 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 		IntStream.range(0, numberOfTimes).forEach(i -> {
 			moveWithEvent(step);
 		});
-		
+
 	}
 
 	private void moveWithEvent(int step) {
+		
+		TwoDimensionalCoordinates previousPosition = this.position;
+		
+		TwoDimensionalCoordinates currentPosition = getCoordinates().shiftWithOrientation(this.orientation, step);
 
 		// build event with previous and updated position
-		RoverMovedEvent event = buildRoverMovedEvent(this.position)
-				.withCurrentPosition(getCoordinates().shiftWithOrientation(this.orientation, step)).build();
+		RoverMovedEvent event = buildRoverMovedEvent(previousPosition)
+				.withCurrentPosition(currentPosition).build();
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
 		applyAndPublishEvent(event, moveRover, moveRoverException);
+		
+		PlateauSwitchedLocationEvent plateauEvent = new PlateauSwitchedLocationEvent.Builder().withPlateauId(event.getPlateauUUID()).
+				withPreviousPosition(previousPosition).withCurrentPosition(currentPosition).build();
+		
+		publishEvent(plateauEvent);
 	}
 
 	/**
@@ -117,7 +127,7 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	}
 
 	private Builder buildRoverMovedEvent(TwoDimensionalCoordinates previousPosition) {
-		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauUuid(), id.getName()))
+		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauId(), id.getName()))
 				.withPreviousPosition(previousPosition);
 	}
 
@@ -173,7 +183,7 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	@Override
 	public String toString() {
 		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(),
-				this.getId().getPlateauUuid(), this.getCoordinates(), this.getOrientation());
+				this.getId().getPlateauId(), this.getCoordinates(), this.getOrientation());
 	}
 
 }

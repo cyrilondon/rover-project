@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.testng.annotations.Test;
 
 import com.game.domain.application.GameContext;
+import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.RoverTurnInstruction;
 

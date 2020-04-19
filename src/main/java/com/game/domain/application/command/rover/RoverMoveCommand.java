@@ -1,6 +1,7 @@
-package com.game.domain.application.command;
+package com.game.domain.application.command.rover;
 
 import com.game.domain.application.CommandVisitor;
+import com.game.domain.application.command.ApplicationCommand;
 import com.game.domain.model.entity.RoverIdentifier;
 
 /**

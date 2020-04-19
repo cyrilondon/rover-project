@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.game.domain.application.GameContext;
-import com.game.domain.application.command.RoverInitializeCommand;
+import com.game.domain.application.command.rover.RoverInitializeCommand;
 
 public class RoverInitializeCommandTest {
 
