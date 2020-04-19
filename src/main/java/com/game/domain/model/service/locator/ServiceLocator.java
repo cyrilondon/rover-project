@@ -1,11 +1,14 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.locator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.game.domain.application.ApplicationService;
-import com.game.domain.application.GameService;
+import com.game.domain.application.service.ApplicationService;
+import com.game.domain.application.service.GameService;
 import com.game.domain.model.event.store.EventStore;
+import com.game.domain.model.service.DomainService;
+import com.game.domain.model.service.plateau.PlateauService;
+import com.game.domain.model.service.rover.RoverService;
 
 public class ServiceLocator {
 

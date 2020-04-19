@@ -1,4 +1,4 @@
-package com.game.domain.application;
+package com.game.domain.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -15,6 +15,8 @@ import org.testng.annotations.Test;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
+import com.game.domain.application.context.GameContext;
+import com.game.domain.application.service.GameServiceImpl;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
@@ -28,9 +30,9 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.exception.PlateauNotFoundException;
-import com.game.domain.model.service.PlateauService;
-import com.game.domain.model.service.RoverService;
-import com.game.domain.model.service.ServiceLocator;
+import com.game.domain.model.service.locator.ServiceLocator;
+import com.game.domain.model.service.plateau.PlateauService;
+import com.game.domain.model.service.rover.RoverService;
 
 public class GameServiceImplTest {
 

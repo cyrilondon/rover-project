@@ -2,8 +2,8 @@ package com.game.domain.application.command.plateau;
 
 import java.util.UUID;
 
-import com.game.domain.application.CommandVisitor;
 import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.service.GameServiceCommandVisitor;
 
 public class PlateauInitializeCommand implements ApplicationCommand {
 
@@ -71,7 +71,7 @@ public class PlateauInitializeCommand implements ApplicationCommand {
 	}
 
 	@Override
-	public void acceptVisitor(CommandVisitor visitor) {
+	public void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
 	}
 

@@ -1,11 +1,11 @@
-package com.game.domain.application;
+package com.game.domain.application.service;
 
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
 
-public class CommandVisitor {
+public class GameServiceCommandVisitor {
 	
 	private GameServiceImpl gameService = new GameServiceImpl();
 	

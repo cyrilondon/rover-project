@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.rover;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.game.domain.application.GameContext;
+import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
@@ -22,6 +22,7 @@ import com.game.domain.model.event.DomainEventPublisher;
 import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.RoverRepository;
+import com.game.domain.model.service.rover.RoverServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 public class RoverServiceImplTest {

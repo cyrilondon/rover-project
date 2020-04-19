@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.game.domain.application.GameContext;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
+import com.game.domain.application.context.GameContext;
 
 public class RoverInitializeCommandTest {
 

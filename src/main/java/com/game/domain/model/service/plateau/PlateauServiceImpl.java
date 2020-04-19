@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.plateau;
 
 import java.util.UUID;
 

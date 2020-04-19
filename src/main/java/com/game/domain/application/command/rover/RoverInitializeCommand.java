@@ -2,8 +2,8 @@ package com.game.domain.application.command.rover;
 
 import java.util.UUID;
 
-import com.game.domain.application.CommandVisitor;
 import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.service.GameServiceCommandVisitor;
 
 /**
  * Initializes a rover with coordinates and orientation
@@ -89,7 +89,7 @@ public class RoverInitializeCommand implements ApplicationCommand {
 	}
 
 	@Override
-	public void acceptVisitor(CommandVisitor visitor) {
+	public void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
 	}
 

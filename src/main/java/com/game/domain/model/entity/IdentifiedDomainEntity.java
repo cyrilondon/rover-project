@@ -3,7 +3,7 @@ package com.game.domain.model.entity;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.game.domain.application.GameContext;
+import com.game.domain.application.context.GameContext;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.DomainEventPublisher;
 

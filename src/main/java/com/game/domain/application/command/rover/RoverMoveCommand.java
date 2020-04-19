@@ -1,7 +1,7 @@
 package com.game.domain.application.command.rover;
 
-import com.game.domain.application.CommandVisitor;
 import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.service.GameServiceCommandVisitor;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 
 /**
@@ -29,7 +29,7 @@ public class RoverMoveCommand implements ApplicationCommand {
 	}
 
 	@Override
-	public void acceptVisitor(CommandVisitor visitor) {
+	public void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
 	}
 	

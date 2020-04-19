@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.game.domain.application.GameContext;
-import com.game.domain.application.GameService;
 import com.game.domain.application.command.ApplicationCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
+import com.game.domain.application.context.GameContext;
+import com.game.domain.application.service.GameService;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 

@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.rover;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +8,7 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.service.DomainService;
 
 public interface RoverService extends DomainService {
 		

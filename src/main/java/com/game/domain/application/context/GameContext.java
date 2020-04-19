@@ -1,4 +1,4 @@
-package com.game.domain.application;
+package com.game.domain.application.context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,17 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import com.game.core.validation.ArgumentCheck;
+import com.game.domain.application.service.GameService;
+import com.game.domain.application.service.GameServiceImpl;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.store.EventStore;
 import com.game.domain.model.event.store.EventStoreImpl;
 import com.game.domain.model.exception.GameExceptionLabels;
-import com.game.domain.model.service.PlateauService;
-import com.game.domain.model.service.PlateauServiceImpl;
-import com.game.domain.model.service.RoverService;
-import com.game.domain.model.service.RoverServiceImpl;
-import com.game.domain.model.service.ServiceLocator;
+import com.game.domain.model.service.locator.ServiceLocator;
+import com.game.domain.model.service.plateau.PlateauService;
+import com.game.domain.model.service.plateau.PlateauServiceImpl;
+import com.game.domain.model.service.rover.RoverService;
+import com.game.domain.model.service.rover.RoverServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryPlateauRepositoryImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 

@@ -1,9 +1,9 @@
 package com.game.domain.application.command;
 
-import com.game.domain.application.CommandVisitor;
+import com.game.domain.application.service.GameServiceCommandVisitor;
 
 public interface ApplicationCommand {
 	
-	void acceptVisitor(CommandVisitor visitor);
+	void acceptVisitor(GameServiceCommandVisitor visitor);
 
 }

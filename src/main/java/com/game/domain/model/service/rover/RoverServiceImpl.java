@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.rover;
 
 import java.util.List;
 import java.util.UUID;

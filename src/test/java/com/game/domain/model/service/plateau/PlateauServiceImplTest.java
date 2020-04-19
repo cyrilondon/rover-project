@@ -1,4 +1,4 @@
-package com.game.domain.model.service;
+package com.game.domain.model.service.plateau;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -13,6 +13,7 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.PlateauRepository;
+import com.game.domain.model.service.plateau.PlateauServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 public class PlateauServiceImplTest {

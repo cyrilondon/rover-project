@@ -1,4 +1,4 @@
-package com.game.domain.application;
+package com.game.domain.application.service;
 
 /**
  * Marker interface to be implemented by Application Services

@@ -1,4 +1,4 @@
-package com.game.domain.application;
+package com.game.domain.application.service;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
+import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
@@ -19,8 +20,8 @@ import com.game.domain.model.event.subscriber.rover.RoverTurnedEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.PlateauNotFoundException;
-import com.game.domain.model.service.PlateauServiceImpl;
-import com.game.domain.model.service.RoverServiceImpl;
+import com.game.domain.model.service.plateau.PlateauServiceImpl;
+import com.game.domain.model.service.rover.RoverServiceImpl;
 
 /**
  * Application service which acts as a facade to the application
@@ -34,11 +35,11 @@ import com.game.domain.model.service.RoverServiceImpl;
  * <li>Register Domain Events subscribers</li>
  * </ol>
  */
-class GameServiceImpl implements GameService {
+public class GameServiceImpl implements GameService {
 
 	@Override
 	public void execute(List<ApplicationCommand> commands) {
-		CommandVisitor commandVisitor = new CommandVisitor();
+		GameServiceCommandVisitor commandVisitor = new GameServiceCommandVisitor();
 		commands.forEach(command -> command.acceptVisitor(commandVisitor));
 	}
 

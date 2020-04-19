@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
-import com.game.domain.application.GameContext;
+import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.IdentifiedDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;

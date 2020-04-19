@@ -1,4 +1,4 @@
-package com.game.domain.application;
+package com.game.domain.application.service;
 
 import java.util.List;
 
