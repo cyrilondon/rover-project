@@ -9,13 +9,16 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.event.BaseDomainEventPublisher;
+import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
+import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.repository.RoverRepository;
 
 /**
  * Pure domain service which handles {@link Rover} entity
  *
  */
-public class RoverServiceImpl implements RoverService {
+public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverService {
 
 	private RoverRepository roverRepository;
 
@@ -25,9 +28,17 @@ public class RoverServiceImpl implements RoverService {
 
 	@Override
 	public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
+		
+		RoverInitializedEvent event = new RoverInitializedEvent.Builder().withRoverId(id).withPosition(coordinates).withOrientation(orientation).build();
 		Rover rover = new Rover(id, coordinates, orientation);
-		roverRepository.add(rover.validate());
+		rover.applyAndPublishEvent(event, rover.initializeRover, rover.initializeRoverWithException);
+		
+		PlateauSwitchedLocationEvent plateauEvent = new PlateauSwitchedLocationEvent.Builder().withPlateauId(id.getPlateauId()).
+				withCurrentPosition(coordinates).build();
+		
+		publishEvent(plateauEvent);
 	}
+
 
 	@Override
 	public void turnRover(RoverIdentifier id, RoverTurnInstruction turn) {
@@ -83,6 +94,11 @@ public class RoverServiceImpl implements RoverService {
 	public List<Rover> getAllRoversOnPlateau(UUID uuid) {
 		return roverRepository.getAllRovers().stream().filter(rover -> rover.getId().getPlateauId().equals(uuid))
 				.collect(Collectors.toList());
+	}
+	
+	@Override
+	public RoverRepository getRoverRepository() {
+		return roverRepository;
 	}
 
 }

@@ -2,9 +2,9 @@ package com.game.domain.model.event.rover;
 
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.BaseDomainEvent;
 
-public class RoverTurnedEvent implements DomainEvent {
+public class RoverTurnedEvent extends BaseDomainEvent {
 
 	private RoverIdentifier roverId;
 
@@ -61,7 +61,7 @@ public class RoverTurnedEvent implements DomainEvent {
 	
 	@Override
 	public String toString() {
-		return String.format("RoverTurnedEvent published with rover id [%s], previous orientation [%s], current orientation [%s]" , roverId, previousOrientation, currentOrientation);
+		return String.format("RoverTurnedEvent published at [%s] with rover id [%s], previous orientation [%s], current orientation [%s]" , super.occuredOn(), roverId, previousOrientation, currentOrientation);
 	}
 	
 

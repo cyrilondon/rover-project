@@ -1,6 +1,5 @@
 package com.game.domain.model.validation;
 
-import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 
@@ -22,7 +21,7 @@ public class EntityDefaultValidationNotificationHandler implements ValidationNot
 			if (allErrorMessages.startsWith(GameExceptionLabels.PLATEAU_LOCATION_ALREADY_SET_START)) {
 				throw new PlateauLocationAlreadySetException(allErrorMessages);
 			}
-			throw new EntityInitialisationException(allErrorMessages);
+			throw new IllegalArgumentException(allErrorMessages);
 		}
 
 	}

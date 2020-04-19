@@ -7,7 +7,11 @@ import com.game.domain.application.command.rover.RoverTurnCommand;
 
 public class GameServiceCommandVisitor {
 	
-	private GameServiceImpl gameService = new GameServiceImpl();
+	private GameServiceImpl gameService;;
+	
+	public GameServiceCommandVisitor(GameServiceImpl gameService) {
+		this.gameService = gameService;
+	}
 	
 	public void visit(PlateauInitializeCommand command) {
 		gameService.execute(command);

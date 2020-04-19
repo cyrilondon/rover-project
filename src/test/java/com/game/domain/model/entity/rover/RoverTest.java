@@ -18,7 +18,7 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEventPublisher;
+import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.rover.RoverMovedEvent;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
@@ -49,12 +49,12 @@ public class RoverTest {
 
 	@BeforeMethod
 	public void reset() {
-		DomainEventPublisher.instance().clear();
+		DomainEventPublisherSubscriber.instance().clear();
 		addPlateau(plateauUUID, PLATEAU_WIDTH, PLATEAU_HEIGHT);
 		capturedEvents.clear();
 		capturedEventsWithExceptions.clear();
-		DomainEventPublisher.instance().subscribe(new MockRoverMovedEventSubscriber());
-		DomainEventPublisher.instance().subscribe(new MockRoverMovedEventWithExceptionSubscriber());
+		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverMovedEventSubscriber());
+		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverMovedEventWithExceptionSubscriber());
 	}
 
 	@Test

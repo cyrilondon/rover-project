@@ -70,7 +70,7 @@ public class PlateauServiceImplTest {
 		UUID uuid = UUID.randomUUID();
 		plateauRepository.add(getPlateau(uuid));
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(3, 4);
-		plateauService.updatePlateauWithBusyLocation(uuid, coordinates);
+		plateauService.updatePlateauWithOccupiedLocation(uuid, coordinates);
 		assertThat(plateauService.isLocationBusy(uuid, coordinates)).isTrue();
 	}
 

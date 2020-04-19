@@ -4,22 +4,22 @@ import java.util.UUID;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.BaseDomainEvent;
 
-public class RoverMovedEvent implements DomainEvent {
+public class RoverMovedEvent extends BaseDomainEvent {
 
 	private RoverIdentifier roverId;
 
 	TwoDimensionalCoordinates previousPosition;
 
 	TwoDimensionalCoordinates currentPosition;
-
+	
 
 	protected RoverMovedEvent(Builder builder) {
+		super();
 		this.roverId = builder.roverId;
 		this.previousPosition = builder.previousPosition;
 		this.currentPosition = builder.currentPosition;
-
 	}
 
 	public RoverIdentifier getRoverId() {
@@ -67,7 +67,7 @@ public class RoverMovedEvent implements DomainEvent {
 	
 	@Override
 	public String toString() {
-		return String.format("RoverMovedEvent published with rover id [%s], previous position [%s], current position [%s]" , roverId, previousPosition, currentPosition);
+		return String.format("RoverMovedEvent published at [%s] with rover id [%s], previous position [%s], current position [%s]" , super.occuredOn(), roverId, previousPosition, currentPosition);
 	}
 
 }

@@ -3,14 +3,14 @@ package com.game.domain.model.entity.plateau;
 import java.util.UUID;
 
 import com.game.core.validation.ArgumentCheck;
-import com.game.domain.model.entity.IdentifiedDomainEntity;
+import com.game.domain.model.entity.IdentifiedPublisherDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
+public class Plateau extends IdentifiedPublisherDomainEntity<Plateau, UUID> implements TwoDimensionalSpace {
 
 	private TwoDimensionalSpace dimensions;
 

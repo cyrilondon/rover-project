@@ -18,11 +18,10 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEventPublisher;
-import com.game.domain.model.exception.EntityInitialisationException;
+import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.RoverInitializationException;
 import com.game.domain.model.repository.RoverRepository;
-import com.game.domain.model.service.rover.RoverServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 public class RoverServiceImplTest {
@@ -52,7 +51,7 @@ public class RoverServiceImplTest {
 	@BeforeMethod
 	public void reset() {
 		gameContext.reset();
-		DomainEventPublisher.instance().clear();
+		DomainEventPublisherSubscriber.instance().clear();
 		mockRoverRepository.removeAllRovers();
 	}
 
@@ -78,7 +77,7 @@ public class RoverServiceImplTest {
 		RoverIdentifier id = new RoverIdentifier(uuid, ROVER_PREFIX + (mockRoverRepository.getNumberOfRovers() + 1));
 		Throwable thrown = catchThrowable(() -> roverService.initializeRover(id, coordinates, Orientation.SOUTH));
 		
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(RoverInitializationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, X, width)

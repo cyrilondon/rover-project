@@ -16,7 +16,6 @@ import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.context.GameContext;
-import com.game.domain.application.service.GameServiceImpl;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
@@ -25,11 +24,16 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.store.EventStoreImpl;
+import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
-import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.exception.PlateauNotFoundException;
+import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.locator.ServiceLocator;
 import com.game.domain.model.service.plateau.PlateauService;
 import com.game.domain.model.service.rover.RoverService;
@@ -68,6 +72,7 @@ public class GameServiceImplTest {
 		mockServiceLocator();
 		roversList.clear();
 		plateau = null;
+		DomainEventPublisherSubscriber.instance().clear();
 	}
 
 	@Test
@@ -103,28 +108,9 @@ public class GameServiceImplTest {
 		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 1),
 				coordinates, Orientation.SOUTH))).isTrue();
-		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, coordinates)).isTrue();
-		TwoDimensionalCoordinates otherCoordinates = new TwoDimensionalCoordinates(X + 1, Y + 1);
-		RoverInitializeCommand otherInitializeCommand = new RoverInitializeCommand.Builder().withPlateauUuid(uuid)
-				.withName(GameContext.ROVER_NAME_PREFIX + 2).withAbscissa(otherCoordinates.getAbscissa())
-				.withOrdinate(otherCoordinates.getOrdinate()).withOrientation('E').build();
-		gameService.execute(otherInitializeCommand);
-		assertThat(roversList.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 2),
-				otherCoordinates, Orientation.EAST))).isTrue();
-		assertThat(gameContext.getPlateauService().isLocationBusy(uuid, otherCoordinates)).isTrue();
-	}
-
-	/**
-	 * Expected error message: "[ERR-000] Missing Plateau configuration - It is not
-	 * allowed to add a Rover. Please initialize the Plateau first."
-	 */
-	@Test
-	public void testInitializeRoverWithoutPlateau() {
-		UUID uuid = UUID.randomUUID();
-		RoverInitializeCommand initializeCommand = new RoverInitializeCommand.Builder().withAbscissa(X).withOrdinate(Y)
-				.withName(GameContext.ROVER_NAME_PREFIX + 1).withOrientation('S').withPlateauUuid(uuid).build();
-		Throwable thrown = catchThrowable(() -> gameService.execute(initializeCommand));
-		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class).hasMessageEndingWith(GameExceptionLabels.ADDING_ROVER_NOT_ALLOWED);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(2);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverInitializedEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
 	}
 
 	@Test
@@ -134,7 +120,10 @@ public class GameServiceImplTest {
 		gameService.execute(new RoverMoveCommand(new RoverIdentifier(uuid, roverName), 1));
 		assertThat(roversList).contains(
 				new Rover(new RoverIdentifier(uuid, roverName), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
-
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(3);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverMovedEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(RoverMovedWithExceptionEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(2)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
 	}
 
 	/**
@@ -188,23 +177,23 @@ public class GameServiceImplTest {
 
 		@Override
 		public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void removeRover(RoverIdentifier id) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void turnRover(RoverIdentifier roverId, RoverTurnInstruction turn) {
-			// TODO Auto-generated method stub
-			
+		}
+
+		@Override
+		public RoverRepository getRoverRepository() {
+			return null;
 		}
 
 	}
@@ -240,7 +229,7 @@ public class GameServiceImplTest {
 		}
 
 		@Override
-		public void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		public void updatePlateauWithOccupiedLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.TRUE);
 		}
 
@@ -252,7 +241,6 @@ public class GameServiceImplTest {
 		@Override
 		public void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
 			mapLocations.put(coordinates, Boolean.FALSE);
-
 		}
 
 		@Override
@@ -264,15 +252,11 @@ public class GameServiceImplTest {
 
 		@Override
 		public void updatePlateau(Plateau plateau) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
 				TwoDimensionalCoordinates busyLocation) {
-			// TODO Auto-generated method stub
-
 		}
 
 	}

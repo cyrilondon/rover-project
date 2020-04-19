@@ -37,13 +37,13 @@ public class GameIntegrationTest {
 		Plateau inMemoryPlateau = GameContext.getInstance().getPlateau(plateauId);
 		System.out.println(String.format("In-Memory Plateau with coordinates 1,3 busy ? [%s]",
 				String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(1, 3)))));
-		System.out.println(String.format("In-Memory Plateau with coordinates 5,2 busy ? [%s]",
+		System.out.println(String.format("In-Memory Plateau with coordinates 5,1 busy ? [%s]",
 				String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(5, 1)))));
 		// print the Plateau persistent state from the application repository
 		System.out.println(String.format("Persistent Plateau with coordinates 1,3 busy ? [%s]",
 				String.valueOf(GameContext.getInstance().getPlateauService().isLocationBusy(plateauId,
 						new TwoDimensionalCoordinates(1, 3)))));
-		System.out.println(String.format("Persistent Plateau with coordinates 5,2 busy ? [%s]",
+		System.out.println(String.format("Persistent Plateau with coordinates 5,1 busy ? [%s]",
 				String.valueOf(GameContext.getInstance().getPlateauService().isLocationBusy(plateauId,
 						new TwoDimensionalCoordinates(5, 1)))));
 	}

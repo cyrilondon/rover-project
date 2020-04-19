@@ -8,6 +8,7 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.DomainService;
 
 public interface RoverService extends DomainService {
@@ -30,6 +31,8 @@ public interface RoverService extends DomainService {
 	Rover getRover(RoverIdentifier id);
 
 	List<Rover> getAllRoversOnPlateau(UUID uuid);
+
+	RoverRepository getRoverRepository();
 
 	
 }

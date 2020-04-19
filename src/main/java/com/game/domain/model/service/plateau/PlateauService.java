@@ -29,7 +29,7 @@ public interface PlateauService extends DomainService {
 	/**
 	 * Mark the current location as busy
 	 */
-	void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates);
+	void updatePlateauWithOccupiedLocation(UUID uuid, TwoDimensionalCoordinates coordinates);
 	
 	/**
 	 * Mark the current location as busy

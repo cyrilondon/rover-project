@@ -58,8 +58,8 @@ public class GameContext {
 
 	private Map<UUID, Plateau> plateauMap = new ConcurrentHashMap<>();
 	
-	public final Function<DomainEvent, Void> storeEventFunction = event -> {
-		getEventStore().addEvent(event);
+	public static final Function<DomainEvent, Void> storeEventFunction = event -> {
+		getInstance().getEventStore().addEvent(event);
 		return null;
 	};
 

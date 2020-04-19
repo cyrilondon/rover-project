@@ -4,14 +4,14 @@ import java.util.UUID;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.BaseDomainEvent;
 
 /**
  * Event published in case of something went wrong
  * during Rover moves
  *
  */
-public class RoverMovedWithExceptionEvent implements DomainEvent {
+public class RoverMovedWithExceptionEvent extends BaseDomainEvent {
 
 	RoverMovedEvent movedEvent;
 
@@ -44,7 +44,7 @@ public class RoverMovedWithExceptionEvent implements DomainEvent {
 	
 	@Override
 	public String toString() {
-		return String.format("RoverMovedWithExceptionEvent published with Rover Moved Event [%s], exception [%s]" , movedEvent, exception);
+		return String.format("RoverMovedWithExceptionEvent published at [%s] with Rover Moved Event [%s], exception [%s]" , super.occuredOn(), movedEvent, exception);
 	}
 
 }

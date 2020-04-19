@@ -9,12 +9,14 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 
 	@Override
 	public void handleEvent(PlateauSwitchedLocationEvent event) {
-		
+
 		Plateau InMemoryPlateau = GameContext.getInstance().getPlateau(event.getPlateauId());
 
 		// 1 . update in memory plateau locations
-		InMemoryPlateau.setLocationFree(event.getPreviousPosition());
-		InMemoryPlateau.setLocationOccupied(event.getCurrentPosition());
+		if (event.getPreviousPosition() != null)
+			InMemoryPlateau.setLocationFree(event.getPreviousPosition());
+		if (event.getCurrentPosition() != null)
+			InMemoryPlateau.setLocationOccupied(event.getCurrentPosition());
 
 		// 2 . update persistent plateau locations
 		updatePlateauWithLastLocations(event);
@@ -22,8 +24,12 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 	}
 
 	private void updatePlateauWithLastLocations(PlateauSwitchedLocationEvent event) {
-		GameContext.getInstance().getPlateauService().updatePlateauWithLocations(event.getPlateauId(),
-				event.getPreviousPosition(), event.getCurrentPosition());
+		if (event.getPreviousPosition() != null)
+		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(event.getPlateauId(),
+				event.getPreviousPosition());
+		if (event.getCurrentPosition() != null)
+			GameContext.getInstance().getPlateauService().updatePlateauWithOccupiedLocation(event.getPlateauId(),
+					event.getCurrentPosition());
 	}
 
 	@Override

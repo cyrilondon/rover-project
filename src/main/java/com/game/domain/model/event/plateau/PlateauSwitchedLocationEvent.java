@@ -3,9 +3,9 @@ package com.game.domain.model.event.plateau;
 import java.util.UUID;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.BaseDomainEvent;
 
-public class PlateauSwitchedLocationEvent implements DomainEvent {
+public class PlateauSwitchedLocationEvent extends BaseDomainEvent {
 	
 	private UUID plateauId;
 
@@ -62,7 +62,7 @@ public class PlateauSwitchedLocationEvent implements DomainEvent {
 	
 	@Override
 	public String toString() {
-		return String.format("PlateauSwitchedLocationEvent published with plateau id [%s], position released [%s], position occupied [%s]" , plateauId, releasedPosition, occupiedPosition);
+		return String.format("PlateauSwitchedLocationEvent published at [%s] with plateau id [%s], position released [%s], position occupied [%s]" , super.occuredOn(), plateauId, releasedPosition, occupiedPosition);
 	}
 
 

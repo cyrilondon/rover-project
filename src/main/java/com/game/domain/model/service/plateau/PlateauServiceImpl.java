@@ -65,7 +65,7 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 	
 	@Override
-	public void updatePlateauWithBusyLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
+	public void updatePlateauWithOccupiedLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
 		Plateau plateau = this.loadPlateau(uuid);
 		plateau.setLocationOccupied(coordinates);
 		this.updatePlateau(plateau);	

@@ -92,26 +92,26 @@ Let us consider below an extract of the GameServiceImpl's method *execute(RoverM
  
  - it takes a [RoverMoveCommand](src/main/java/com/game/domain/application/command/rover/RoverMoveCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
  
- - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java)
+ - it registers a few `Domain Event` subscribers (more on this in the section `Event-Driven Architecture`).
  
- - it registers another `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java)  of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedWithExceptionEvent.java)
- 
- - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/service/rover/RoverServiceImpl.java).
+ - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/service/rover/RoverServiceImpl.java) via the method *moveRoverNumberOfTimes(roverId, numberOfMoves)*
  
  
  ```java
- public void execute(RoverMoveCommand command) {
 
-		GameContext gameContext = GameContext.getInstance();
+	void execute(RoverMoveCommand command) {
 
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisher.instance().subscribe(new RoverMovedEventSubscriber());
 
 		// register the subscriber in case of something went wrong during Rover moves
 		DomainEventPublisher.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+		
+		// register the subscriber for the plateau
+		DomainEventPublisher.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
 
 		// delegates to the rover service
-		gameContext.getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
+		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(), command.getNumberOfMoves());
 
 	}
  
@@ -706,7 +706,19 @@ Event outcome: *RoverTurnedEvent*
 
 An `Event` is usually designed as immutable and includes the identity of the `Entity` instance on which it took place, along with all the parameters that caused this `Event`.
 
-For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the Rover's id, as well as its current and previous positions.
+The minimal interface [DomainEvent](src/main/java/com/game/domain/model/event/DomainEvent.java), implemented by all `Events`, ensures support of an *occuredOn()* accessor. It enforces a basic contract for all Events
+
+```java
+
+public interface DomainEvent {
+	
+	LocalDateTime occuredOn();
+
+}
+```
+Besides this, we have to determine whatever properties are necessary to represent a meaningful occurrence of what happened. This normally includes the identity of the `Entity` instance on which it took place.
+
+For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) to notify each Rover's move as follows: it would include the `Rover`'s id, as well as its current and previous positions and has a constructor that permits only full state initialization, along with a complement of read accessors for each of its properties.
 
  
 ```java
@@ -904,6 +916,9 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 				event.getPreviousPosition(), event.getCurrentPosition());
 	}
 ```
+
+We get two distinct subscribers for the `Rover` and the `Plateau` as one thing the subscriber **should not**  do is get another `Entity` instance and execute modifying behavior on it. This would violate the **modify-single-entity-instance-in-single-transaction** rule of thumb. The consistency of all `Entity` instances other than the one used in the single transaction must be enforced by asynchronous means.
+
 
 We have therefore established a clear segregation of responsibilities:
 - the `Application Service` publish `Domain Events` and delegates the action to execute to the `Domain Services` but has no business responsibility

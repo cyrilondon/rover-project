@@ -7,20 +7,22 @@ import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.entity.IdentifiedDomainEntity;
+import com.game.domain.model.entity.IdentifiedPublisherDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
+import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent;
+import com.game.domain.model.event.rover.RoverMovedEvent.Builder;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
-import com.game.domain.model.event.rover.RoverMovedEvent.Builder;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.RoverInitializationException;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
-public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
+public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifier> {
 
 	private Orientation orientation;
 
@@ -31,14 +33,24 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 	 */
 	private int step = GameContext.getInstance().getRoverStepLength();
 
-	final Function<DomainEvent, DomainEvent> moveRover = event -> {
+	public final Function<DomainEvent, DomainEvent> moveRover = event -> {
 		this.position = ((RoverMovedEvent) event).getCurrentPosition();
 		validate(new RoverMovedPositionValidationNotificationHandler());
 		return event;
 	};
+	
+	public final Function<DomainEvent, DomainEvent> initializeRover = event -> {
+		this.position = ((RoverInitializedEvent) event).getPosition();
+		validate(new EntityDefaultValidationNotificationHandler());
+		return event;
+	};
 
-	final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverException = (exception, event) -> {
+	public final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverWithException = (exception, event) -> {
 		return new RoverMovedWithExceptionEvent((RoverMovedEvent) event, exception);
+	};
+	
+	public final BiFunction<Exception, DomainEvent, DomainEvent> initializeRoverWithException = (exception, event) -> {
+		throw new RoverInitializationException(exception.getMessage());
 	};
 
 	final Function<DomainEvent, DomainEvent> turnRover = event -> {
@@ -96,7 +108,7 @@ public class Rover extends IdentifiedDomainEntity<Rover, RoverIdentifier> {
 
 		// apply the event to the current in-memory instance
 		// and publish the event for persistence purpose (DB instance + event store)
-		applyAndPublishEvent(event, moveRover, moveRoverException);
+		applyAndPublishEvent(event, moveRover, moveRoverWithException);
 		
 		PlateauSwitchedLocationEvent plateauEvent = new PlateauSwitchedLocationEvent.Builder().withPlateauId(event.getPlateauUUID()).
 				withPreviousPosition(previousPosition).withCurrentPosition(currentPosition).build();
