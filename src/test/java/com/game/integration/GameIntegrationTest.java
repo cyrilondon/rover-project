@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import com.game.adapter.file.GameFileAdapter;
 import com.game.domain.application.GameContext;
-import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.plateau.Plateau;
 
 public class GameIntegrationTest {
 	

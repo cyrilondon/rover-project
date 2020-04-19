@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -11,6 +11,10 @@ import org.testng.annotations.Test;
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.entity.plateau.Plateau;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;

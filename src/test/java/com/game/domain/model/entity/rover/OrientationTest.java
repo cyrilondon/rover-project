@@ -1,8 +1,10 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
+
+import com.game.domain.model.entity.rover.Orientation;
 
 public class OrientationTest {
 	

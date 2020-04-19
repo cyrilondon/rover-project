@@ -8,10 +8,10 @@ import java.util.UUID;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.exception.RoverNotFoundException;
 import com.game.domain.model.repository.RoverRepository;
 

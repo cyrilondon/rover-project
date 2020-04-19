@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.plateau;
 
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.EntityValidator;

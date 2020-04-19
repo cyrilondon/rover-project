@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.plateau.Plateau;
 
 public class RelativisticTwoDimensionsTest {
 

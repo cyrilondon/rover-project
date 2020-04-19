@@ -2,7 +2,7 @@ package com.game.domain.application.command.rover;
 
 import com.game.domain.application.CommandVisitor;
 import com.game.domain.application.command.ApplicationCommand;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 
 /**
  * Command sent from the client to move a Rover with given name

@@ -7,9 +7,9 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
-import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.exception.EntityInitialisationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.PlateauRepository;

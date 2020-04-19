@@ -88,15 +88,15 @@ The Domain Driven Design usually recommands to define the following elements:
   
  In our case the [GameServiceImpl](src/main/java/com/game/domain/application/GameServiceImpl.java) represents our single `Application Service` and represents the bridge between the File Adapter and the domain.
  
-Let us consider below an extract of the GameServiceImpl's method to move a rover:
+Let us consider below an extract of the GameServiceImpl's method *execute(RoverMoveCommand command)* to move a rover:
  
- - it takes a [RoverMoveCommand](src/main/java/com/game/domain/application/command/RoverMoveCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
+ - it takes a [RoverMoveCommand](src/main/java/com/game/domain/application/command/rover/RoverMoveCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
  
- - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/RoverMovedEvent.java)
+ - it registers an `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java) of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java)
  
- - it registers another `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java)  of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/RoverMovedWithExceptionEvent.java)
+ - it registers another `Event Subscriber` to handle a [Domain Event](src/main/java/com/game/domain/model/event/DomainEvent.java)  of type [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedWithExceptionEvent.java)
  
- - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/RoverServiceImpl.java).
+ - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/service/RoverServiceImpl.java).
  
  
  ```java
@@ -161,11 +161,11 @@ In `Domain Driven Architecture`, we design a domain concept as an `Entity` when 
 
 An `Entity` is a **unique thing** and is capable of being changed continuously over a long period of time.
 
-Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/model/entity/Rover.java) as a `Domain Entity` in our application. We do not want to confuse a Rover with another one and we want to keep track of all its moves over the time.
+Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) as a `Domain Entity` in our application. We do not want to confuse a Rover with another one and we want to keep track of all its moves over the time.
 
-Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) as an `Entity` as well.
+Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) as an `Entity` as well.
 
-As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) inherit from [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
 
 
  ```java
@@ -235,9 +235,9 @@ public class Plateau extends IdentifiedDomainEntity<Plateau, UUID> implements Tw
 		this.dimensions = ArgumentCheck.preNotNull(dimensions, GameExceptionLabels.MISSING_PLATEAU_DIMENSIONS);
 	}
 ```
-Concerning the [Rover](src/main/java/com/game/domain/model/entity/Rover.java) entity, each `Rover` belongs to a particular `Plateau`. Hence, the Rover has a `Many-To-One` relationship with the `Plateau` entity and should keep a reference to the `Plateau` it belongs to via the property `plateauUuid`.
+Concerning the [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) entity, each `Rover` belongs to a particular `Plateau`. Hence, the Rover has a `Many-To-One` relationship with the `Plateau` entity and should keep a reference to the `Plateau` it belongs to via the property `plateauUuid`.
 
-The `Rover` is therefore identified by the unique combination (`name` + `plateauUuid`) and those two properties are encapsulated together in the [RoverIdentifier](src/main/java/com/game/domain/model/entity/RoverIdentifier.java) class.
+The `Rover` is therefore identified by the unique combination (`name` + `plateauUuid`) and those two properties are encapsulated together in the [RoverIdentifier](src/main/java/com/game/domain/model/entity/rover/RoverIdentifier.java) class.
 
  ```java
 /**
@@ -322,7 +322,7 @@ Every time the `Rover` has to update its position when asked to moves, it will r
 		return new TwoDimensionalCoordinates(abscissa, ordinate + step);
 	}
  ```
-We need another `Value Object` close to the [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java). A [Plateau](src/main/java/com/game/domain/model/entity/Plateau.java) does not have coordinates but dimensions. 
+We need another `Value Object` close to the [TwoDimensionalCoordinates](src/main/java/com/game/domain/model/entity/dimensions/TwoDimensionalCoordinates.java). A [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) does not have coordinates but dimensions. 
 
 Although distinct these two concepts are close from each other as:
 
@@ -432,13 +432,13 @@ public class RelativisticTwoDimensions implements TwoDimensionalSpace {
  
  Aside from the coordinates and the dimensions, there is clearly another attribute which can be set to the `Rover`as a `Value Object`: its orientation. An orientation is not defined by any identity, but by a its value: either West, East, North or South.
 
-This four predefined values make a perfect choice to design the [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) as a java Enum.
+This four predefined values make a perfect choice to design the [Orientation](src/main/java/com/game/domain/model/entity/rover/Orientation.java) as a java Enum.
 
 Now an interesting question comes up: should we assign the responsibility to change the orientation to the `Rover` or to the `Orientation` itself? In general, **keeping entities focused on the responsibility of identity** is important because it prevents them from becoming bloated - an easy trap to fall into when they pull together many related behaviors.
 
 Achieving this focus requires delegating related behavior to `Value Objects` and `Domain Services`.
 
-In the case of [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java), we decide to push the behaviors *turnLeft* and *turnRight* into the `Value Object` itself for enhanced domain clarity.
+In the case of [Orientation](src/main/java/com/game/domain/model/entity/rover/Orientation.java), we decide to push the behaviors *turnLeft* and *turnRight* into the `Value Object` itself for enhanced domain clarity.
 
  ```java
 
@@ -496,7 +496,7 @@ More precisely, as we will see further down in the section `Event-Driven Archite
 	}
  ```
  
- Similarly, in the context of a Rover's move, we can push the information of the movement direction in the `Value Object`  [Orientation](src/main/java/com/game/domain/model/entity/Orientation.java) itself, via another property `axisDirection` and method `isHorizontal`
+ Similarly, in the context of a Rover's move, we can push the information of the movement direction in the `Value Object`  [Orientation](src/main/java/com/game/domain/model/entity/rover/Orientation.java) itself, via another property `axisDirection` and method `isHorizontal`
  
 ```java
 
@@ -905,11 +905,11 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 	}
 ```
 
-We have then a clear segregation of responsabilities:
-- the `Application Service` publish Events and delegates to the Domain Services but has no business responsibility
-- Each `Event` is clearly assigned a single responsibility in a very clear context of a particular `Entity`.
+We have therefore established a clear segregation of responsibilities:
+- the `Application Service` publish `Domain Events` and delegates the action to execute to the `Domain Services` but has no business responsibility
+- Each `Event` is clearly assigned a single responsibility in a very clear and delimited context of a particular `Entity`.
 
-```
+
 
 **Publishing**
 

@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.exception.RoverNotFoundException;
 import com.game.domain.model.repository.RoverRepository;
 

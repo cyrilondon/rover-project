@@ -3,7 +3,7 @@ package com.game.domain.model.entity.dimensions;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.plateau.Plateau;
 
 /**
  * Plateau dimensions according to more accurate Einstein's special relativity

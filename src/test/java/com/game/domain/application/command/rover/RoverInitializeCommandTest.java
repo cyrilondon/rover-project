@@ -1,4 +1,4 @@
-package com.game.domain.application.command;
+package com.game.domain.application.command.rover;
 
 import java.util.UUID;
 

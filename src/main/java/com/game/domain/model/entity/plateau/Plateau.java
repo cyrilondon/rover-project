@@ -1,8 +1,9 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.plateau;
 
 import java.util.UUID;
 
 import com.game.core.validation.ArgumentCheck;
+import com.game.domain.model.entity.IdentifiedDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;

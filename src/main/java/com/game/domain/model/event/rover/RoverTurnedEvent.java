@@ -1,7 +1,7 @@
 package com.game.domain.model.event.rover;
 
-import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEvent;
 
 public class RoverTurnedEvent implements DomainEvent {

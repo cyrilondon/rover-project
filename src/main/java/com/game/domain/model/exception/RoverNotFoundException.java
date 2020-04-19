@@ -1,7 +1,7 @@
 package com.game.domain.model.exception;
 
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 
 public class RoverNotFoundException extends EntityNotFoundException {
 	

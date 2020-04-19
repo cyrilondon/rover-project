@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import java.util.Arrays;
 import java.util.HashMap;

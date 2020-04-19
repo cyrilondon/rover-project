@@ -7,8 +7,8 @@ import java.util.UUID;
 import org.testng.annotations.Test;
 
 import com.game.domain.application.GameContext;
-import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
 
 public class RoverTurnedEventTest {

@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
-import com.game.domain.model.entity.Orientation;
+import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 

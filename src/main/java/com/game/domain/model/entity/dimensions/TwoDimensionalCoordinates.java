@@ -2,7 +2,7 @@ package com.game.domain.model.entity.dimensions;
 
 import java.util.Objects;
 
-import com.game.domain.model.entity.Orientation;
+import com.game.domain.model.entity.rover.Orientation;
 
 public class TwoDimensionalCoordinates {
 

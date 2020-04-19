@@ -2,8 +2,8 @@ package com.game.domain.model.service;
 
 import java.util.UUID;
 
-import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.plateau.Plateau;
 
 public interface PlateauService extends DomainService {
 

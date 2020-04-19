@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import com.game.core.validation.ArgumentCheck;
-import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.store.EventStore;
 import com.game.domain.model.event.store.EventStoreImpl;

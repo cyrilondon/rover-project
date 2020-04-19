@@ -2,10 +2,10 @@ package com.game.domain.model.service;
 
 import java.util.UUID;
 
-import com.game.domain.model.entity.Plateau;
 import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.repository.PlateauRepository;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 

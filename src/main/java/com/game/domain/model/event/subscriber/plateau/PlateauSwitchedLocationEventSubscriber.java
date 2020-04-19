@@ -1,7 +1,7 @@
 package com.game.domain.model.event.subscriber.plateau;
 
 import com.game.domain.application.GameContext;
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 

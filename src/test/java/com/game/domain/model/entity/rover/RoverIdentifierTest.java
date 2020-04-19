@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import java.util.UUID;
 
@@ -8,6 +8,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.game.domain.application.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 

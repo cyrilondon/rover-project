@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import com.game.domain.model.entity.enums.GameEnum;
 

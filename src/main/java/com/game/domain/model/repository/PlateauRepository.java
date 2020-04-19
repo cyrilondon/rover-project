@@ -2,7 +2,7 @@ package com.game.domain.model.repository;
 
 import java.util.UUID;
 
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.plateau.Plateau;
 
 /**
  * "Secondary" port interface as described by Alistair CockBurn in his original

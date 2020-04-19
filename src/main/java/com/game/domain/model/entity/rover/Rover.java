@@ -1,4 +1,4 @@
-package com.game.domain.model.entity;
+package com.game.domain.model.entity.rover;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.application.GameContext;
+import com.game.domain.model.entity.IdentifiedDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;

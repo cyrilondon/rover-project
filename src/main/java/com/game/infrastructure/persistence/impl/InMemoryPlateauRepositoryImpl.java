@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.game.domain.model.entity.Plateau;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.exception.PlateauNotFoundException;
 import com.game.domain.model.repository.PlateauRepository;
 

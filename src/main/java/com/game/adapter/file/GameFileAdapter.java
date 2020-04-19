@@ -12,8 +12,8 @@ import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
-import com.game.domain.model.entity.RoverIdentifier;
-import com.game.domain.model.entity.RoverTurnInstruction;
+import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverTurnInstruction;
 
 /**
  * Primary adapter as defined by Hexagonal Architecture

@@ -2,8 +2,8 @@ package com.game.domain.model.repository;
 
 import java.util.Collection;
 
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
 
 /**

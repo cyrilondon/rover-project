@@ -3,11 +3,11 @@ package com.game.domain.model.service;
 import java.util.List;
 import java.util.UUID;
 
-import com.game.domain.model.entity.Orientation;
-import com.game.domain.model.entity.Rover;
-import com.game.domain.model.entity.RoverIdentifier;
-import com.game.domain.model.entity.RoverTurnInstruction;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.Rover;
+import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverTurnInstruction;
 
 public interface RoverService extends DomainService {
 		

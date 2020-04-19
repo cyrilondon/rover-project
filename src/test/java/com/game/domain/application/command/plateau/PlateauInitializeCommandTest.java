@@ -1,4 +1,4 @@
-package com.game.domain.application.command;
+package com.game.domain.application.command.plateau;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
