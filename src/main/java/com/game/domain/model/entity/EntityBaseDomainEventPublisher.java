@@ -6,21 +6,27 @@ import java.util.function.Function;
 import com.game.domain.model.event.BaseDomainEventPublisher;
 import com.game.domain.model.event.DomainEvent;
 
-public class EntityBaseDomainEventPublisher extends BaseDomainEventPublisher  {
-	
+public class EntityBaseDomainEventPublisher extends BaseDomainEventPublisher {
+
 	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,
 			BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction) {
 		try {
-			function.andThen(publishEventFunction).andThen(eventStoreFunction).apply(event);
+			function.andThen(publishAndStore).apply(event);
 		} catch (Exception exception) {
-			exceptionFunction.andThen(publishEventFunction).apply(exception, event);
-		} finally {
-			eventStoreFunction.apply(event);
+			DomainEvent exceptionEvent = null;
+			try {
+				exceptionEvent = exceptionFunction.apply(exception, event);
+				publishEventFunction.apply(exceptionEvent);
+				// needed as whatever the exceptionFunction is supposed to do
+				// (throwing an exception or not) we want to store the event
+			} finally {
+				eventStoreFunction.apply(exceptionEvent);
+			}
 		}
 	}
 
 	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function) {
-		function.andThen(publishEventFunction).andThen(eventStoreFunction).apply(event);
+		function.andThen(publishAndStore).apply(event);
 	}
 
 }

@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
-import com.game.domain.model.exception.EntityInitialisationException;
+import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.PlateauRepository;
 import com.game.domain.model.service.plateau.PlateauServiceImpl;
@@ -49,7 +49,7 @@ public class PlateauServiceImplTest {
 	public void testInitializePlateauNegativeWidth() {
 		Throwable thrown = catchThrowable(
 				() -> plateauService.initializePlateau(UUID.randomUUID(), (new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH)));
@@ -59,7 +59,7 @@ public class PlateauServiceImplTest {
 	public void testInitializeRelativisticPlateauNegativeDimensions() {
 		Throwable thrown = catchThrowable(() -> plateauService.initializeRelativisticPlateau(UUID.randomUUID(), OBSERVER_SPEED,
 				(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH + 1)));

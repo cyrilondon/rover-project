@@ -16,11 +16,13 @@ public class BaseDomainEventPublisher implements DomainEventPublisher {
 		GameContext.getInstance().getEventStore().addEvent(event);
 		return null;
 	};
+	
+	protected Function<DomainEvent, Void> publishAndStore = (publishEventFunction).andThen(eventStoreFunction);
 
 	
 	@Override
 	public void publishEvent(DomainEvent event) {
-		publishEventFunction.andThen(eventStoreFunction).apply(event);
+		publishAndStore.apply(event);
 	}
 	
 

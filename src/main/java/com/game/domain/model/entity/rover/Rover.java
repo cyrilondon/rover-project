@@ -12,12 +12,12 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.event.DomainEvent;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverInitializedEvent;
+import com.game.domain.model.event.rover.RoverInitializedWithExceptionEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent.Builder;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
-import com.game.domain.model.exception.RoverInitializationException;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
@@ -50,7 +50,7 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	};
 	
 	public final BiFunction<Exception, DomainEvent, DomainEvent> initializeRoverWithException = (exception, event) -> {
-		throw new RoverInitializationException(exception.getMessage());
+		return new RoverInitializedWithExceptionEvent((RoverInitializedEvent) event, exception);
 	};
 
 	final Function<DomainEvent, DomainEvent> turnRover = event -> {

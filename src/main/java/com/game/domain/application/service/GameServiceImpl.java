@@ -15,6 +15,7 @@ import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverTurnedEventSubscriber;
@@ -63,6 +64,10 @@ public class GameServiceImpl implements GameService {
 		
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedEventSubscriber());
+		
+		// register the subscriber in case of something went wrong during Rover moves
+		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedWithExceptionEventSubscriber());
+
 		
 		// register the subscriber for the plateau to mark it as occupied for the rover position
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());

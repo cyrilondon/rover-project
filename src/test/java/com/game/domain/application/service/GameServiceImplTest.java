@@ -28,6 +28,7 @@ import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.store.EventStoreImpl;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
@@ -108,9 +109,10 @@ public class GameServiceImplTest {
 		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 1),
 				coordinates, Orientation.SOUTH))).isTrue();
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(2);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(3);
 		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverInitializedEventSubscriber.class);
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(RoverInitializedWithExceptionEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(2)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
 	}
 
 	@Test

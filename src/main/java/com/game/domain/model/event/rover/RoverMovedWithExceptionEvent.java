@@ -4,34 +4,21 @@ import java.util.UUID;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.BaseDomainEvent;
+import com.game.domain.model.event.BaseDomainEventWithException;
 
 /**
  * Event published in case of something went wrong
  * during Rover moves
  *
  */
-public class RoverMovedWithExceptionEvent extends BaseDomainEvent {
-
-	RoverMovedEvent movedEvent;
-
-	Exception exception;
+public class RoverMovedWithExceptionEvent extends BaseDomainEventWithException<RoverMovedEvent> {
 	
 	public RoverMovedWithExceptionEvent(RoverMovedEvent movedEvent, Exception exception) {
-		this.movedEvent = movedEvent;
-		this.exception = exception;
-	}
-
-	public RoverMovedEvent getMovedEvent() {
-		return movedEvent;
-	}
-
-	public Exception getException() {
-		return exception;
+		super(movedEvent, exception);
 	}
 	
 	public RoverIdentifier getRoverId() {
-		return getMovedEvent().getRoverId();
+		return getEvent().getRoverId();
 	}
 	
 	public UUID getPlateauUuid() {
@@ -39,12 +26,12 @@ public class RoverMovedWithExceptionEvent extends BaseDomainEvent {
 	}
 	
 	public TwoDimensionalCoordinates getRoverPreviousPosition() {
-		return getMovedEvent().getPreviousPosition();
+		return getEvent().getPreviousPosition();
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("RoverMovedWithExceptionEvent published at [%s] with Rover Moved Event [%s], exception [%s]" , super.occuredOn(), movedEvent, exception);
+		return String.format("RoverMovedWithExceptionEvent published at [%s] with Rover Moved Event [%s], exception [%s]" , super.occuredOn(), getEvent(), getException());
 	}
 
 }

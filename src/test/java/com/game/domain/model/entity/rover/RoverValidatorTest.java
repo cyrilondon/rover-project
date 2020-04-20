@@ -12,10 +12,7 @@ import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
-import com.game.domain.model.entity.rover.Orientation;
-import com.game.domain.model.entity.rover.Rover;
-import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.exception.EntityInitialisationException;
+import com.game.domain.model.exception.EntityValidationException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
@@ -62,7 +59,7 @@ public class RoverValidatorTest {
 		Rover rover = getRover(uuid, NEGATIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_NEGATIVE_X, rover.getXPosition())));
@@ -84,7 +81,7 @@ public class RoverValidatorTest {
 		Rover rover = getRover(uuid, POSITIVE_X_POSITION, NEGATIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_NEGATIVE_Y, rover.getYPosition())));
@@ -106,7 +103,7 @@ public class RoverValidatorTest {
 		Rover rover = getRover(uuid, NEGATIVE_X_POSITION, NEGATIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_NEGATIVE_X, rover.getXPosition()) + ", "
@@ -129,7 +126,7 @@ public class RoverValidatorTest {
 		Rover rover = getRover(uuid, POSITIVE_X_POSITION, POSITIVE_Y_POSITION);
 
 		Throwable thrown = catchThrowable(() -> rover.validate(errorHandler));
-		assertThat(thrown).isInstanceOf(EntityInitialisationException.class)
+		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
 						String.format(GameExceptionLabels.ROVER_X_OUT_OF_PLATEAU, rover.getXPosition(), PLATEAU_SMALL_X)

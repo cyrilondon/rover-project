@@ -3,45 +3,34 @@ package com.game.domain.model.entity.rover;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.dimensions.TwoDimensions;
-import com.game.domain.model.entity.plateau.Plateau;
-import com.game.domain.model.entity.rover.Orientation;
-import com.game.domain.model.entity.rover.Rover;
-import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.event.DomainEventPublisherSubscriber;
-import com.game.domain.model.event.DomainEventSubscriber;
+import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.IllegalArgumentGameException;
 import com.game.domain.model.exception.IllegalRoverMoveException;
+import com.game.test.util.BaseUnitTest;
 
-public class RoverTest {
+public class RoverTest extends BaseUnitTest {
 
-	private static final String ROVER_NAME = "ROVER_TEST";
-
-	private GameContext gameContext = GameContext.getInstance();
 
 	private final static int PLATEAU_WIDTH = 6;
 
 	private final static int PLATEAU_HEIGHT = 6;
-	
-	List<RoverMovedEvent> capturedEvents = new ArrayList<RoverMovedEvent>();
-	
-	List<RoverMovedWithExceptionEvent> capturedEventsWithExceptions = new ArrayList<RoverMovedWithExceptionEvent>();
-	
-	UUID plateauUUID = UUID.randomUUID();
-	
+
+
 	@BeforeTest
 	public void setup() {
 		GameContext.getInstance().reset();
@@ -49,12 +38,10 @@ public class RoverTest {
 
 	@BeforeMethod
 	public void reset() {
-		DomainEventPublisherSubscriber.instance().clear();
-		addPlateau(plateauUUID, PLATEAU_WIDTH, PLATEAU_HEIGHT);
-		capturedEvents.clear();
-		capturedEventsWithExceptions.clear();
-		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverMovedEventSubscriber());
-		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverMovedEventWithExceptionSubscriber());
+		addPlateau(super.plateauUUID, PLATEAU_WIDTH, PLATEAU_HEIGHT);
+		clearAndSubscribe();
+		clearAllExpectedEvents();
+		clearEventStore();
 	}
 
 	@Test
@@ -74,7 +61,7 @@ public class RoverTest {
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(4);
 	}
-	
+
 	@Test
 	public void testSetPosition() {
 		Rover rover = initializeRover(Orientation.SOUTH);
@@ -102,6 +89,7 @@ public class RoverTest {
 	public void testMoveNorthOneTime() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.move();
+		assertThat(roverMovedEvents.size()).isEqualTo(1);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(5);
@@ -111,27 +99,56 @@ public class RoverTest {
 	public void testMoveNorthTwoTimes() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.moveNumberOfTimes(2);
-		assertThat(capturedEvents.size()).isEqualTo(2);
+		assertThat(roverMovedEvents.size()).isEqualTo(2);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(6);
+		List<DomainEvent> eventList = GameContext.getInstance().getEventStore().getAllEvents();
+		assertThat(eventList.size()).isEqualTo(4);
+		List<DomainEvent> movedEvents = eventList.stream().filter(event -> event instanceof RoverMovedEvent).collect(Collectors.toList());
+		assertThat(movedEvents).hasSize(2);
 	}
 
 	@Test
 	public void testMoveNorthThreeTimesOutOfBoard() {
 		Rover rover = initializeRover(Orientation.NORTH);
-		rover.moveNumberOfTimes(3);
-		assertThat(capturedEvents.size()).isEqualTo(2);
-		assertThat(capturedEventsWithExceptions.size()).isEqualTo(1);
-		RoverMovedWithExceptionEvent event = capturedEventsWithExceptions.get(0);
+		Throwable thrown = catchThrowable(() -> rover.moveNumberOfTimes(3));
+
+		assertThat(thrown).isInstanceOf(IllegalRoverMoveException.class);
+		assertThat(roverMovedEvents).hasSize(2);
+		assertThat(roverMovedWithExceptionEvents.size()).isEqualTo(1);
+		RoverMovedWithExceptionEvent event = roverMovedWithExceptionEvents.get(0);
 		assertThat(event.getRoverId()).isEqualTo(rover.getId());
 		assertThat(event.getException()).isInstanceOf(IllegalRoverMoveException.class);
+		List<DomainEvent> eventStoredList = GameContext.getInstance().getEventStore().getAllEvents();
+		assertThat(eventStoredList).hasSize(5);
+		Condition<DomainEvent> roverMovedEventCondition = new Condition<DomainEvent>() {
+			   public boolean matches(DomainEvent value) {
+			     return value instanceof RoverMovedEvent;
+			   }
+		};
+		assertThat(eventStoredList).areExactly(2, roverMovedEventCondition);
+		Condition<DomainEvent> roverMovedWithExceptionEventCondition = new Condition<DomainEvent>() {
+			   public boolean matches(DomainEvent value) {
+			     return value instanceof RoverMovedWithExceptionEvent;
+			   }
+		};
+		assertThat(eventStoredList).areExactly(1, roverMovedWithExceptionEventCondition);
+
+		Condition<DomainEvent> plateauSwitchedLocationEventCondition = new Condition<DomainEvent>() {
+			   public boolean matches(DomainEvent value) {
+			     return value instanceof PlateauSwitchedLocationEvent;
+			   }
+		};
+		assertThat(eventStoredList).areExactly(2, plateauSwitchedLocationEventCondition);
+
 	}
 
 	@Test
 	public void testMoveWest() {
 		Rover rover = initializeRover(Orientation.WEST);
 		rover.move();
+		assertThat(roverMovedEvents).hasSize(1);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.WEST);
 		assertThat(rover.getXPosition()).isEqualTo(2);
 		assertThat(rover.getYPosition()).isEqualTo(4);
@@ -141,6 +158,7 @@ public class RoverTest {
 	public void testMoveSouth() {
 		Rover rover = initializeRover(Orientation.SOUTH);
 		rover.move();
+		assertThat(roverMovedEvents).hasSize(1);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.SOUTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(3);
@@ -185,14 +203,17 @@ public class RoverTest {
 
 	@Test
 	public void testToString() {
-		Rover rover = new Rover(new RoverIdentifier(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		Rover rover = new Rover(
+				new RoverIdentifier(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME),
+				new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
 		assertThat(rover.toString()).isEqualTo(
 				"Rover [ROVER_TEST] attached to Plateau [53567a5d-a21c-495e-80a3-d12adaf8585c] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
 	}
 
 	@Test
 	public void testWithNullPosition() {
-		Throwable thrown = catchThrowable(() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), null, Orientation.SOUTH));
+		Throwable thrown = catchThrowable(
+				() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), null, Orientation.SOUTH));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -202,7 +223,8 @@ public class RoverTest {
 
 	@Test
 	public void testWithNullOrientation() {
-		Throwable thrown = catchThrowable(() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), null));
+		Throwable thrown = catchThrowable(() -> new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME),
+				new TwoDimensionalCoordinates(3, 4), null));
 		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
@@ -213,53 +235,11 @@ public class RoverTest {
 	@Test
 	public void testWithNullIdentifier() {
 		Throwable thrown = catchThrowable(() -> new Rover(null, new TwoDimensionalCoordinates(3, 4), Orientation.EAST));
-		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class).hasMessage(String.format(
-				GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN, GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
-				String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE, GameExceptionLabels.MISSING_ROVER_IDENTIFIER)));
-	}
-	
-
-	private Rover initializeDefaultRover() {
-		return new Rover(new RoverIdentifier(UUID.randomUUID(), ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
-	}
-	
-	private Rover initializeDefaultRover(UUID uuid) {
-		return new Rover(new RoverIdentifier(uuid, ROVER_NAME), new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
-	}
-
-	private Rover initializeRover(Orientation orientation) {
-		return new Rover(new RoverIdentifier(plateauUUID, ROVER_NAME), new TwoDimensionalCoordinates(3, 4), orientation);
-	}
-
-	private void addPlateau(UUID uuid, int width, int height) {
-		gameContext.addPlateau(
-				new Plateau(uuid, new TwoDimensions(new TwoDimensionalCoordinates(width, height))).initializeLocations());
-	}
-	
-	private class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
-
-		@Override
-		public void handleEvent(RoverMovedEvent event) {
-			capturedEvents.add(event);
-		}
-
-		@Override
-		public Class<RoverMovedEvent> subscribedToEventType() {
-			return RoverMovedEvent.class;
-		}
-	}
-	
-	private class MockRoverMovedEventWithExceptionSubscriber implements DomainEventSubscriber<RoverMovedWithExceptionEvent> {
-
-		@Override
-		public void handleEvent(RoverMovedWithExceptionEvent event) {
-			capturedEventsWithExceptions.add(event);
-		}
-
-		@Override
-		public Class<RoverMovedWithExceptionEvent> subscribedToEventType() {
-			return RoverMovedWithExceptionEvent.class;
-		}
+		assertThat(thrown).isInstanceOf(IllegalArgumentGameException.class)
+				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
+						GameExceptionLabels.ILLEGAL_ARGUMENT_CODE,
+						String.format(GameExceptionLabels.PRE_CHECK_ERROR_MESSAGE,
+								GameExceptionLabels.MISSING_ROVER_IDENTIFIER)));
 	}
 
 }
