@@ -807,6 +807,17 @@ public class DomainEventPublisher {
 	
 ```
 
+**Publishing**
+
+<img src="src/main/resources/publisherDiagram.png" />
+
+The most common use of `Domain Events` is when an `Entity` creates an Event and publishes it. 
+
+The publisher resides in a module of the `Domain Model` (in our case in the package *com.game.domain.model.event)*, but it does not model some aspect of the domain. 
+
+Rather, it provides a simple service to Entities that need to notify subscribers of `Events`.
+
+
 **Subscribing**
 
 
@@ -888,6 +899,9 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 		// 2. set the last rover position as free on the Plateau
 		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
+		
+		// 3. finally throw an exception	
+		throw new IllegalRoverMoveException(event.getException().getMessage());
 
 	}
 
@@ -901,12 +915,8 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 
 	@Override
 	public void handleEvent(PlateauSwitchedLocationEvent event) {
-		
-		// 1 . update in memory plateau locations
-	    GameContext.getInstance().getPlateau(event.getPlateauId()).setLocationFree(event.getPreviousPosition());
-	    GameContext.getInstance().getPlateau(event.getPlateauId()).setLocationBusy(event.getCurrentPosition());
 	    
-	 // 3 . update persistent plateau locations
+	 // update persistent plateau locations
 	 		updatePlateauWithLastLocations(event);
 		
 	}
@@ -925,8 +935,6 @@ We have therefore established a clear segregation of responsibilities:
 - Each `Event` is clearly assigned a single responsibility in a very clear and delimited context of a particular `Entity`.
 
 
-
-**Publishing**
 
 ### Test driven
 
