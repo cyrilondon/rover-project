@@ -12,7 +12,6 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
-import com.game.domain.model.event.BaseDomainEventPublisher;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
@@ -24,7 +23,7 @@ import com.game.domain.model.service.plateau.PlateauService;
  * Pure domain service which handles {@link Rover} entity
  *
  */
-public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverService {
+public class RoverServiceImpl implements RoverService {
 	
 	private PlateauService plateauService;
 
@@ -59,7 +58,7 @@ public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverS
 		PlateauSwitchedLocationEvent plateauEvent = new PlateauSwitchedLocationEvent.Builder().withPlateauId(id.getPlateauId()).
 				withCurrentPosition(coordinates).build();
 		
-		publishEvent(plateauEvent);
+		plateau.applyAndPublishEvent(plateauEvent, plateau.switchLocation);
 	}
 
 

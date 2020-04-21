@@ -1,12 +1,15 @@
 package com.game.domain.model.entity.plateau;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import com.game.core.validation.ArgumentCheck;
 import com.game.domain.model.entity.IdentifiedPublisherDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
+import com.game.domain.model.event.DomainEvent;
+import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.validation.ValidationNotificationHandler;
 
@@ -28,6 +31,18 @@ public class Plateau extends IdentifiedPublisherDomainEntity<Plateau, UUID> impl
 		this.dimensions = new TwoDimensions(
 				new TwoDimensionalCoordinates(TwoDimensionalSpace.DEFAULT_WIDTH, TwoDimensionalSpace.DEFAULT_HEIGHT));
 	}
+	
+	public final Function<DomainEvent, DomainEvent> switchLocation = event -> {
+		PlateauSwitchedLocationEvent switchEvent = (PlateauSwitchedLocationEvent)event;
+		// update in memory plateau locations
+		if (switchEvent.getPreviousPosition() != null) {
+			this.setLocationFree(switchEvent.getPreviousPosition());
+		}
+		if (switchEvent.getCurrentPosition() != null)
+			this.setLocationOccupied(switchEvent.getCurrentPosition());
+		return event;
+	};
+	
 
 	/**
 	 * The check of negative coordinates is done in the validator So this

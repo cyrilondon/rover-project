@@ -1,7 +1,6 @@
 package com.game.domain.model.event.subscriber.plateau;
 
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 
@@ -10,15 +9,7 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 	@Override
 	public void handleEvent(PlateauSwitchedLocationEvent event) {
 
-		Plateau InMemoryPlateau = GameContext.getInstance().getPlateau(event.getPlateauId());
-
-		// 1 . update in memory plateau locations
-		if (event.getPreviousPosition() != null)
-			InMemoryPlateau.setLocationFree(event.getPreviousPosition());
-		if (event.getCurrentPosition() != null)
-			InMemoryPlateau.setLocationOccupied(event.getCurrentPosition());
-
-		// 2 . update persistent plateau locations
+		// 1 . update persistent plateau locations
 		updatePlateauWithLastLocations(event);
 
 	}
