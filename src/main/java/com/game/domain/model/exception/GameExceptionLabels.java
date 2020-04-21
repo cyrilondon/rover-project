@@ -35,7 +35,7 @@ public class GameExceptionLabels {
 
 	public static final String MISSING_PLATEAU_CONFIGURATION = "Missing Plateau configuration";
 
-	public static final String ADDING_ROVER_NOT_ALLOWED = "It is not allowed to add a Rover. Please initialize the Plateau first.";
+	public static final String INITIALIZE_ROVER_NOT_ALLOWED = "It is not allowed to initialize a Rover. Please initialize the Plateau first.";
 
 	public static final String ENTITY_VALIDATION_ERROR_CODE = "ERR-001";
 
@@ -53,7 +53,7 @@ public class GameExceptionLabels {
 	
 	public static final String ENTITY_NOT_FOUND_ERROR_CODE = "ERR-002";
 	
-	public static final String ENTITY_NOT_FOUND = "Entity [%s] with Id [%s] not found in the application Repository";
+	public static final String ENTITY_NOT_FOUND = "Entity [%s] with Id [%s] not found in the Application Repository";
 	
 	public static final String PLATEAU_LOCATION_ERROR_CODE = "ERR-003";
 	

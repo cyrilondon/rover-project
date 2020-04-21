@@ -618,7 +618,7 @@ public class GameFileAdapter {
 }
 ```
 
-You can notice the very light dependency between the [File Adapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) and the [Application Service](src/main/java/com/game/domain/application/service/GameService.java) (so at the end with the entire model) as it is limited only to the [DomainCommand](src/main/java/com/game/domain/application/command/DomainCommand.java) interface.
+You can notice the very light dependency between the [File Adapter](src/main/java/com/game/adapter/file/GameFileAdapter.java) and the [Application Service](src/main/java/com/game/domain/application/service/GameService.java) (so at the end with the entire model) as it is limited only to the [ApplicationCommand](src/main/java/com/game/domain/application/command/ApplicationCommand.java) interface.
 
 ```java
 

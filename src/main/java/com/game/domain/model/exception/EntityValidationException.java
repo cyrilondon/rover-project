@@ -7,5 +7,9 @@ public class EntityValidationException extends GameException {
 	public EntityValidationException(String message) {
 		super(message, GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE);
 	}
+	
+	public EntityValidationException(String message, Exception exception) {
+		super(message, GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE, exception);
+	}
 
 }

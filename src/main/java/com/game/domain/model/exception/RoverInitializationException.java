@@ -7,5 +7,9 @@ public class RoverInitializationException extends EntityValidationException {
 	public RoverInitializationException(String message) {
 		super(message);
 	}
+	
+	public RoverInitializationException(String message, Exception exception) {
+		super(message, exception);
+	}
 
 }
