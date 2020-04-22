@@ -24,45 +24,70 @@ The second line is a series of instructions telling the rover how to explore the
 
 In this exercise, we would like to present a step-by-step process driven by the three following software practices: `Domain-Driven Design`, `Event-Driven Design`, `Hexagonal Architecture` and `Test Driven Design`.
 
-In our implementation, all the actions to be executed are driven by published and stored `Domain Events`
+Furthemore, in addition to the initial requirements, this implementation offers the following extra-features:
+
+- possibility to play on many plateaus at the same time.
+- persistence of current state of all plateaus and attached rovers.
+- persistence of all the events which occurred in the model in a dedicated event store.
+- finer business exception handling with all the scenarii handled (rover moves out of the plateau, rover collides with another rover, rover wrongly initialized, etc.).
+- possibility to send commands from any client (not limited to file parsing).
+- possibility to create a relativistic plateau, i.e. whose dimensions obey Einstein's special relativity rules (more accurate for observers/NASA engineers moving close to speed of light).
+- possibility to send commands in parallel, even for the same rover (concurrency handled by optimistic locking)
+
+
+## Quick start
+
+1. Download and install [maven](http://maven.apache.org/install.html).
+2. Go to the root of the project and type `mvn clean install`. This will build the project.
+3. In order to run the project, run `mvn exec:java`
+
+You should see something similar to below extract:
+
+Not only are we printing out the final position of both rovers, but we are showing the state of the in-memory and persistent plateau as well, and more importantly all the stored `Domain Events` which captured any occurrence of something that happened in the `Model`.
+
 
 ```java
-Persistent Rover: Rover [ROVER_1] attached to Plateau [06c6be12-7445-4f44-8aae-378e9b91d9ba] with [Coordinates [abscissa = 1, ordinate = 3]] and [Orientation [NORTH]]
-Persistent Rover: Rover [ROVER_2] attached to Plateau [06c6be12-7445-4f44-8aae-378e9b91d9ba] with [Coordinates [abscissa = 5, ordinate = 1]] and [Orientation [EAST]]
+Persistent Rover: Rover [ROVER_1] attached to Plateau [1fb95123-8fbf-4da2-979e-6bbca298e1b1] with [Coordinates [abscissa = 1, ordinate = 3]] and [Orientation [NORTH]]
+Persistent Rover: Rover [ROVER_2] attached to Plateau [1fb95123-8fbf-4da2-979e-6bbca298e1b1] with [Coordinates [abscissa = 5, ordinate = 1]] and [Orientation [EAST]]
 In-Memory Plateau with coordinates 1,3 busy ? [true]
-In-Memory Plateau with coordinates 5,2 busy ? [true]
+In-Memory Plateau with coordinates 5,1 busy ? [true]
 Persistent Plateau with coordinates 1,3 busy ? [true]
-Persistent Plateau with coordinates 5,2 busy ? [true]
-RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [NORTH]], current orientation [Orientation [WEST]]
-RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 2]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 2]]
-RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [WEST]], current orientation [Orientation [SOUTH]]
-RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 0, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 1]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 0, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 1]]
-RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [EAST]]
-RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 0, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 1]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 0, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 1]]
-RoverTurnedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [EAST]], current orientation [Orientation [NORTH]]
-RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 2]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 2]]
-RoverMovedEvent published with rover id [Name [ROVER_1] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 1, ordinate = 3]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 1, ordinate = 3]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 3, ordinate = 3]], current position [Coordinates [abscissa = 4, ordinate = 3]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 3, ordinate = 3]], position occupied [Coordinates [abscissa = 4, ordinate = 3]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 4, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 3]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 4, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 3]]
-RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [EAST]], current orientation [Orientation [SOUTH]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 2]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 2]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 2]], current position [Coordinates [abscissa = 5, ordinate = 1]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 2]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
-RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [WEST]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 5, ordinate = 1]], current position [Coordinates [abscissa = 4, ordinate = 1]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 5, ordinate = 1]], position occupied [Coordinates [abscissa = 4, ordinate = 1]]
-RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [WEST]], current orientation [Orientation [NORTH]]
-RoverTurnedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous orientation [Orientation [NORTH]], current orientation [Orientation [EAST]]
-RoverMovedEvent published with rover id [Name [ROVER_2] - Plateau UUID [06c6be12-7445-4f44-8aae-378e9b91d9ba]], previous position [Coordinates [abscissa = 4, ordinate = 1]], current position [Coordinates [abscissa = 5, ordinate = 1]]
-PlateauSwitchedLocationEvent published with plateau id [06c6be12-7445-4f44-8aae-378e9b91d9ba], position released [Coordinates [abscissa = 4, ordinate = 1]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
+Persistent Plateau with coordinates 5,1 busy ? [true]
+RoverInitializedEvent published at [2020-04-22T08:26:59.434938800] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], position [Coordinates [abscissa = 1, ordinate = 2]], orientation [Orientation [NORTH]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.453901100] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [null], position occupied [Coordinates [abscissa = 1, ordinate = 2]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.459868] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [NORTH]], current orientation [Orientation [WEST]]
+RoverMovedEvent published at [2020-04-22T08:26:59.474829300] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 2]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.476824300] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 2]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.477819900] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [WEST]], current orientation [Orientation [SOUTH]]
+RoverMovedEvent published at [2020-04-22T08:26:59.477819900] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 0, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 1]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.477819900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 0, ordinate = 2]], position occupied [Coordinates [abscissa = 0, ordinate = 1]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.477819900] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [EAST]]
+RoverMovedEvent published at [2020-04-22T08:26:59.477819900] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 0, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 1]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.477819900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 0, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 1]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.477819900] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [EAST]], current orientation [Orientation [NORTH]]
+RoverMovedEvent published at [2020-04-22T08:26:59.478819100] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 1, ordinate = 1]], current position [Coordinates [abscissa = 1, ordinate = 2]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.478819100] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 1, ordinate = 1]], position occupied [Coordinates [abscissa = 1, ordinate = 2]]
+RoverMovedEvent published at [2020-04-22T08:26:59.478819100] with rover id [Name [ROVER_1] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 1, ordinate = 3]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.478819100] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 1, ordinate = 3]]
+RoverInitializedEvent published at [2020-04-22T08:26:59.478819100] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], position [Coordinates [abscissa = 3, ordinate = 3]], orientation [Orientation [EAST]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.479814800] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [null], position occupied [Coordinates [abscissa = 3, ordinate = 3]]
+RoverMovedEvent published at [2020-04-22T08:26:59.479814800] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 3, ordinate = 3]], current position [Coordinates [abscissa = 4, ordinate = 3]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.479814800] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 3, ordinate = 3]], position occupied [Coordinates [abscissa = 4, ordinate = 3]]
+RoverMovedEvent published at [2020-04-22T08:26:59.479814800] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 4, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 3]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.479814800] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 4, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 3]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.480813300] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [EAST]], current orientation [Orientation [SOUTH]]
+RoverMovedEvent published at [2020-04-22T08:26:59.480813300] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 5, ordinate = 3]], current position [Coordinates [abscissa = 5, ordinate = 2]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.480813300] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 5, ordinate = 3]], position occupied [Coordinates [abscissa = 5, ordinate = 2]]
+RoverMovedEvent published at [2020-04-22T08:26:59.480813300] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 5, ordinate = 2]], current position [Coordinates [abscissa = 5, ordinate = 1]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.481810900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 5, ordinate = 2]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [SOUTH]], current orientation [Orientation [WEST]]
+RoverMovedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 5, ordinate = 1]], current position [Coordinates [abscissa = 4, ordinate = 1]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.481810900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 5, ordinate = 1]], position occupied [Coordinates [abscissa = 4, ordinate = 1]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [WEST]], current orientation [Orientation [NORTH]]
+RoverTurnedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [NORTH]], current orientation [Orientation [EAST]]
+RoverMovedEvent published at [2020-04-22T08:26:59.482806900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 4, ordinate = 1]], current position [Coordinates [abscissa = 5, ordinate = 1]]
+PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.482806900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 4, ordinate = 1]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
+s
 ```
 
 ### Domain Driven Design 
@@ -199,13 +224,6 @@ public interface Entity<T, U> {
 	 */
 	T validate(ValidationNotificationHandler handler);
 
-	/**
-	 * Apply the event to current instance and publish the event
-	 * In case of exception, call the exceptionFunction
-	 * @param event
-	 * @param function
-	 */
-	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,  BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction);s
  ```
 
 Once we know each `Entity` has to be assigned an Identity, we have to define more precisely the nature of its identifier.
@@ -811,7 +829,7 @@ public class DomainEventPublisher {
 
 <img src="src/main/resources/publisherDiagram.png" />
 
-The most common use of `Domain Events` is when an `Entity` creates an Event and publishes it. 
+The most common use of `Domain Events` is when an `Entity` creates an `Event` and publishes it. 
 
 The publisher resides in a module of the `Domain Model` (in our case in the package *com.game.domain.model.event)*, but it does not model some aspect of the domain. 
 
@@ -1149,12 +1167,4 @@ com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with 
 	at com.game.domain.model.entity.Rover.moveNumberOfTimes(Rover.java:67)
 	
 ```
-
-## Quick start
-
-1. Download and install [maven](http://maven.apache.org/install.html).
-2. Go to the root of the project and type `mvn clean install`. This will build the project.
-3. In order to run the project, not yet ready....;-)
-
-Enjoy! :smiley:  (currently rather :mask:)
 

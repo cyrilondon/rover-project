@@ -70,12 +70,12 @@ public class GameContext {
 	/**
 	 * Configure the game with the on-demand implementations
 	 */
-	@SuppressWarnings("static-access")
 	private void configure() {
 		ServiceLocator locator = new ServiceLocator();
 		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
-		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl()));
-		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(locator.getPlateauService(), new InMemoryRoverRepositoryImpl()));
+		PlateauService plateauService = new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl());
+		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, plateauService);
+		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(plateauService , new InMemoryRoverRepositoryImpl()));
 		locator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
 		ServiceLocator.load(locator);
 	}
