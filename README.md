@@ -833,8 +833,124 @@ The most common use of `Domain Events` is when an `Entity` creates an `Event` an
 
 The publisher resides in a module of the `Domain Model` (in our case in the package *com.game.domain.model.event)*, but it does not model some aspect of the domain. 
 
-Rather, it provides a simple service to Entities that need to notify subscribers of `Events`.
+Rather, it provides a simple service to `Entities` that need to notify subscribers of `Events`.
 
+The base class that each entity needs to extend to get all the plumber to publish events is [EntityBaseDomainEventPublisher](src/main/java/com/game/domain/model/entity/EntityBaseDomainEventPublisher.java).
+
+In two words, it provides the method *applyAndPublishEvent* which takes as arguments the Event, a java `Function<DomainEvent, DomainEvent>` that will be applied to the current `Entity` instance itself and finally another argument of type `BiFunction<Exception, DomainEvent, DomainEvent>` to be called in case of anything should going wrong during the former function processing.
+
+
+```java
+
+public class EntityBaseDomainEventPublisher extends BaseDomainEventPublisher {
+
+	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,
+			BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction) {
+		try {
+			function.andThen(publishAndStore).apply(event);
+		} catch (Exception exception) {
+			DomainEvent exceptionEvent = null;
+			try {
+				exceptionEvent = exceptionFunction.apply(exception, event);
+				publishEventFunction.apply(exceptionEvent);
+				// needed as whatever the exceptionFunction is supposed to do
+				// (throwing an exception or not) we want to store the event
+			} finally {
+				eventStoreFunction.apply(exceptionEvent);
+			}
+		}
+	}
+```
+For example, when the Rover receives the order to move, the method *moveWithEvent* is called and:
+
+- builds the `Event` with the required level information to process the move
+
+- applies the `moveRover` function (consisting on updating the current instance + doing the validation on the updated state)
+
+- in case of any error during the validation, publish a new `ExceptionEvent` to be handled by a specific subscriber, in our case [RoverMovedWithExceptionEventSubscriber](src/main/java/com/game/domain/model/event/subscriber/rover/RoverMovedWithExceptionEventSubscriber.java).
+
+```java
+	private void moveWithEvent(int step) {
+		
+		...
+
+		// build event with previous and updated position
+		RoverMovedEvent event = buildRoverMovedEvent(previousPosition)
+				.withCurrentPosition(currentPosition).build();
+
+		// apply the event to the current in-memory instance
+		// and publish the event for persistence purpose (DB instance + event store)
+		applyAndPublishEvent(event, moveRover, moveRoverWithException);
+		
+		...
+	}
+	
+	public final Function<DomainEvent, DomainEvent> moveRover = event -> {
+		this.position = ((RoverMovedEvent) event).getCurrentPosition();
+		validate(new RoverMovedPositionValidationNotificationHandler());
+		return event;
+	};
+	
+	public final BiFunction<Exception, DomainEvent, DomainEvent> moveRoverWithException = (exception, event) -> {
+		return new RoverMovedWithExceptionEvent((RoverMovedEvent) event, exception);
+	};
+```
+
+This is exactly what the diagram sequence at the beginning of this section reflects. However, you may find it difficult to read and as a java developer, the below stacktrace may help you as well to figure out this part of the process:
+
+```java
+
+		RoverMovedEventSubscriber.handleEvent(RoverMovedEvent) line: 13	
+			RoverMovedEventSubscriber.handleEvent(Object) line: 1	
+			DomainEventPublisherSubscriber.handleEvent(DomainEventSubscriber<T>, Class<?>, T) line: 57	
+			DomainEventPublisherSubscriber.lambda$0(Class, DomainEvent, DomainEventSubscriber) line: 31	
+			1045941616.accept(Object) line: not available	
+			ArrayList<E>.forEach(Consumer<? super E>) line: 1255	
+			DomainEventPublisherSubscriber.publish(T) line: 30	
+			BaseDomainEventPublisher.lambda$0(DomainEvent) line: 10	
+			11003494.apply(Object) line: not available	
+			11003494(Function<T,R>).lambda$andThen$1(Function, Object) line: 88	
+			817406040.apply(Object) line: not available	
+			917819120(Function<T,R>).lambda$andThen$1(Function, Object) line: 88	
+			817406040.apply(Object) line: not available	
+			Rover(EntityBaseDomainEventPublisher).applyAndPublishEvent(DomainEvent, Function<DomainEvent,DomainEvent>, BiFunction<Exception,DomainEvent,DomainEvent>) line: 14	
+			Rover.moveWithEvent(int) line: 111	
+			Rover.lambda$5(int) line: 94	
+			352359770.accept(int) line: not available	
+			Streams$RangeIntSpliterator.forEachRemaining(IntConsumer) line: 110	
+			IntPipeline$Head<E_IN>.forEach(IntConsumer) line: 557	
+			Rover.moveNumberOfTimes(int) line: 93	
+			RoverServiceImpl.moveRoverNumberOfTimes(RoverIdentifier, int) line: 85	
+			GameServiceImpl.execute(RoverMoveCommand) line: 93	
+			GameServiceCommandVisitor.visit(RoverMoveCommand) line: 25	
+			RoverMoveCommand.acceptVisitor(GameServiceCommandVisitor) line: 33	
+			GameServiceImpl.lambda$0(GameServiceCommandVisitor, ApplicationCommand) line: 43	
+			2042495840.accept(Object) line: not available	
+			ArrayList<E>.forEach(Consumer<? super E>) line: 1255	
+			GameServiceImpl.execute(List<ApplicationCommand>) line: 43	
+			
+```
+
+Furthemore, in case of any exception is thrown during the first function applying, the `Event` is transformed in an `Exception Event` (with the Exception as property instance) and is published to be handled by a dedicated `Exception Subscriber`.
+
+This is shown in the below extract where the Exception Subscriber is represented by a `MockRoverMovedEventWithExceptionSubscriber` as we are running under unit testing (more on this on the next section).
+
+	BaseUnitTest$MockRoverMovedEventWithExceptionSubscriber.handleEvent(RoverMovedWithExceptionEvent) line: 188	
+			BaseUnitTest$MockRoverMovedEventWithExceptionSubscriber.handleEvent(Object) line: 1	
+			DomainEventPublisherSubscriber.handleEvent(DomainEventSubscriber<T>, Class<?>, T) line: 57	
+			DomainEventPublisherSubscriber.lambda$0(Class, DomainEvent, DomainEventSubscriber) line: 31	
+			1661210650.accept(Object) line: not available	
+			ArrayList<E>.forEach(Consumer<? super E>) line: 1255	
+			DomainEventPublisherSubscriber.publish(T) line: 30	
+			BaseDomainEventPublisher.lambda$0(DomainEvent) line: 10	
+			1277933280.apply(Object) line: not available	
+			Rover(EntityBaseDomainEventPublisher).applyAndPublishEvent(DomainEvent, Function<DomainEvent,DomainEvent>, BiFunction<Exception,DomainEvent,DomainEvent>) line: 19	
+			Rover.moveWithEvent(int) line: 111	
+			Rover.lambda$5(int) line: 94	
+			28094269.accept(int) line: not available	
+			Streams$RangeIntSpliterator.forEachRemaining(IntConsumer) line: 110	
+			IntPipeline$Head<E_IN>.forEach(IntConsumer) line: 557	
+			Rover.moveNumberOfTimes(int) line: 93	
 
 **Subscribing**
 
