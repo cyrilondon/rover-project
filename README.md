@@ -179,7 +179,78 @@ Those three distinct Rover's operations together represent an unique operation f
 		this.updateRover(rover);
 	}
  ```
+##### Service Locator
+
+The `Application Service` [GameServiceImpl](src/main/java/com/game/domain/application/service/GameServiceImpl.java) has access to Service Domains via a [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java).
+
+To get a very good insight into the `Service Locator` pattern you can read this article from the guru Martin Fowler [Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html).
+
+As we don't want to use any external framework, it is much easier to use the `Service Locator` compared to the `Dependency Injection` for wiring the `Domain Services` dependencies into the `Application Service`.
+
+ ```java
  
+ public class ServiceLocator {
+ 
+ 
+	private Map<String, DomainService> domainServices = new HashMap<>();
+
+	private Map<String, ApplicationService> applicationServices = new HashMap<>();
+	
+	private Map<String, EventStore> eventStore = new HashMap<>();
+
+	private static ServiceLocator soleInstance = new ServiceLocator();
+	
+	public static GameService getGameService() {
+		return (GameService) soleInstance.applicationServices.get(GAME_SERVICE);
+	}
+
+	public static RoverService getRoverService() {
+		return (RoverService) soleInstance.domainServices.get(ROVER_SERVICE);
+	}
+
+	public static PlateauService getPlateauService() {
+		return (PlateauService) soleInstance.domainServices.get(PLATEAU_SERVICE);
+	}
+	
+	public static EventStore getEventStore() {
+		return (EventStore) soleInstance.eventStore.get(EVENT_STORE);
+	}
+
+	public static void load(ServiceLocator arg) {
+		soleInstance = arg;
+	} 
+	
+	...
+```
+
+More precisely, the `Service Locator` is used by a [GameContext](src/main/java/com/game/domain/application/context/GameContext.java) which emulates an `Application Context` as provided by Spring for example.
+
+The `Service Locator` provides a very useful *load* method which is of first interest for testing purpose as expained in Martin Fowler's article and as we are detailing in the section dedicated to Unit Testing.
+
+ ```java
+ 
+public class GameContext {
+
+	private GameContext() {
+		configure();
+	}
+
+	/**
+	 * Configure the game with the on-demand implementations
+	 */
+	private void configure() {
+		ServiceLocator locator = new ServiceLocator();
+		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
+		PlateauService plateauService = new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl());
+		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, plateauService);
+		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(plateauService , new InMemoryRoverRepositoryImpl()));
+		locator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
+		ServiceLocator.load(locator);
+	}
+	
+  ...
+
+ ```
  
 ##### Domain Entities
 
@@ -1110,7 +1181,7 @@ Say we would like for example to test the Rover's *move* method and to write ide
 	}
 ```
 
-That is, we want to test that an `Event` of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) has been sent and handled by whatever `Event Handler`.
+That is, we want to test that an `Event` of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) has been sent and handled by whatever `Event Handler` which matches the type `RoverMovedEvent`.
 
 Nothing is simpler: we just create some Mock Event Subscribers which for example just add the `Event` to a `List`. All possible mock subscribers are made available in the Test utility class [BaseUnitTest](src/test/java/com/game/test/util/BaseUnitTest.java).
 
@@ -1216,7 +1287,7 @@ public class GameServiceImplTest {
 }
 
 ```
-Consider for example the following method execute to *move* a `Rover`:
+Consider for example the following method *execute* to move a `Rover`:
 
 ```java
 void execute(RoverMoveCommand command) {
