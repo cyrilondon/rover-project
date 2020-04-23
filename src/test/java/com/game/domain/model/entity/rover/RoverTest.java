@@ -89,10 +89,15 @@ public class RoverTest extends BaseUnitTest {
 	public void testMoveNorthOneTime() {
 		Rover rover = initializeRover(Orientation.NORTH);
 		rover.move();
-		assertThat(roverMovedEvents.size()).isEqualTo(1);
 		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
 		assertThat(rover.getXPosition()).isEqualTo(3);
 		assertThat(rover.getYPosition()).isEqualTo(5);
+		assertThat(roverInitializedEvents.size()).isEqualTo(0);
+		assertThat(roverMovedEvents.size()).isEqualTo(1);
+		List<DomainEvent> eventsList = GameContext.getInstance().getEventStore().getAllEvents();
+		assertThat(eventsList.size()).isEqualTo(2);
+		DomainEvent eventStored = eventsList.get(0);
+		assertThat(eventStored).isInstanceOf(RoverMovedEvent.class);
 	}
 
 	@Test

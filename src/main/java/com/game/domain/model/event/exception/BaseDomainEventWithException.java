@@ -1,4 +1,7 @@
-package com.game.domain.model.event;
+package com.game.domain.model.event.exception;
+
+import com.game.domain.model.event.BaseDomainEvent;
+import com.game.domain.model.event.DomainEvent;
 
 public class BaseDomainEventWithException<T extends DomainEvent> extends BaseDomainEvent {
 	

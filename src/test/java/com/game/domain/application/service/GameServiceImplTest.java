@@ -3,9 +3,7 @@ package com.game.domain.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,7 +21,6 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
-import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.store.EventStoreImpl;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
@@ -34,12 +31,11 @@ import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEvent
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.exception.PlateauNotFoundException;
-import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.locator.ServiceLocator;
 import com.game.domain.model.service.plateau.PlateauService;
-import com.game.domain.model.service.rover.RoverService;
+import com.game.test.util.BaseUnitTest;
 
-public class GameServiceImplTest {
+public class GameServiceImplTest extends BaseUnitTest {
 
 	private static final int WIDTH = 5;
 
@@ -53,7 +49,7 @@ public class GameServiceImplTest {
 
 	private GameServiceImpl gameService = new GameServiceImpl();
 
-	public List<Rover> roversList = new ArrayList<Rover>();
+//	public List<Rover> roversList = new ArrayList<Rover>();
 
 	public Plateau plateau;
 
@@ -78,7 +74,6 @@ public class GameServiceImplTest {
 
 	@Test
 	public void testInitializePlateau() {
-		System.out.println(gameContext.getPlateauService());
 		UUID uuid  = UUID.randomUUID();
 		gameService.execute(new PlateauInitializeCommand.Builder().withId(uuid).withAbscissa(WIDTH)
 				.withOrdinate(HEIGHT).build());
@@ -139,64 +134,6 @@ public class GameServiceImplTest {
 		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE, "Error"));
-
-	}
-
-	/**
-	 * Simple MockClass for the RoverServiceImpl
-	 *
-	 */
-	private class MockRoverServiceImpl implements RoverService {
-
-		@Override
-		public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates,
-				Orientation orientation) {
-			GameServiceImplTest.this.roversList
-					.add(new Rover(new RoverIdentifier(id.getPlateauId(), id.getName()), coordinates, orientation));
-		}
-
-		@Override
-		public void moveRoverNumberOfTimes(RoverIdentifier id, int numberOfTimes) {
-			GameServiceImplTest.this.roversList.add(new Rover(new RoverIdentifier(id.getPlateauId(), id.getName()),
-					new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
-			if (id.getName().equals(GameContext.ROVER_NAME_PREFIX + 5))
-				throw new PlateauLocationAlreadySetException("Error");
-		}
-
-		@Override
-		public void updateRover(Rover rover) {
-		}
-
-		@Override
-		public Rover getRover(RoverIdentifier id) {
-			return null;
-		}
-
-		@Override
-		public List<Rover> getAllRoversOnPlateau(UUID uuid) {
-			return null;
-		}
-
-		@Override
-		public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
-		}
-
-		@Override
-		public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
-		}
-
-		@Override
-		public void removeRover(RoverIdentifier id) {
-		}
-
-		@Override
-		public void turnRover(RoverIdentifier roverId, RoverTurnInstruction turn) {
-		}
-
-		@Override
-		public RoverRepository getRoverRepository() {
-			return null;
-		}
 
 	}
 
