@@ -42,8 +42,7 @@ Furthemore, in addition to the initial requirements, this implementation offers 
 ## Quick start
 
 1. Download and install [maven](http://maven.apache.org/install.html).
-2. Go to the root of the project and type `mvn clean install`. This will build the project.
-3. In order to run the project, run `mvn exec:java`
+2. Go to the root of the project and type `mvn clean package`. This will build the project, run the Unit Tests along with the [GameIntegration](src/main/java/com/game/adapter/file/GameIntegration.java) `Main` method.
 
 You should see something similar to below extract:
 
@@ -1010,6 +1009,8 @@ Furthermore, in case of any exception is thrown when applying the first function
 
 This is shown in the below extract where the Exception Subscriber is represented by a `MockRoverMovedEventWithExceptionSubscriber` as we are running under unit testing (more on this on the next section).
 
+```java
+
 	BaseUnitTest$MockRoverMovedEventWithExceptionSubscriber.handleEvent(RoverMovedWithExceptionEvent) line: 188	
 			BaseUnitTest$MockRoverMovedEventWithExceptionSubscriber.handleEvent(Object) line: 1	
 			DomainEventPublisherSubscriber.handleEvent(DomainEventSubscriber<T>, Class<?>, T) line: 57	
@@ -1026,6 +1027,13 @@ This is shown in the below extract where the Exception Subscriber is represented
 			Streams$RangeIntSpliterator.forEachRemaining(IntConsumer) line: 110	
 			IntPipeline$Head<E_IN>.forEach(IntConsumer) line: 557	
 			Rover.moveNumberOfTimes(int) line: 93	
+```
+			
+And this is an example of stored event `RoverMovedWithExceptionEvent` in case of a Rover collides with another Rover for a given location
+
+```java
+RoverMovedWithExceptionEvent published at [2020-04-24T19:17:12.003] with Rover Moved Event [RoverMovedEvent published at [2020-04-24T19:17:12] with rover id [Name [ROVER_2] - Plateau UUID [fa221732-982e-4e01-bf29-1aafb56adb9c]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 2]]], exception [com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] There is already a Rover at position X = [0] and Y = [2]]
+```
 
 **Subscribing**
 
@@ -1111,7 +1119,7 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
 		
 		// 3. finally throw an exception	
-		throw new IllegalRoverMoveException(event.getException().getMessage());
+		throw new GameException(event.getException().getMessage());
 
 	}
 
@@ -1549,4 +1557,41 @@ com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with 
 	at com.game.domain.model.entity.Rover.moveNumberOfTimes(Rover.java:67)
 	
 ```
+But wait there is event more. As we have seen before, each exception thrown during the validation step is caught, transformed into a [BaseDomainEventWithException](src/main/java/com/game/domain/model/event/exception/BaseDomainEventWithException.java) and finally caught by a corresponding Exception Subscriber.
+
+This is the occasion to contextualize again the Exception thrown by an another error code if required.
+
+Let's take the example of a two `Rovers` colliding by occupying the same location. We send exactly the same commands to two distinct `Rovers`, both ending at position X = [0] and Y = [2]
+
+  ```java
+	// rover1 commands
+		// Rover 1 initialization (1,2) and Orientation 'N' 
+		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover1Name)
+				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
+		RoverIdentifier rover1 = new RoverIdentifier(plateauId, rover1Name);
+		// Rover 1 move commands  LMLMLMLMMs
+		commands.add(new RoverTurnCommand(rover1, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover1, 1));
+		
+		String rover2Name = GameContext.ROVER_NAME_PREFIX + 2;
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover2Name)
+				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
+		RoverIdentifier rover2 = new RoverIdentifier(plateauId, rover2Name);
+		// Rover 1 move commands  LMLMLMLMMs
+		commands.add(new RoverTurnCommand(rover2, RoverTurnInstruction.LEFT));
+		commands.add(new RoverMoveCommand(rover2, 1));
+ ```
+This is the exception thrown `GameException` with error code `ERR-004` along with the game state: the second Rover has been removed from the plateau, and the only the Rover 1 remains.
+
+We get the error code because in the `RoverMovedPositionValidationNotificationHandler` we throw the `IllegalRoverMoveException` backed by a generic `GameException` in the Event Subscriber. But you could re-throw whatever more meaningful exception you can think of and gives the error message a double contextualization.
+
+ ```java
+com.game.domain.model.exception.GameException: [ERR-004] There is already a Rover at position X = [0] and Y = [2]
+Persistent Rover: Rover [ROVER_1] attached to Plateau [847d947e-e1bb-402b-91c7-487bf5d357c4] with [Coordinates [abscissa = 0, ordinate = 2]] and [Orientation [WEST]]
+In-Memory Plateau with coordinates 0,2 busy ? [true]
+In-Memory Plateau with coordinates 1,2 busy ? [false]
+Persistent Plateau with coordinates 0,2 busy ? [true]
+Persistent Plateau with coordinates 1,2 busy ? [false]
+ ``` 
 

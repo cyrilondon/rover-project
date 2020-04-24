@@ -3,7 +3,7 @@ package com.game.domain.model.event.subscriber.rover;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
-import com.game.domain.model.exception.IllegalRoverMoveException;
+import com.game.domain.model.exception.GameException;
 
 public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscriber<RoverMovedWithExceptionEvent> {
 
@@ -17,7 +17,7 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
 		
-		throw new IllegalRoverMoveException(event.getException().getMessage());
+		throw new GameException(event.getException().getMessage());
 
 	}
 
