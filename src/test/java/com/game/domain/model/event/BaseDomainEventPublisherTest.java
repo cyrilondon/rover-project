@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.event.rover.RoverMovedEvent;
 
 public class BaseDomainEventPublisherTest {
@@ -35,7 +36,7 @@ public class BaseDomainEventPublisherTest {
 		RoverIdentifier id = new RoverIdentifier(UUID.randomUUID(), GameContext.ROVER_NAME_PREFIX);
 		TwoDimensionalCoordinates previousPosition = new TwoDimensionalCoordinates(3, 4);
 		TwoDimensionalCoordinates currentPosition = new TwoDimensionalCoordinates(3, 5);
-		RoverMovedEvent event = new RoverMovedEvent.Builder().withRoverId(id).withCurrentPosition(currentPosition)
+		RoverMovedEvent event = new RoverMovedEvent.Builder().withRoverId(new RoverIdentifierDto(id, 0)).withCurrentPosition(currentPosition)
 				.withPreviousPosition(previousPosition).build();
 		new BaseDomainEventPublisher().publishEvent(event, publishEventFunction, eventStoreFunction);
 		assertThat(publishedEvents).contains(event);

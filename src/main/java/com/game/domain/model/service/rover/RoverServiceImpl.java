@@ -101,8 +101,8 @@ public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverS
 	}
 
 	@Override
-	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
-		Rover rover = this.getRover(id);
+	public void updateRoverWithPosition(RoverIdentifierDto roverId, TwoDimensionalCoordinates position) {
+		Rover rover = checkVersion(roverId.getVersion(), this.getRover(roverId.getId()));
 		rover.setPosition(position);
 		this.updateRover(rover);
 	}

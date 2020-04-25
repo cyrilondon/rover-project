@@ -24,7 +24,7 @@ public class DomainEventPublisherSubscriber {
 
 		try {
 			publishing.set(Boolean.TRUE);
-			List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+			List<DomainEventSubscriber<T,String>> registeredSubscribers = subscribers.get();
 			if (registeredSubscribers != null) {
 				Class<?> eventType = domainEvent.getClass();
 				registeredSubscribers.forEach(subscriber -> {
@@ -40,19 +40,19 @@ public class DomainEventPublisherSubscriber {
 
 	
 	@SuppressWarnings("unchecked")
-	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T> subscriber) {
+	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T, String> subscriber) {
 		if (null !=publishing.get() && publishing.get()) return;
 		
-		List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+		List<DomainEventSubscriber<T,String>> registeredSubscribers = subscribers.get();
 		if (registeredSubscribers == null) {
-			registeredSubscribers = new ArrayList<DomainEventSubscriber<T>>();
+			registeredSubscribers = new ArrayList<DomainEventSubscriber<T,String>>();
 			subscribers.set(registeredSubscribers);
 		}
 		if (!registeredSubscribers.contains(subscriber))
 		registeredSubscribers.add(subscriber);
 	}
 
-	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T> subscriber, Class<?> eventType, T domainEvent) {
+	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T,String> subscriber, Class<?> eventType, T domainEvent) {
 		Class<?> subscribedTo = subscriber.subscribedToEventType();
 		if (subscribedTo == eventType) {
 			subscriber.handleEvent(domainEvent);

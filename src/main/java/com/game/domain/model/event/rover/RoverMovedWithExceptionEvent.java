@@ -18,7 +18,7 @@ public class RoverMovedWithExceptionEvent extends BaseDomainEventWithException<R
 	}
 	
 	public RoverIdentifier getRoverId() {
-		return getEvent().getRoverId();
+		return getEvent().getRoverId().getId();
 	}
 	
 	public UUID getPlateauUuid() {

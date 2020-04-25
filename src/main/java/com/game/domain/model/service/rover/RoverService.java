@@ -23,7 +23,7 @@ public interface RoverService extends DomainService {
 	
 	void updateRover(Rover rover);
 
-	void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position);
+	void updateRoverWithPosition(RoverIdentifierDto id, TwoDimensionalCoordinates position);
 
 	void updateRoverWithOrientation(RoverIdentifierDto id, Orientation orientation);
 

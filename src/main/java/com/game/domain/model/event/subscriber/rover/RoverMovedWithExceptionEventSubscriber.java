@@ -1,11 +1,13 @@
 package com.game.domain.model.event.subscriber.rover;
 
+import java.util.Objects;
+
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.event.DomainEventSubscriber;
+import com.game.domain.model.event.AbstractDomainEventSubscriber;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.exception.GameException;
 
-public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscriber<RoverMovedWithExceptionEvent> {
+public class RoverMovedWithExceptionEventSubscriber extends AbstractDomainEventSubscriber<RoverMovedWithExceptionEvent> {
 
 	@Override
 	public void handleEvent(RoverMovedWithExceptionEvent event) {
@@ -25,11 +27,25 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 	public Class<RoverMovedWithExceptionEvent> subscribedToEventType() {
 		return RoverMovedWithExceptionEvent.class;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == this) {
+			return true;
+		}
+
+		if (obj instanceof RoverMovedWithExceptionEventSubscriber) {
+			RoverMovedWithExceptionEventSubscriber other = (RoverMovedWithExceptionEventSubscriber) obj;
+			return Objects.equals(id, other.getId());
+		}
+
+		return false;
+	}
 
 	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
+	public int hashCode() {
+		return Objects.hash(getId());
 	}
 
 }

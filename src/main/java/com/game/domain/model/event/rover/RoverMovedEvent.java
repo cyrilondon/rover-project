@@ -3,12 +3,12 @@ package com.game.domain.model.event.rover;
 import java.util.UUID;
 
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.event.BaseDomainEvent;
 
 public class RoverMovedEvent extends BaseDomainEvent {
 
-	private RoverIdentifier roverId;
+	private RoverIdentifierDto roverId;
 
 	TwoDimensionalCoordinates previousPosition;
 
@@ -22,12 +22,12 @@ public class RoverMovedEvent extends BaseDomainEvent {
 		this.currentPosition = builder.currentPosition;
 	}
 
-	public RoverIdentifier getRoverId() {
+	public RoverIdentifierDto getRoverId() {
 		return roverId;
 	}
 	
 	public UUID getPlateauUUID() {
-		return roverId.getPlateauId();
+		return roverId.getId().getPlateauId();
 	}
 
 	public TwoDimensionalCoordinates getPreviousPosition() {
@@ -40,11 +40,11 @@ public class RoverMovedEvent extends BaseDomainEvent {
 
 	public static class Builder {
 		
-		private RoverIdentifier roverId;
+		private RoverIdentifierDto roverId;
 
 		private TwoDimensionalCoordinates previousPosition, currentPosition;
 
-		public Builder withRoverId(RoverIdentifier roverId) {
+		public Builder withRoverId(RoverIdentifierDto roverId) {
 			   this.roverId = roverId;
 			   return this;
 		   }

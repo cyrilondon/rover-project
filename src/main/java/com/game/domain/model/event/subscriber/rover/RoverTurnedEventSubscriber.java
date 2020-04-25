@@ -3,12 +3,10 @@ package com.game.domain.model.event.subscriber.rover;
 import java.util.Objects;
 
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.event.DomainEventSubscriber;
+import com.game.domain.model.event.AbstractDomainEventSubscriber;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
 
-public class RoverTurnedEventSubscriber implements DomainEventSubscriber<RoverTurnedEvent> {
-
-	private final String id = RoverTurnedEventSubscriber.class.getSimpleName();
+public class RoverTurnedEventSubscriber extends AbstractDomainEventSubscriber<RoverTurnedEvent> {
 
 	@Override
 	public void handleEvent(RoverTurnedEvent event) {
@@ -24,11 +22,6 @@ public class RoverTurnedEventSubscriber implements DomainEventSubscriber<RoverTu
 	private void updateRoverWithOrientation(RoverTurnedEvent event) {
 		GameContext.getInstance().getRoverService().updateRoverWithOrientation(event.getRoverId(),
 				event.getCurrentOrientation());
-	}
-
-	@Override
-	public String getId() {
-		return id;
 	}
 	
 	@Override

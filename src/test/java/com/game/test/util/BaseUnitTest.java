@@ -17,6 +17,7 @@ import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.event.AbstractDomainEventSubscriber;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
@@ -144,7 +145,7 @@ public class BaseUnitTest {
 		GameContext.getInstance().getEventStore().getAllEvents().clear();
 	}
 
-	public class MockRoverInitizialiedEventSubscriber implements DomainEventSubscriber<RoverInitializedEvent> {
+	public class MockRoverInitizialiedEventSubscriber extends AbstractDomainEventSubscriber<RoverInitializedEvent> {
 
 		@Override
 		public void handleEvent(RoverInitializedEvent event) {
@@ -158,13 +159,12 @@ public class BaseUnitTest {
 
 		@Override
 		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return RoverInitializedEvent.class.getSimpleName();
 		}
 	}
 
 	public class MockRoverInitizialiedWithExceptionEventSubscriber
-			implements DomainEventSubscriber<RoverInitializedWithExceptionEvent> {
+	extends AbstractDomainEventSubscriber<RoverInitializedWithExceptionEvent> {
 
 		@Override
 		public void handleEvent(RoverInitializedWithExceptionEvent event) {
@@ -179,13 +179,12 @@ public class BaseUnitTest {
 
 		@Override
 		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return RoverInitializedWithExceptionEvent.class.getSimpleName();
 		}
 
 	}
 
-	public class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
+	public class MockRoverMovedEventSubscriber extends AbstractDomainEventSubscriber<RoverMovedEvent> {
 
 		@Override
 		public void handleEvent(RoverMovedEvent event) {
@@ -199,13 +198,12 @@ public class BaseUnitTest {
 
 		@Override
 		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return RoverMovedEvent.class.getSimpleName();
 		}
 	}
 
 	public class MockRoverMovedEventWithExceptionSubscriber
-			implements DomainEventSubscriber<RoverMovedWithExceptionEvent> {
+	extends AbstractDomainEventSubscriber<RoverMovedWithExceptionEvent> {
 
 		@Override
 		public void handleEvent(RoverMovedWithExceptionEvent event) {
@@ -220,13 +218,12 @@ public class BaseUnitTest {
 
 		@Override
 		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return RoverMovedWithExceptionEvent.class.getSimpleName();
 		}
 	}
 
 	public class MockPlateauSwitchedLocationEventSubscriber
-			implements DomainEventSubscriber<PlateauSwitchedLocationEvent> {
+	extends AbstractDomainEventSubscriber<PlateauSwitchedLocationEvent> {
 
 		@Override
 		public void handleEvent(PlateauSwitchedLocationEvent event) {
@@ -241,8 +238,7 @@ public class BaseUnitTest {
 
 		@Override
 		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return PlateauSwitchedLocationEvent.class.getSimpleName();
 		}
 
 	}
@@ -347,7 +343,7 @@ public class BaseUnitTest {
 		}
 
 		@Override
-		public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
+		public void updateRoverWithPosition(RoverIdentifierDto id, TwoDimensionalCoordinates position) {
 		}
 
 		@Override

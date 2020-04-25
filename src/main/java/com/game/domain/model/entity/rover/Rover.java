@@ -140,7 +140,7 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	}
 
 	private Builder buildRoverMovedEvent(TwoDimensionalCoordinates previousPosition) {
-		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifier(id.getPlateauId(), id.getName()))
+		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifierDto(getId(), getVersion()))
 				.withPreviousPosition(previousPosition);
 	}
 
