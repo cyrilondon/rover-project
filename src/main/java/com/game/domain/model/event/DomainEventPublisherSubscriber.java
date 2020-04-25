@@ -48,6 +48,7 @@ public class DomainEventPublisherSubscriber {
 			registeredSubscribers = new ArrayList<DomainEventSubscriber<T>>();
 			subscribers.set(registeredSubscribers);
 		}
+		if (!registeredSubscribers.contains(subscriber))
 		registeredSubscribers.add(subscriber);
 	}
 

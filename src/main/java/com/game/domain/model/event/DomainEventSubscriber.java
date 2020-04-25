@@ -5,5 +5,7 @@ public interface DomainEventSubscriber<T> {
 	public void handleEvent(T event);
 
 	public Class<T> subscribedToEventType();
+	
+	public String getId();
 
 }

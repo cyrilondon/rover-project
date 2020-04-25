@@ -17,6 +17,8 @@ import com.game.domain.application.service.GameService;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.event.DomainEventPublisherSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverTurnedEventSubscriber;
 import com.game.domain.model.service.plateau.PlateauService;
 import com.game.domain.model.service.rover.RoverService;
 
@@ -137,7 +139,11 @@ public class GameIntegrationTest {
 		
 		Runnable runnableTask = () -> {
 			Rover rover = roverService.getRover(roverId1);
+			// copy to a new Rover with same version to prevent the update from in memory datastore by the main updates
 			Rover roverNew = new Rover(rover.getId(), rover.getCoordinates(), rover.getOrientation());
+			roverNew.setVersion(rover.getVersion());
+			// register the subscriber for the given type of event = RoverMovedEvent as we dont go through GameService
+			DomainEventPublisherSubscriber.instance().subscribe(new RoverTurnedEventSubscriber());
 		    try {
 		    	GameContext.getInstance().addPlateau(plateauService.loadPlateau(roverId1.getPlateauId()));
 		        TimeUnit.MILLISECONDS.sleep(1000);
@@ -151,8 +157,8 @@ public class GameIntegrationTest {
 		executorService.execute(runnableTask);
 		
 		gameService.execute(new RoverMoveCommand(roverId1, 2));
-
-		
+		gameService.execute(new RoverTurnCommand(roverId1, RoverTurnInstruction.RIGHT));
+	
 	}
 	
 	

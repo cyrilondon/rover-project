@@ -26,4 +26,10 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 		return RoverMovedWithExceptionEvent.class;
 	}
 
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

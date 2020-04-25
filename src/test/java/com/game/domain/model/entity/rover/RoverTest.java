@@ -211,8 +211,9 @@ public class RoverTest extends BaseUnitTest {
 		Rover rover = new Rover(
 				new RoverIdentifier(UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c"), ROVER_NAME),
 				new TwoDimensionalCoordinates(3, 4), Orientation.SOUTH);
+		System.out.println(rover.toString());
 		assertThat(rover.toString()).isEqualTo(
-				"Rover [ROVER_TEST] attached to Plateau [53567a5d-a21c-495e-80a3-d12adaf8585c] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]]");
+				"Rover [ROVER_TEST] attached to Plateau [53567a5d-a21c-495e-80a3-d12adaf8585c] with [Coordinates [abscissa = 3, ordinate = 4]] and [Orientation [SOUTH]] and version [0]");
 	}
 
 	@Test

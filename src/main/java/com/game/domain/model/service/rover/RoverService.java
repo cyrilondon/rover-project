@@ -7,6 +7,7 @@ import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.DomainService;
@@ -24,7 +25,7 @@ public interface RoverService extends DomainService {
 
 	void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position);
 
-	void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation);
+	void updateRoverWithOrientation(RoverIdentifierDto id, Orientation orientation);
 
 	void removeRover(RoverIdentifier id);
 

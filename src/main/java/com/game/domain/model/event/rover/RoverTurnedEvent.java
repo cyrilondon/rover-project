@@ -1,12 +1,12 @@
 package com.game.domain.model.event.rover;
 
 import com.game.domain.model.entity.rover.Orientation;
-import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.event.BaseDomainEvent;
 
 public class RoverTurnedEvent extends BaseDomainEvent {
 
-	private RoverIdentifier roverId;
+	private RoverIdentifierDto roverId;
 
 	private Orientation  previousOrientation;
 	
@@ -18,7 +18,7 @@ public class RoverTurnedEvent extends BaseDomainEvent {
 		this.currentOrientation = builder.currentOrientation;
 	}
 
-	public RoverIdentifier getRoverId() {
+	public RoverIdentifierDto getRoverId() {
 		return roverId;
 	}
 
@@ -29,16 +29,17 @@ public class RoverTurnedEvent extends BaseDomainEvent {
 	public Orientation getCurrentOrientation() {
 		return currentOrientation;
 	}
+
 	
 	public static class Builder {
 		
-		private RoverIdentifier roverId;
+		private RoverIdentifierDto roverId;
 
 		private Orientation  previousOrientation;
 		
 		private Orientation  currentOrientation;
 		
-		public Builder withRoverId(RoverIdentifier roverId) {
+		public Builder withRoverId(RoverIdentifierDto roverId) {
 			this.roverId = roverId;
 			return this;
 		}

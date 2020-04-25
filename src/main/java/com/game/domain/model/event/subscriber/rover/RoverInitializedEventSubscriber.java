@@ -24,4 +24,10 @@ public class RoverInitializedEventSubscriber implements DomainEventSubscriber<Ro
 		return RoverInitializedEvent.class;
 	}
 
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

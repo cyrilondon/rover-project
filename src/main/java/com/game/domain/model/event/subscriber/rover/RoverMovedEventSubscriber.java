@@ -19,4 +19,10 @@ public class RoverMovedEventSubscriber implements DomainEventSubscriber<RoverMov
 		return RoverMovedEvent.class;
 	}
 
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

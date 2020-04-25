@@ -15,6 +15,7 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.DomainEventSubscriber;
@@ -154,6 +155,12 @@ public class BaseUnitTest {
 		public Class<RoverInitializedEvent> subscribedToEventType() {
 			return RoverInitializedEvent.class;
 		}
+
+		@Override
+		public String getId() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	public class MockRoverInitizialiedWithExceptionEventSubscriber
@@ -170,6 +177,12 @@ public class BaseUnitTest {
 			return RoverInitializedWithExceptionEvent.class;
 		}
 
+		@Override
+		public String getId() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	public class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
@@ -182,6 +195,12 @@ public class BaseUnitTest {
 		@Override
 		public Class<RoverMovedEvent> subscribedToEventType() {
 			return RoverMovedEvent.class;
+		}
+
+		@Override
+		public String getId() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -198,6 +217,12 @@ public class BaseUnitTest {
 		public Class<RoverMovedWithExceptionEvent> subscribedToEventType() {
 			return RoverMovedWithExceptionEvent.class;
 		}
+
+		@Override
+		public String getId() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	public class MockPlateauSwitchedLocationEventSubscriber
@@ -212,6 +237,12 @@ public class BaseUnitTest {
 		@Override
 		public Class<PlateauSwitchedLocationEvent> subscribedToEventType() {
 			return PlateauSwitchedLocationEvent.class;
+		}
+
+		@Override
+		public String getId() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
@@ -320,7 +351,7 @@ public class BaseUnitTest {
 		}
 
 		@Override
-		public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
+		public void updateRoverWithOrientation(RoverIdentifierDto id, Orientation orientation) {
 		}
 
 		@Override

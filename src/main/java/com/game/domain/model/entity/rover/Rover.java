@@ -29,11 +29,6 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	private TwoDimensionalCoordinates position;
 	
 	/**
-	 * used for optimistic locking
-	 */
-	private int version;
-
-	/**
 	 * Rover step length - configurable in the GameContext Default = 1
 	 */
 	private int step = GameContext.getInstance().getRoverStepLength();
@@ -126,7 +121,7 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	 */
 	public void turnLeft() {
 
-		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id).withPreviousOrientation(orientation)
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(new RoverIdentifierDto(getId(), getVersion())).withPreviousOrientation(orientation)
 				.withCurrentOrientation(orientation.turnLeft()).build();
 
 		applyAndPublishEvent(event, turnRover);
@@ -138,7 +133,7 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	 */
 	public void turnRight() {
 
-		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(id).withPreviousOrientation(orientation)
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(new RoverIdentifierDto(getId(), getVersion())).withPreviousOrientation(orientation)
 				.withCurrentOrientation(orientation.turnRight()).build();
 
 		applyAndPublishEvent(event, turnRover);
@@ -200,16 +195,8 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 
 	@Override
 	public String toString() {
-		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(),
-				this.getId().getPlateauId(), this.getCoordinates(), this.getOrientation());
-	}
-	
-	public int getVersion() {
-		return version;
-	}
-
-	public void setVersion(int version) {
-		this.version = version;
+		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s] and version [%s]", this.getId().getName(),
+				this.getId().getPlateauId(), this.getCoordinates(), this.getOrientation(), this.getVersion());
 	}
 
 }

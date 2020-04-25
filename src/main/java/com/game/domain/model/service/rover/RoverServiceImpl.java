@@ -11,12 +11,14 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverIdentifierDto;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.domain.model.event.BaseDomainEventPublisher;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.exception.GameException;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.OptimisticLockingException;
 import com.game.domain.model.exception.RoverInitializationException;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.plateau.PlateauService;
@@ -69,7 +71,8 @@ public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverS
 		addPlateauToContext.apply(id);
 		switch (turn) {
 		case LEFT:
-			roverRepository.load(id).turnLeft();
+			Rover rover = roverRepository.load(id);
+			rover.turnLeft();
 			break;
 
 		case RIGHT:
@@ -105,8 +108,8 @@ public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverS
 	}
 
 	@Override
-	public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
-		Rover rover = this.getRover(id);
+	public void updateRoverWithOrientation(RoverIdentifierDto roverId, Orientation orientation) {
+		Rover rover = checkVersion(roverId.getVersion(), this.getRover(roverId.getId()));
 		rover.setOrientation(orientation);
 		this.updateRover(rover);
 	}
@@ -127,13 +130,12 @@ public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverS
 		return roverRepository;
 	}
 	
-	private Rover checkVersion(Rover rover) {
-		int versionToCheck = getRover(rover.getId()).getVersion();
-		if (rover.getVersion() == versionToCheck) {
-			rover.setVersion(rover.getVersion() + 1);
-			return rover;
+	private Rover checkVersion(int currentVersion, Rover storedRover) {
+		if (currentVersion == storedRover.getVersion()) {
+			storedRover.setVersion(storedRover.getVersion() + 1);
+			return storedRover;
 		} else {
-			throw new GameException("pas bon");
+			throw new GameException(new OptimisticLockingException(String.format(GameExceptionLabels.CONCURRENT_MODIFICATION_ERROR_MESSAGE, storedRover)));
 		}
 	}
 

@@ -28,4 +28,10 @@ public class PlateauSwitchedLocationEventSubscriber implements DomainEventSubscr
 		return PlateauSwitchedLocationEvent.class;
 	}
 
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

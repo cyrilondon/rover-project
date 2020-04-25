@@ -1,10 +1,14 @@
 package com.game.domain.model.event.subscriber.rover;
 
+import java.util.Objects;
+
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.event.DomainEventSubscriber;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
 
 public class RoverTurnedEventSubscriber implements DomainEventSubscriber<RoverTurnedEvent> {
+
+	private final String id = RoverTurnedEventSubscriber.class.getSimpleName();
 
 	@Override
 	public void handleEvent(RoverTurnedEvent event) {
@@ -21,5 +25,31 @@ public class RoverTurnedEventSubscriber implements DomainEventSubscriber<RoverTu
 		GameContext.getInstance().getRoverService().updateRoverWithOrientation(event.getRoverId(),
 				event.getCurrentOrientation());
 	}
+
+	@Override
+	public String getId() {
+		return id;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == this) {
+			return true;
+		}
+
+		if (obj instanceof RoverTurnedEventSubscriber) {
+			RoverTurnedEventSubscriber other = (RoverTurnedEventSubscriber) obj;
+			return Objects.equals(id, other.getId());
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getId());
+	}
+
 
 }
