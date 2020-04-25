@@ -1,5 +1,6 @@
 package com.game.domain.application.service;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.game.domain.application.command.ApplicationCommand;
@@ -43,6 +44,11 @@ public class GameServiceImpl implements GameService {
 		commands.forEach(command -> command.acceptVisitor(commandVisitor));
 	}
 
+	@Override
+	public void execute(ApplicationCommand command) {
+		this.execute(Collections.singletonList(command));
+	}
+
 	void execute(PlateauInitializeCommand command) {
 		GameContext gameContext = GameContext.getInstance();
 		Plateau plateau = null;
@@ -61,15 +67,15 @@ public class GameServiceImpl implements GameService {
 	}
 
 	void execute(RoverInitializeCommand command) {
-		
+
 		// register the subscriber for the given type of event = RoverMovedEvent
 		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedEventSubscriber());
-		
+
 		// register the subscriber in case of something went wrong during Rover moves
 		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedWithExceptionEventSubscriber());
 
-		
-		// register the subscriber for the plateau to mark it as occupied for the rover position
+		// register the subscriber for the plateau to mark it as occupied for the rover
+		// position
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
 
 		GameContext.getInstance().getRoverService().initializeRover(

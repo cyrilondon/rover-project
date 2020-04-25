@@ -180,7 +180,7 @@ Those three distinct Rover's operations together represent an unique operation f
  ```
 ##### Service Locator
 
-The `Application Service` [GameServiceImpl](src/main/java/com/game/domain/application/service/GameServiceImpl.java) has access to Service Domains via a [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java).
+The `Application Service` [GameServiceImpl](src/main/java/com/game/domain/application/service/GameServiceImpl.java) has access to `Domain Services` via a [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java).
 
 To get a very good insight into the `Service Locator` pattern you can read this article from the guru Martin Fowler [Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html).
 
@@ -264,11 +264,11 @@ Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/m
 
 Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) as an `Entity` as well.
 
-As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedPublisherDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedPublisherDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
 
 
  ```java
-public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
+public abstract class IdentifiedPublisherDomainEntity<T, U> extends BaseDomainEventPublisher implements Entity<T, U> {
 
 	protected U id;
 
@@ -276,11 +276,13 @@ public abstract class IdentifiedDomainEntity<T, U> implements Entity<T, U> {
 	public U getId() {
 		return this.id;
 	}
+
+}
+
  ```
 
-The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to enforce each entity class to define and expose its identity.
+The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to enforce each entity class to define and expose its identity, and an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section).
 
-**Remark**: an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section) and to **apply to itself and publish events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`.
 
  ```java
 public interface Entity<T, U> {
@@ -299,6 +301,8 @@ public interface Entity<T, U> {
 	T validate(ValidationNotificationHandler handler);
 
  ```
+ 
+ **Remark**: as we rely on an `Event-Driven Architecture`, the `Entity` has to **apply to itself events and then publish those events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`. This is the reason why we are not implementing directly the [Entity](src/main/java/com/game/domain/model/entity/Entity.java) interface but we are extending the `IdentifiedPublisherDomainEntity` instead.
 
 Once we know each `Entity` has to be assigned an Identity, we have to define more precisely the nature of its identifier.
 
@@ -723,10 +727,19 @@ You can notice the very light dependency between the [File Adapter](src/main/jav
  */
 public interface GameService extends ApplicationService {
 	
-	void execute(List<DomainCommand> commands);
+	/**
+	 * Execute a list of commands
+	 * @param commands
+	 */
+	void execute(List<ApplicationCommand> commands);
+	
+	/**
+	 * Execute a single command
+	 * @param command
+	 */
+	void execute(ApplicationCommand command);
 
 }
-
 ```
 
 On the right side of the hexagon, the `Secondary Ports` and `Secondary Adapters` define the way the application itself communicates with the outside world. It could be for example how the application is sending events to a middleware or how it is storing its data in a persistent repository.
@@ -1119,7 +1132,7 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
 		
 		// 3. finally throw an exception	
-		throw new GameException(event.getException().getMessage());
+		throw new GameException(event.toString(), event.getException());
 
 	}
 
@@ -1357,7 +1370,7 @@ public class MockRoverServiceImpl implements RoverService {
 
 ### Validation and Exception Handling
 
-The base class of our Exception hierarchy is the <code>[GameException](src/main/java/com/game/domain/model/exception/GameException.java)</code> which:
+The base class of our Exception hierarchy is the [GameException](src/main/java/com/game/domain/model/exception/GameException.java) which:
 - is a of type **RuntimeException** as we don't expect any retry or action from the end user
 
 
@@ -1372,14 +1385,27 @@ public class GameException extends RuntimeException {
 		this(message, errorCode, null);
 	}
 	
+	@Override
+	public String getMessage() {
+		String msg = getOriginalMessage();
+		if (getErrorCode() != null) {
+			msg = String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN, getErrorCode(), msg);
+		}
+		return msg;
+	}
+
+	private String getOriginalMessage() {
+		return super.getMessage();
+	}
+	
 ```
-All the error codes and error messages labels are grouped together in a single class <code>[GameExceptionLabels](src/main/java/com/game/domain/model/exception/GameExceptionLabels.java)</code> for better lisibility and overview.
+All the error codes and error messages labels are grouped together in a single class [GameExceptionLabels](src/main/java/com/game/domain/model/exception/GameExceptionLabels.java) for better lisibility and overview.
 
 We consider two types of validation:
 
 - A **Technical validation** which checks the nullity or emptiness of arguments. 
 
-   This is handled by the <code>[ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java)</code> class which throws a <code>[IllegalArgumentGameException](src/main/java/com/game/domain/model/exception/IllegalArgumentGameException.java)</code> with a specific error code <code>[ERR-000]</code> when a required argument is not present or empty.
+   This is handled by the [ArgumentCheck](src/main/java/com/game/core/validation/ArgumentCheck.java) class which throws a [IllegalArgumentGameException](src/main/java/com/game/domain/model/exception/IllegalArgumentGameException.java) with a specific error code <code>[ERR-000]</code> when a required argument is not present or empty.
    
  If you initialize a Rover without giving any position (second argument of the constructor is null), which is clearly wrong,
    
@@ -1414,11 +1440,11 @@ Exception in thread "main" com.game.domain.model.exception.IllegalArgumentGameEx
 
 - A **Business validation** process which ensures the enforcement of the business rules (by example moving the Rover should not let it go out of the plateau).
 
-The base class <code>[EntityValidator](/src/main/java/com/game/domain/model/validation/EntityValidator.java)</code> takes this responsibility. Actually, in addition to identity, a primary implementation requirement for entities is ensuring they are **self-validating** and **always valid**.
+The base class [EntityValidator](src/main/java/com/game/domain/model/validation/EntityValidator.java) takes this responsibility. Actually, in addition to identity, a primary implementation requirement for entities is ensuring they are **self-validating** and **always valid**.
 
 This is similar to the self-validating nature of value objects, although it is usually much more **context dependent** due to entities having a life-cycle.
 
-To make this context dependency effective, we make the entity validator class depends on <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface by constructor injection.
+To make this context dependency effective, we make the entity validator class depends on [ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java) interface by constructor injection.
 
 This delegation to a generic error notification handler - [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) - is exactly what we need to ensure distinct validation processes under different contexts. 
 
@@ -1457,9 +1483,9 @@ The notification handler interface defines two methods to be implemented:
 }
 
   ```
-Let's consider for example the validator class <code>[RoverValidator](src/main/java/com/game/domain/model/entity/RoverValidator.java)</code> dedicated to check that the entity is in a valid state after its creation or any action.
+Let's consider for example the validator class [RoverValidator](src/main/java/com/game/domain/model/entity/rover/RoverValidator.java) dedicated to check that the `Entity` is in a valid state after its creation or any action.
  
-We have a few things to check: the Rover's position X and Y should be both positive, the position X and Y should be on the Plateau to which the Rover belongs and finally no other Rover should be already on this position.
+We have a few things to check: the `Rover`'s position X and Y should be both positive, the position X and Y should be on the `Plateau` to which the `Rover` belongs and finally no other `Rover` should be already on this position.
  
    ```java
    public class RoverValidator extends EntityValidator<Rover> {
@@ -1498,7 +1524,7 @@ We have a few things to check: the Rover's position X and Y should be both posit
    
    In the first case, it would be a good idea to send ALL the error messages to the end user, so that he can re-send the initialization command successfully next time.
    
-   This exactly what the class <code>[EntityDefaultValidationNotificationHandler](src/main/java/com/game/domain/model/validation/EntityDefaultValidationNotificationHandler.java)</code> does:
+   This exactly what the class [EntityDefaultValidationNotificationHandler](src/main/java/com/game/domain/model/validation/EntityDefaultValidationNotificationHandler.java) does:
       
    ```java
    public class EntityDefaultValidationNotificationHandler implements ValidationNotificationHandler {
@@ -1533,11 +1559,11 @@ We have a few things to check: the Rover's position X and Y should be both posit
 	at com.game.domain.application.GameServiceImpl.execute(GameServiceImpl.java:57)
 ```
    
-But let's suppose now that the `Rover has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but in this new context, we do NOT want to throw an initialization error with the error code [ERR-001].
+But let's suppose now that the `Rover` has been successfully initialized and has to take some moves. Evidently, at each move its position has to be validated by the very same checks but in this new context, we do NOT want to throw an initialization error with the error code `[ERR-001]`.
 
-We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the `Rover` from the `Plateau` and to mark its last position on the Plateau as free.
+We would like to throw a different exception, which could be eventually caught by the service layer to take some actions: by example in our case to remove the `Rover` from the `Plateau` and to mark its last position on the `Plateau` as free.
 
-This is very easy thanks to our <code>[ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java)</code> interface: we just need to inject another implementation <code>[RoverMovedPositionValidationNotificationHandler](src/main/java/com/game/domain/model/validation/RoverMovedPositionValidationNotificationHandler.java)</code>, which in case of a wrong move will throw this time a <code>[IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java)</code> exception, with error code <code>[ERR-004]</code>.
+This is very easy thanks to our [ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java) interface: we just need to inject another implementation [RoverMovedPositionValidationNotificationHandler](src/main/java/com/game/domain/model/validation/RoverMovedPositionValidationNotificationHandler.java), which in case of a wrong move will throw this time a [IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java) exception, with error code <code>[ERR-004]</code>.
 
 Below is the exception stacktrace when a Rover asked to move few steps will end up going out of the Plateau. We notice that the error message is exactly the same as above (concerning the Y-position out of the plateau), but the type of exception as well as the error code have changed: *com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [7] is out of the Plateau with height [6]*
 
@@ -1561,7 +1587,8 @@ But wait there is event more. As we have seen before, each exception thrown duri
 
 This is the occasion to contextualize again the Exception thrown by an another error code if required.
 
-Let's take the example of a two `Rovers` colliding by occupying the same location. We send exactly the same commands to two distinct `Rovers`, both ending at position X = [0] and Y = [2]
+Let's take the example of a two `Rovers` colliding by occupying the same location. We send exactly the same commands to two distinct `Rovers`, both ending at position X = [0] and Y = [2].
+You can find this code in the test class [GameIntegrationTest](src/test/java/com/game/integration/GameIntegrationTest.java)
 
   ```java
 	// rover1 commands
@@ -1584,14 +1611,105 @@ Let's take the example of a two `Rovers` colliding by occupying the same locatio
  ```
 This is the exception thrown `GameException` with error code `ERR-004` along with the game state: the second Rover has been removed from the plateau, and the only the Rover 1 remains.
 
-We get the error code because in the `RoverMovedPositionValidationNotificationHandler` we throw the `IllegalRoverMoveException` backed by a generic `GameException` in the Event Subscriber. But you could re-throw whatever more meaningful exception you can think of and gives the error message a double contextualization.
+We get the error code because in the `RoverMovedPositionValidationNotificationHandler` we throw the `IllegalRoverMoveException` backed by a generic `GameException` in the Event Subscriber, which keeps the `Event` details. So you have all the details needed to understand what happened
+- which command was executed
+- which exception was the root cause of the failure
 
  ```java
-com.game.domain.model.exception.GameException: [ERR-004] There is already a Rover at position X = [0] and Y = [2]
-Persistent Rover: Rover [ROVER_1] attached to Plateau [847d947e-e1bb-402b-91c7-487bf5d357c4] with [Coordinates [abscissa = 0, ordinate = 2]] and [Orientation [WEST]]
-In-Memory Plateau with coordinates 0,2 busy ? [true]
-In-Memory Plateau with coordinates 1,2 busy ? [false]
-Persistent Plateau with coordinates 0,2 busy ? [true]
-Persistent Plateau with coordinates 1,2 busy ? [false]
- ``` 
+com.game.domain.model.exception.GameException: RoverMovedWithExceptionEvent published at [2020-04-25T08:50:53.971] with Rover Moved Event [RoverMovedEvent published at [2020-04-25T08:50:53.967] with rover id [Name [ROVER_2] - Plateau UUID [f4a749e4-3fea-4856-a39a-870536bf2b98]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 0, ordinate = 2]]], 
+exception [com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] There is already a Rover at position X = [0] and Y = [2]]
+	at com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber.handleEvent(RoverMovedWithExceptionEventSubscriber.java:20)
+	at com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber.handleEvent(RoverMovedWithExceptionEventSubscriber.java:8)
+	at com.game.domain.model.event.DomainEventPublisherSubscriber.handleEvent(DomainEventPublisherSubscriber.java:57)
+	at com.game.domain.model.event.DomainEventPublisherSubscriber.lambda$publish$0(DomainEventPublisherSubscriber.java:31)
+	at java.util.ArrayList.forEach(ArrayList.java:1255)
+	at com.game.domain.model.event.DomainEventPublisherSubscriber.publish(DomainEventPublisherSubscriber.java:30)
+	at com.game.domain.model.event.BaseDomainEventPublisher.lambda$new$0(BaseDomainEventPublisher.java:10)
+	at com.game.domain.model.entity.EntityBaseDomainEventPublisher.applyAndPublishEvent(EntityBaseDomainEventPublisher.java:19)
+	at com.game.domain.model.entity.rover.Rover.moveWithEvent(Rover.java:111)
+	at com.game.domain.model.entity.rover.Rover.lambda$moveNumberOfTimes$5(Rover.java:94)
+	at java.util.stream.Streams$RangeIntSpliterator.forEachRemaining(Streams.java:110)
+	at java.util.stream.IntPipeline$Head.forEach(IntPipeline.java:557)
+	at com.game.domain.model.entity.rover.Rover.moveNumberOfTimes(Rover.java:93)
+	at com.game.domain.model.service.rover.RoverServiceImpl.moveRoverNumberOfTimes(RoverServiceImpl.java:85)
+	at com.game.domain.application.service.GameServiceImpl.execute(GameServiceImpl.java:93)
+	at com.game.domain.application.service.GameServiceCommandVisitor.visit(GameServiceCommandVisitor.java:25)
+	at com.game.domain.application.command.rover.RoverMoveCommand.acceptVisitor(RoverMoveCommand.java:33)
+	at com.game.domain.application.service.GameServiceImpl.lambda$execute$0(GameServiceImpl.java:43)
+	at java.util.ArrayList.forEach(ArrayList.java:1255)
+	at com.game.domain.application.service.GameServiceImpl.execute(GameServiceImpl.java:43)
+	at com.game.integration.GameIntegrationTest.simulateRoversCollision(GameIntegrationTest.java:68)
+	at com.game.integration.GameIntegrationTest.main(GameIntegrationTest.java:26)
+Caused by: com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] There is already a Rover at position X = [0] and Y = [2]
+	at com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler.checkValidationResult(RoverMovedPositionValidationNotificationHandler.java:16)
+	at com.game.domain.model.validation.EntityValidator.validate(EntityValidator.java:31)
+	at com.game.domain.model.entity.rover.Rover.validate(Rover.java:80)
+	at com.game.domain.model.entity.rover.Rover.lambda$new$0(Rover.java:38)
+	at java.util.function.Function.lambda$andThen$1(Function.java:88)
+	at com.game.domain.model.entit
+```
+### Concurrency and Optimistic locking
 
+With the given API command exposed to the outside world, it is perfectly possible to two end-users send concurrent commands to the same Rover.
+
+Let's consider by example the following example:
+
+- a given `Rover` rover1 is already initialized on a given `Plateau` with coordinates(1,2) and orientation North
+- a end-user User1 sends the following commands to the rover1: *turnLeft* and then *move*, so expecting a new rover1's position as coordinates(0,2) and orientation West. 
+- exactly at the same time, a end-user User2 asks to same rover1 to *move twice* in a row, so expecting a new rover1's position as coordinate(1,4) and orientation North.
+
+Now, suppose that the technology/adapter chosen by user1 encounters some problems or is by nature slower than the technology used by user2, we face the famous **Lost Update** issue.
+
+You can find the code of this scenario in the test class [GameIntegrationTest](src/test/java/com/game/integration/GameIntegrationTest.java)
+ 
+ ```java
+UUID plateauId = UUID.randomUUID();
+		// ********* Given **********
+		// initialization plateau command (5,5)
+		List<ApplicationCommand> commands = new ArrayList<>();
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(5)
+				.withOrdinate(5).build());
+
+		// rover1 commands
+		// Rover 1 initialization (1,2) and Orientation 'N' 
+		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover1Name)
+				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
+		RoverIdentifier roverId1 = new RoverIdentifier(plateauId, rover1Name);
+		
+		gameService.execute(commands);
+		
+		
+		Runnable runnableTask = () -> {
+			Rover rover = roverService.getRover(roverId1);
+		    try {
+		    	GameContext.getInstance().addPlateau(plateauService.loadPlateau(roverId1.getPlateauId()));
+		        TimeUnit.MILLISECONDS.sleep(1000);
+		       rover.turnLeft();
+		       rover.move();
+		    } catch (InterruptedException e) {
+		        e.printStackTrace();
+		    }
+		    GameIntegrationTest.printInfos();
+		};
+		executorService.execute(runnableTask);
+		
+		gameService.execute(new RoverMoveCommand(roverId1, 2));
+ ```
+We simulate the long-time transaction of user1 by a Thread sleep of one second.
+
+As expected, the rover's final position is in incoherent position of coordinates(0,4) and orientation West. None of the end-users was expecting such a result.
+
+ ```java
+RoverInitializedEvent published at [2020-04-25T10:44:31.782] with rover id [Name [ROVER_1] - Plateau UUID [a85b82a9-cdfd-4388-aa47-376b06920e42]], position [Coordinates [abscissa = 1, ordinate = 2]], orientation [Orientation [NORTH]]
+PlateauSwitchedLocationEvent published at [2020-04-25T10:44:31.789] with plateau id [a85b82a9-cdfd-4388-aa47-376b06920e42], position released [null], position occupied [Coordinates [abscissa = 1, ordinate = 2]]
+RoverMovedEvent published at [2020-04-25T10:44:31.795] with rover id [Name [ROVER_1] - Plateau UUID [a85b82a9-cdfd-4388-aa47-376b06920e42]], previous position [Coordinates [abscissa = 1, ordinate = 2]], current position [Coordinates [abscissa = 1, ordinate = 3]]
+PlateauSwitchedLocationEvent published at [2020-04-25T10:44:31.796] with plateau id [a85b82a9-cdfd-4388-aa47-376b06920e42], position released [Coordinates [abscissa = 1, ordinate = 2]], position occupied [Coordinates [abscissa = 1, ordinate = 3]]
+RoverMovedEvent published at [2020-04-25T10:44:31.796] with rover id [Name [ROVER_1] - Plateau UUID [a85b82a9-cdfd-4388-aa47-376b06920e42]], previous position [Coordinates [abscissa = 1, ordinate = 3]], current position [Coordinates [abscissa = 1, ordinate = 4]]
+PlateauSwitchedLocationEvent published at [2020-04-25T10:44:31.796] with plateau id [a85b82a9-cdfd-4388-aa47-376b06920e42], position released [Coordinates [abscissa = 1, ordinate = 3]], position occupied [Coordinates [abscissa = 1, ordinate = 4]]
+RoverTurnedEvent published at [2020-04-25T10:44:32.795] with rover id [Name [ROVER_1] - Plateau UUID [a85b82a9-cdfd-4388-aa47-376b06920e42]], previous orientation [Orientation [NORTH]], current orientation [Orientation [WEST]]
+RoverMovedEvent published at [2020-04-25T10:44:32.795] with rover id [Name [ROVER_1] - Plateau UUID [a85b82a9-cdfd-4388-aa47-376b06920e42]], previous position [Coordinates [abscissa = 1, ordinate = 4]], current position [Coordinates [abscissa = 0, ordinate = 4]]
+PlateauSwitchedLocationEvent published at [2020-04-25T10:44:32.795] with plateau id [a85b82a9-cdfd-4388-aa47-376b06920e42], position released [Coordinates [abscissa = 1, ordinate = 4]], position occupied [Coordinates [abscissa = 0, ordinate = 4]]
+ ```
+ 
+ To prevent this concurrency issue, we implement the so-called Optimistic Locking pattern, which guards against this kind of concurrency problem.

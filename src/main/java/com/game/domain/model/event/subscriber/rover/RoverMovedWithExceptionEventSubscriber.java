@@ -17,7 +17,7 @@ public class RoverMovedWithExceptionEventSubscriber implements DomainEventSubscr
 		GameContext.getInstance().getPlateauService().updatePlateauWithFreeLocation(
 				event.getPlateauUuid(), event.getRoverPreviousPosition());
 		
-		throw new GameException(event.getException().getMessage());
+		throw new GameException(event.toString(), event.getException());
 
 	}
 

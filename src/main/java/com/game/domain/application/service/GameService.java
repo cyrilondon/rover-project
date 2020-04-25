@@ -13,6 +13,16 @@ import com.game.domain.application.command.ApplicationCommand;
  */
 public interface GameService extends ApplicationService {
 	
+	/**
+	 * Execute a list of commands
+	 * @param commands
+	 */
 	void execute(List<ApplicationCommand> commands);
+	
+	/**
+	 * Execute a single command
+	 * @param command
+	 */
+	void execute(ApplicationCommand command);
 
 }

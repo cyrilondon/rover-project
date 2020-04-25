@@ -27,6 +27,11 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	private Orientation orientation;
 
 	private TwoDimensionalCoordinates position;
+	
+	/**
+	 * used for optimistic locking
+	 */
+	private int version;
 
 	/**
 	 * Rover step length - configurable in the GameContext Default = 1
@@ -197,6 +202,14 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	public String toString() {
 		return String.format("Rover [%s] attached to Plateau [%s] with [%s] and [%s]", this.getId().getName(),
 				this.getId().getPlateauId(), this.getCoordinates(), this.getOrientation());
+	}
+	
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 }

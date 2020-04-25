@@ -12,8 +12,10 @@ import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
+import com.game.domain.model.event.BaseDomainEventPublisher;
 import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverInitializedEvent;
+import com.game.domain.model.exception.GameException;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.RoverInitializationException;
 import com.game.domain.model.repository.RoverRepository;
@@ -23,7 +25,7 @@ import com.game.domain.model.service.plateau.PlateauService;
  * Pure domain service which handles {@link Rover} entity
  *
  */
-public class RoverServiceImpl implements RoverService {
+public class RoverServiceImpl extends BaseDomainEventPublisher implements RoverService {
 	
 	private PlateauService plateauService;
 
@@ -123,6 +125,16 @@ public class RoverServiceImpl implements RoverService {
 	@Override
 	public RoverRepository getRoverRepository() {
 		return roverRepository;
+	}
+	
+	private Rover checkVersion(Rover rover) {
+		int versionToCheck = getRover(rover.getId()).getVersion();
+		if (rover.getVersion() == versionToCheck) {
+			rover.setVersion(rover.getVersion() + 1);
+			return rover;
+		} else {
+			throw new GameException("pas bon");
+		}
 	}
 
 }

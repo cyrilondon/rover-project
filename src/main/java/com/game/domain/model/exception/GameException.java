@@ -24,9 +24,20 @@ public class GameException extends RuntimeException {
 		this.errorCode = errorCode;
 	}
 	
+	public GameException(String message, Exception cause) {
+		super(message, cause);
+		this.errorCode = null;
+	}
+	
+	public GameException(Exception cause) {
+		this(cause.getMessage(), null, cause);
+	}
+	
 	public String getErrorCode() {
 		return errorCode;
 	}
+	
+	
 	
 	@Override
 	public String getMessage() {
