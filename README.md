@@ -46,12 +46,17 @@ Furthemore, in addition to the initial requirements, this implementation offers 
 
 You should see something similar to below extract:
 
-Not only are we printing out the final position of both rovers, but we are showing the state of the in-memory and persistent plateau as well, and more importantly all the stored `Domain Events` which captured any occurrence of something that happened in the `Model`.
+Not only are we printing out the final position of both rover with their respective version number ( the number of actions that each rover has undergone)
+
+```java
+Persistent Rover: Rover [ROVER_1] attached to Plateau [c831f913-73dc-4c6d-b2dc-45f922ac5f42] with [Coordinates [abscissa = 1, ordinate = 3]] and [Orientation [NORTH]] and version [9]
+Persistent Rover: Rover [ROVER_2] attached to Plateau [c831f913-73dc-4c6d-b2dc-45f922ac5f42] with [Coordinates [abscissa = 5, ordinate = 1]] and [Orientation [EAST]] and version [10]
+```
+
+but we are showing the state of the in-memory and persistent plateau as well, and more importantly all the stored `Domain Events` which captured any occurrence of something that happened in the `Model`.
 
 
 ```java
-Persistent Rover: Rover [ROVER_1] attached to Plateau [1fb95123-8fbf-4da2-979e-6bbca298e1b1] with [Coordinates [abscissa = 1, ordinate = 3]] and [Orientation [NORTH]]
-Persistent Rover: Rover [ROVER_2] attached to Plateau [1fb95123-8fbf-4da2-979e-6bbca298e1b1] with [Coordinates [abscissa = 5, ordinate = 1]] and [Orientation [EAST]]
 In-Memory Plateau with coordinates 1,3 busy ? [true]
 In-Memory Plateau with coordinates 5,1 busy ? [true]
 Persistent Plateau with coordinates 1,3 busy ? [true]
@@ -264,13 +269,27 @@ Evidently, we can immediately identify a [Rover](src/main/java/com/game/domain/m
 
 Concerning the Plateau, things become a little bit more interesting. If we had stuck to the requirements, then only one Plateau would have been necessary and thus we would not have necessarily modeled it as an `Entity`. However, as we have decided that moving rovers over multiple Plateaus at the same time was allowed, we have no choice but to model our [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) as an `Entity` as well.
 
-As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedPublisherDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedPublisherDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java)
+As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedPublisherDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedPublisherDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java).
+
+Actually, it inherits indirectly from `Entity` via  [ConcurrencySafeEntity](src/main/java/com/game/domain/model/entity/ConcurrencySafeEntity.java) interface but will dig into this subject later on in the section dedicated to concurrency and optimistic locking. 
 
 
  ```java
-public abstract class IdentifiedPublisherDomainEntity<T, U> extends BaseDomainEventPublisher implements Entity<T, U> {
+public abstract class IdentifiedPublisherDomainEntity<T, U> extends BaseDomainEventPublisher implements ConcurrencySafeEntity<T, U> {
 
 	protected U id;
+	
+	protected int version;
+
+	@Override
+	public int getVersion() {
+		return version;
+	}
+	
+	@Override
+	public void setVersion(int version) {
+		this.version = version;
+	}
 
 	@Override
 	public U getId() {
@@ -830,7 +849,7 @@ For example, we could  design the [RoverMovedEvent](src/main/java/com/game/domai
 
 public class RoverMovedEvent implements DomainEvent {
 
-	private RoverIdentifier roverId;
+	private RoverIdentifierDto roverId;
 
 	TwoDimensionalCoordinates previousPosition;
 
@@ -852,27 +871,33 @@ In this example, for the sake of simplicity, all registered subscribers execute 
 
 **Publish/Subscribe**
 
-Below is the `Publish/Subscribe` [DomainEventPublisher](src/main/java/com/game/domain/model/event/DomainEventPublisher.java) used in our Rover application. Since every incoming request from users of the system is handled on a separated dedicated thread (please remind yourself that we have extended the basic requirements to allow many distinct clients to send commands separately), we divide subscribers per thread. So the two `ThreadLocal` variables, `subscribers` and `publishing`, are allocated per thread. 
+Below is the `Publish/Subscribe` [DomainEventPublisherSubscriber](src/main/java/com/game/domain/model/event/DomainEventPublisherSubscriber.java) used in our Rover application. Since every incoming request from users of the system is handled on a separated dedicated thread (please remind yourself that we have extended the basic requirements to allow many distinct clients to send commands separately), we divide subscribers per thread. So the two `ThreadLocal` variables, `subscribers` and `publishing`, are allocated per thread. 
 
 
 ```java
 
-public class DomainEventPublisher {
+/**
+ * Observer to publish/subscribe {@link DomainEvent}
+ *
+ */
+public class DomainEventPublisherSubscriber {
 
+	@SuppressWarnings("rawtypes")
 	private static final ThreadLocal<List> subscribers = new ThreadLocal<>();
 
 	private static final ThreadLocal<Boolean> publishing = new ThreadLocal<>();
 
-	public static DomainEventPublisher instance() {
-		return new DomainEventPublisher();
+	public static DomainEventPublisherSubscriber instance() {
+		return new DomainEventPublisherSubscriber();
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T extends DomainEvent> void publish(final T domainEvent) {
 		if (null !=publishing.get() && publishing.get()) return;
 
 		try {
 			publishing.set(Boolean.TRUE);
-			List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+			List<DomainEventSubscriber<T,String>> registeredSubscribers = subscribers.get();
 			if (registeredSubscribers != null) {
 				Class<?> eventType = domainEvent.getClass();
 				registeredSubscribers.forEach(subscriber -> {
@@ -887,29 +912,26 @@ public class DomainEventPublisher {
 	}
 
 	
-	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T> subscriber) {
+	@SuppressWarnings("unchecked")
+	public <T extends DomainEvent> void subscribe(DomainEventSubscriber<T, String> subscriber) {
 		if (null !=publishing.get() && publishing.get()) return;
 		
-		List<DomainEventSubscriber<T>> registeredSubscribers = subscribers.get();
+		List<DomainEventSubscriber<T,String>> registeredSubscribers = subscribers.get();
 		if (registeredSubscribers == null) {
-			registeredSubscribers = new ArrayList<DomainEventSubscriber<T>>();
+			registeredSubscribers = new ArrayList<DomainEventSubscriber<T,String>>();
 			subscribers.set(registeredSubscribers);
 		}
+		if (!registeredSubscribers.contains(subscriber))
 		registeredSubscribers.add(subscriber);
 	}
 
-	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T> subscriber, Class<?> eventType, T domainEvent) {
+	private <T extends DomainEvent> void handleEvent(DomainEventSubscriber<T,String> subscriber, Class<?> eventType, T domainEvent) {
 		Class<?> subscribedTo = subscriber.subscribedToEventType();
-		if (subscribedTo == eventType || subscribedTo == DomainEvent.class) {
+		if (subscribedTo == eventType) {
 			subscriber.handleEvent(domainEvent);
 		}
 
-	}
-	
-	public void clear() {
-		subscribers.remove();
-	}
-	
+	}	
 ```
 
 **Publishing**
