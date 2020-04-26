@@ -63,7 +63,7 @@ public class RoverServiceImplTest extends BaseUnitTest
 	@Test
 	public void testInitializeRover() {
 		UUID uuid = UUID.randomUUID();
-		new MockPlateauServiceImpl().initializePlateau(uuid, new TwoDimensionalCoordinates(WIDTH, HEIGHT));
+		new MockPlateauServiceImpl().initializePlateau(uuid, new TwoDimensionalCoordinates(WIDTH, HEIGHT),0);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		RoverIdentifier id = new RoverIdentifier(uuid, ROVER_NAME + (mockRoverRepository.getNumberOfRovers() + 1));
 		roverService.initializeRover(id, coordinates, Orientation.SOUTH);
@@ -88,7 +88,7 @@ public class RoverServiceImplTest extends BaseUnitTest
 	public void testInitializeRoverOutOfPlateau() {
 		int width = 2, height = 2;
 		UUID uuid = UUID.randomUUID();
-		new MockPlateauServiceImpl().initializePlateau(uuid, new TwoDimensionalCoordinates(width, height));
+		new MockPlateauServiceImpl().initializePlateau(uuid, new TwoDimensionalCoordinates(width, height),0);
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		RoverIdentifier id = new RoverIdentifier(uuid, ROVER_NAME);
 		Throwable thrown = catchThrowable(() -> roverService.initializeRover(id, coordinates, Orientation.SOUTH));
@@ -107,7 +107,7 @@ public class RoverServiceImplTest extends BaseUnitTest
 
 	@Test
 	public void testMoveRoverNumberOfTimes() {
-		new MockPlateauServiceImpl().initializePlateau(mockUuuid, new TwoDimensionalCoordinates(WIDTH, HEIGHT));
+		new MockPlateauServiceImpl().initializePlateau(mockUuuid, new TwoDimensionalCoordinates(WIDTH, HEIGHT), 0);
 		mockRoverRepository.add(getRover());
 		roverService.moveRoverNumberOfTimes(getRover().getId(), 3);
 		Rover rover = mockRoverRepository.load(getRover().getId());

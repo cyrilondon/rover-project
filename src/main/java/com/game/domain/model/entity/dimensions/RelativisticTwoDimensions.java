@@ -64,5 +64,11 @@ public class RelativisticTwoDimensions implements TwoDimensionalSpace {
 	public int getHeight() {
 		return (int)(lorentzFactor * dimensions.getHeight());
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Dimensions width [%d] and height [%d]", getWidth(), getHeight());
+	}
+
 
 }

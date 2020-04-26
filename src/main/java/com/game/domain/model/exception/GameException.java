@@ -48,7 +48,7 @@ public class GameException extends RuntimeException {
 		return msg;
 	}
 
-	private String getOriginalMessage() {
+	public String getOriginalMessage() {
 		return super.getMessage();
 	}
 	

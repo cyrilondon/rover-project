@@ -42,7 +42,6 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	};
 	
 	public final Function<DomainEvent, DomainEvent> initializeRover = event -> {
-		this.position = ((RoverInitializedEvent) event).getPosition();
 		validate(new EntityDefaultValidationNotificationHandler());
 		return event;
 	};

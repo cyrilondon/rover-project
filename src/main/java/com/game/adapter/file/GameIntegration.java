@@ -3,10 +3,8 @@ package com.game.adapter.file;
 import java.io.File;
 import java.util.UUID;
 
-import com.game.adapter.file.GameFileAdapter;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.plateau.Plateau;
 
 public class GameIntegration {
 	
@@ -31,12 +29,6 @@ public class GameIntegration {
 		UUID plateauId = GameContext.getInstance().getAllPlateau().get(0).getId();
 		// prints all the Persistent rovers
 		GameContext.getInstance().getRoverService().getAllRoversOnPlateau(plateauId).forEach(rover -> System.out.println("Persistent Rover: " + rover));
-		// print the Plateau in-memory state
-		Plateau inMemoryPlateau = GameContext.getInstance().getPlateau(plateauId);
-		System.out.println(String.format("In-Memory Plateau with coordinates 1,3 busy ? [%s]",
-				String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(1, 3)))));
-		System.out.println(String.format("In-Memory Plateau with coordinates 5,1 busy ? [%s]",
-				String.valueOf(inMemoryPlateau.isLocationBusy(new TwoDimensionalCoordinates(5, 1)))));
 		// print the Plateau persistent state from the application repository
 		System.out.println(String.format("Persistent Plateau with coordinates 1,3 busy ? [%s]",
 				String.valueOf(GameContext.getInstance().getPlateauService().isLocationBusy(plateauId,

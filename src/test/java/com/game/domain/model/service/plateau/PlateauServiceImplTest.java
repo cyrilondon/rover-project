@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.UUID;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
@@ -15,8 +18,9 @@ import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.repository.PlateauRepository;
 import com.game.domain.model.service.plateau.PlateauServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
+import com.game.test.util.BaseUnitTest;
 
-public class PlateauServiceImplTest {
+public class PlateauServiceImplTest extends BaseUnitTest {
 
 	private final static int WIDTH = 5;
 
@@ -24,31 +28,45 @@ public class PlateauServiceImplTest {
 
 	private final static int NEGATIVE_WIDTH = -WIDTH;
 
-	private static final int OBSERVER_SPEED = Math.multiplyExact(2, (int) Math.pow(10, 7));
+	private static final int OBSERVER_SPEED = Math.multiplyExact(2, (int) Math.pow(10, 8));
 
 	PlateauRepository plateauRepository = new MockPlateauRepositoryImpl();
 
 	PlateauServiceImpl plateauService = new PlateauServiceImpl(plateauRepository);
+	
+	private GameContext gameContext = GameContext.getInstance();
+	
+	@BeforeTest
+	public void setup() {
+		gameContext.reset();
+	}
+
+	@BeforeMethod
+	public void reset() {
+		clearAllExpectedEvents();
+		clearAndSubscribe();
+		clearEventStore();
+	}
 
 	@Test
 	public void testInitializePlateau() {
-		Plateau plateau = plateauService.initializePlateau(UUID.randomUUID(), new TwoDimensionalCoordinates(WIDTH, HEIGHT));
+		Plateau plateau = plateauService.initializePlateau(UUID.randomUUID(), new TwoDimensionalCoordinates(WIDTH, HEIGHT), 0);
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getWidth()).isEqualTo(HEIGHT);
 	}
 
 	@Test
 	public void testInitializeRelativisticPlateau() {
-		Plateau plateau = plateauService.initializeRelativisticPlateau(UUID.randomUUID(), OBSERVER_SPEED,
-				(new TwoDimensionalCoordinates(WIDTH, HEIGHT)));
-		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 1);
-		assertThat(plateau.getWidth()).isEqualTo(HEIGHT - 1);
+		Plateau plateau = plateauService.initializePlateau(UUID.randomUUID(), 
+				(new TwoDimensionalCoordinates(WIDTH, HEIGHT)), OBSERVER_SPEED);
+		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 2);
+		assertThat(plateau.getWidth()).isEqualTo(HEIGHT - 2);
 	}
 
 	@Test
 	public void testInitializePlateauNegativeWidth() {
 		Throwable thrown = catchThrowable(
-				() -> plateauService.initializePlateau(UUID.randomUUID(), (new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
+				() -> plateauService.initializePlateau(UUID.randomUUID(), (new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT)), 0));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
@@ -57,12 +75,12 @@ public class PlateauServiceImplTest {
 
 	@Test
 	public void testInitializeRelativisticPlateauNegativeDimensions() {
-		Throwable thrown = catchThrowable(() -> plateauService.initializeRelativisticPlateau(UUID.randomUUID(), OBSERVER_SPEED,
-				(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT))));
+		Throwable thrown = catchThrowable(() -> plateauService.initializePlateau(UUID.randomUUID(), 
+				(new TwoDimensionalCoordinates(NEGATIVE_WIDTH, HEIGHT)), OBSERVER_SPEED));
 		assertThat(thrown).isInstanceOf(EntityValidationException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.ENTITY_VALIDATION_ERROR_CODE,
-						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH + 1)));
+						String.format(GameExceptionLabels.PLATEAU_NEGATIVE_WIDTH, NEGATIVE_WIDTH + 2)));
 	}
 
 	@Test

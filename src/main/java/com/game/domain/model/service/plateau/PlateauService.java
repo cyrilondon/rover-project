@@ -7,24 +7,21 @@ import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.service.DomainService;
 
 public interface PlateauService extends DomainService {
-
+	
 	/**
-	 * Initializes the plateau in classical referential
-	 * 
-	 * @param coordinates
-	 * @return plateau with classical dimensions
+	 * Add persistence plateau
+	 * @param plateau
 	 */
-	Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates);
+	void addPlateau(Plateau plateau);
 
 	/**
-	 * Initializes the plateau as observed in relativistic referential from an
-	 * observer moving at speed v
+	 * Initializes the plateau
 	 * 
 	 * @param speed       observer speed
 	 * @param coordinates with rest dimensions
 	 * @return plateau with relativistic dimensions
 	 */
-	Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates);
+	Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates, int observerSpeed);
 
 	/**
 	 * Mark the current location as busy

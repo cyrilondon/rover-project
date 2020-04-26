@@ -3,8 +3,6 @@ package com.game.domain.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.testng.annotations.BeforeMethod;
@@ -14,15 +12,14 @@ import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.dimensions.TwoDimensions;
-import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.store.EventStoreImpl;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedWithExceptionEventSubscriber;
@@ -30,9 +27,7 @@ import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedWithExceptionEventSubscriber;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
-import com.game.domain.model.exception.PlateauNotFoundException;
 import com.game.domain.model.service.locator.ServiceLocator;
-import com.game.domain.model.service.plateau.PlateauService;
 import com.game.test.util.BaseUnitTest;
 
 public class GameServiceImplTest extends BaseUnitTest {
@@ -45,13 +40,9 @@ public class GameServiceImplTest extends BaseUnitTest {
 
 	private static final int Y = 4;
 
-	private GameContext gameContext = GameContext.getInstance();
-
 	private GameServiceImpl gameService = new GameServiceImpl();
-
-//	public List<Rover> roversList = new ArrayList<Rover>();
-
-	public Plateau plateau;
+	
+	GameContext context = GameContext.getInstance();
 
 	UUID relativisticUUID = UUID.fromString("53567a5d-a21c-495e-80a3-d12adaf8585c");
 
@@ -79,24 +70,15 @@ public class GameServiceImplTest extends BaseUnitTest {
 				.withOrdinate(HEIGHT).build());
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
-		assertThat(gameContext.getPlateau(uuid)).isEqualTo(plateau);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(2);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(PlateauInitializedEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(PlateauInitializedWithExceptionEventSubscriber.class);
 	}
 
-	@Test
-	public void testInitializeRelativisticPlateau() {
-		UUID uuid  = UUID.randomUUID();
-		gameService.execute(new PlateauInitializeCommand.Builder().withId(uuid).withAbscissa(WIDTH)
-				.withOrdinate(HEIGHT).withObserverSpeed(2 * GameContext.MINIMAL_RELATIVISTIC_SPEED).build());
-		assertThat(plateau.getWidth()).isEqualTo(WIDTH - 2);
-		assertThat(plateau.getHeight()).isEqualTo(HEIGHT - 2);
-		assertThat(gameContext.getPlateau(relativisticUUID)).isNotNull();
-	}
 
 	@Test
 	public void testInitializeRover() {
 		UUID uuid = UUID.randomUUID();
-		gameService.execute(
-				new PlateauInitializeCommand.Builder().withId(uuid).withAbscissa(WIDTH).withOrdinate(HEIGHT).build());
 		TwoDimensionalCoordinates coordinates = new TwoDimensionalCoordinates(X, Y);
 		RoverInitializeCommand initializeCommand = new RoverInitializeCommand.Builder().withPlateauUuid(uuid)
 				.withName(GameContext.ROVER_NAME_PREFIX + 1).withAbscissa(coordinates.getAbscissa())
@@ -134,69 +116,6 @@ public class GameServiceImplTest extends BaseUnitTest {
 		assertThat(thrown).isInstanceOf(PlateauLocationAlreadySetException.class)
 				.hasMessage(String.format(GameExceptionLabels.ERROR_CODE_AND_MESSAGE_PATTERN,
 						GameExceptionLabels.PLATEAU_LOCATION_ERROR_CODE, "Error"));
-
-	}
-
-	/**
-	 * Simple MockClass for the PlateauServiceImpl
-	 *
-	 */
-	private class MockPlateauServiceImpl implements PlateauService {
-
-		Map<TwoDimensionalCoordinates, Boolean> mapLocations = new HashMap<>();
-
-		@Override
-		public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(uuid,
-					new TwoDimensions(
-							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())))
-									.initializeLocations();
-			return GameServiceImplTest.this.plateau;
-		}
-
-		/**
-		 * What ever UUID we pass as argument, if we go through this method we return
-		 * the relativistic UUID back
-		 */
-		@Override
-		public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-			GameServiceImplTest.this.plateau = new Plateau(relativisticUUID,
-					new RelativisticTwoDimensions(speed, new TwoDimensions(
-							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))
-									.initializeLocations();
-			return GameServiceImplTest.this.plateau;
-		}
-
-		@Override
-		public void updatePlateauWithOccupiedLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
-			mapLocations.put(coordinates, Boolean.TRUE);
-		}
-
-		@Override
-		public boolean isLocationBusy(UUID uuid, TwoDimensionalCoordinates coordinates) {
-			return mapLocations.get(coordinates);
-		}
-
-		@Override
-		public void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
-			mapLocations.put(coordinates, Boolean.FALSE);
-		}
-
-		@Override
-		public Plateau loadPlateau(UUID plateauUuid) {
-			if (GameServiceImplTest.this.plateau == null)
-				throw new PlateauNotFoundException(plateauUuid);
-			return GameServiceImplTest.this.plateau;
-		}
-
-		@Override
-		public void updatePlateau(Plateau plateau) {
-		}
-
-		@Override
-		public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
-				TwoDimensionalCoordinates busyLocation) {
-		}
 
 	}
 

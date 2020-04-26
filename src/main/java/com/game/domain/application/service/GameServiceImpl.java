@@ -10,10 +10,11 @@ import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedWithExceptionEventSubscriber;
@@ -50,25 +51,20 @@ public class GameServiceImpl implements GameService {
 	}
 
 	void execute(PlateauInitializeCommand command) {
-		GameContext gameContext = GameContext.getInstance();
-		Plateau plateau = null;
 
-		// if speed not very important initialize a classical Plateau otherwise a
-		// relativistic Plateau
-		if (command.getObserverSpeed() < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
-			plateau = gameContext.getPlateauService().initializePlateau(command.getPlateauUuid(),
-					new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
-		} else {
-			plateau = gameContext.getPlateauService().initializeRelativisticPlateau(command.getPlateauUuid(),
-					command.getObserverSpeed(),
-					new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()));
-		}
-		addPlateauToContext(plateau);
+		// register the subscriber for the given type of event = PlateauInitializedEvent
+		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedEventSubscriber());
+		
+		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedWithExceptionEventSubscriber());
+		
+		GameContext.getInstance().getPlateauService().initializePlateau(command.getPlateauUuid(),
+				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
+				command.getObserverSpeed());
 	}
 
 	void execute(RoverInitializeCommand command) {
 
-		// register the subscriber for the given type of event = RoverMovedEvent
+		// register the subscriber for the given type of event = RoverInitializedEvent
 		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedEventSubscriber());
 
 		// register the subscriber in case of something went wrong during Rover moves
@@ -103,24 +99,12 @@ public class GameServiceImpl implements GameService {
 
 	void execute(RoverTurnCommand command) {
 
-		// register the subscriber for the given type of event = RoverMovedEvent
+		// register the subscriber for the given type of event = RoverTurnedEvent
 		DomainEventPublisherSubscriber.instance().subscribe(new RoverTurnedEventSubscriber());
 
 		// delegates to rover service
 		GameContext.getInstance().getRoverService().turnRover(command.getRoverId(), command.getTurn());
 
-	}
-
-	/**
-	 * Once initialized, we want to keep track of the Plateau as in-memory singleton
-	 * instance during the game lifetime i.e no need to go back to the Plateau
-	 * repository each time it is needed (this in contrary to what happens for the
-	 * rover objects which are fetched each time from the Rover Repository)
-	 * 
-	 * @param plateau
-	 */
-	private void addPlateauToContext(Plateau plateau) {
-		GameContext.getInstance().addPlateau(plateau);
 	}
 
 }

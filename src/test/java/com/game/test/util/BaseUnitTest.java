@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.game.domain.application.context.GameContext;
-import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
@@ -25,6 +24,8 @@ import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.event.rover.RoverInitializedWithExceptionEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedEventSubscriber;
+import com.game.domain.model.event.subscriber.plateau.PlateauInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.exception.IllegalRoverMoveException;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.exception.PlateauNotFoundException;
@@ -80,7 +81,6 @@ public class BaseUnitTest {
 
 		@Override
 		public Rover load(RoverIdentifier id) {
-			//return rovers.get(Integer.valueOf(id.getName().substring(ROVER_NAME.length())) - 1);
 			return rovers.get(0);
 		}
 
@@ -126,6 +126,8 @@ public class BaseUnitTest {
 
 	protected void clearAndSubscribe() {
 		DomainEventPublisherSubscriber.instance().clear();
+		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedEventSubscriber());
+		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedWithExceptionEventSubscriber());
 		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverInitizialiedEventSubscriber());
 		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverInitizialiedWithExceptionEventSubscriber());
 		DomainEventPublisherSubscriber.instance().subscribe(new MockRoverMovedEventSubscriber());
@@ -252,23 +254,10 @@ public class BaseUnitTest {
 		Map<TwoDimensionalCoordinates, Boolean> mapLocations = new HashMap<>();
 
 		@Override
-		public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates) {
+		public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates coordinates, int observerSpeed) {
 			BaseUnitTest.this.plateau = new Plateau(uuid,
 					new TwoDimensions(
 							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate())))
-									.initializeLocations();
-			return BaseUnitTest.this.plateau;
-		}
-
-		/**
-		 * What ever UUID we pass as argument, if we go through this method we return
-		 * the relativistic UUID back
-		 */
-		@Override
-		public Plateau initializeRelativisticPlateau(UUID uuid, int speed, TwoDimensionalCoordinates coordinates) {
-			BaseUnitTest.this.plateau = new Plateau(relativisticUUID,
-					new RelativisticTwoDimensions(speed, new TwoDimensions(
-							new TwoDimensionalCoordinates(coordinates.getAbscissa(), coordinates.getOrdinate()))))
 									.initializeLocations();
 			return BaseUnitTest.this.plateau;
 		}
@@ -302,6 +291,10 @@ public class BaseUnitTest {
 		@Override
 		public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
 				TwoDimensionalCoordinates busyLocation) {
+		}
+
+		@Override
+		public void addPlateau(Plateau plateau) {
 		}
 
 	}

@@ -22,5 +22,10 @@ public class TwoDimensions implements TwoDimensionalSpace {
 	public int getHeight() {
 		return coordinates.getOrdinate();
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Dimensions width [%d] and height [%d]", getWidth(), getHeight());
+	}
 
 }
