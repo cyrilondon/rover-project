@@ -22,7 +22,7 @@ import com.game.domain.model.event.subscriber.rover.RoverTurnedEventSubscriber;
 import com.game.domain.model.service.plateau.PlateauService;
 import com.game.domain.model.service.rover.RoverService;
 
-public class GameIntegrationTest {
+public class GameIntegrationExceptionTest {
 	
 	GameService gameService = GameContext.getInstance().getGameService();
 	
@@ -30,7 +30,7 @@ public class GameIntegrationTest {
 
 	public static void main(String[] args) {	
 		
-		GameIntegrationTest integrationTest = new GameIntegrationTest();
+		GameIntegrationExceptionTest integrationTest = new GameIntegrationExceptionTest();
 		// uncomment one of those lines to see the exception stacktrace
 		try {
 			//integrationTest.simulateRoversCollision();
@@ -94,7 +94,7 @@ public class GameIntegrationTest {
 
 			// rover1 commands
 			// Rover 1 initialization (1,2) and Orientation 'N' 
-			String rover1Name = GameContext.ROVER_NAME_PREFIX;
+			String rover1Name = GameContext.ROVER_NAME_PREFIX +1;
 			commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover1Name)
 					.withAbscissa(1).withOrdinate(1).withOrientation('N').build());
 			RoverIdentifier rover1 = new RoverIdentifier(plateauId, rover1Name);
@@ -107,13 +107,14 @@ public class GameIntegrationTest {
 	
 	//com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Plateau identifiant
 	private void simulateRoverInitialization() {
-		ApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX)
+		ApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX+1)
 				.withAbscissa(1).withOrdinate(2).withOrientation('N').build();
 		gameService.execute(command);
 	}
 	
 	
-	
+	//com.game.domain.model.exception.GameException: [ERR-005] Someone is trying to update the Rover [Rover [ROVER_1] attached to Plateau [957c2446-2ebb-4deb-87fe-d20c532516f5] 
+	//with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [EAST]] and version [3]] at the same time. Please try again.
 	private void simulateConcurrentCommands() {
 		
 		RoverService roverService = GameContext.getInstance().getRoverService();
@@ -146,13 +147,16 @@ public class GameIntegrationTest {
 			DomainEventPublisherSubscriber.instance().subscribe(new RoverTurnedEventSubscriber());
 		    try {
 		    	GameContext.getInstance().addPlateau(plateauService.loadPlateau(roverId1.getPlateauId()));
+		    	// stop thread for 1s
 		        TimeUnit.MILLISECONDS.sleep(1000);
+		        // it will break here as the current Rover version is 0
+		        // whereas the stored Rover has version 2 because of the two instructions which happened lines 163-164
 		        roverNew.turnLeft();
 		        roverNew.move();
 		    } catch (InterruptedException e) {
 		        e.printStackTrace();
 		    }
-		    GameIntegrationTest.printInfos();
+		    GameIntegrationExceptionTest.printInfos();
 		};
 		executorService.execute(runnableTask);
 		

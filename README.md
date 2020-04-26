@@ -95,8 +95,39 @@ RoverTurnedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Nam
 RoverTurnedEvent published at [2020-04-22T08:26:59.481810900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous orientation [Orientation [NORTH]], current orientation [Orientation [EAST]]
 RoverMovedEvent published at [2020-04-22T08:26:59.482806900] with rover id [Name [ROVER_2] - Plateau UUID [1fb95123-8fbf-4da2-979e-6bbca298e1b1]], previous position [Coordinates [abscissa = 4, ordinate = 1]], current position [Coordinates [abscissa = 5, ordinate = 1]]
 PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.482806900] with plateau id [1fb95123-8fbf-4da2-979e-6bbca298e1b1], position released [Coordinates [abscissa = 4, ordinate = 1]], position occupied [Coordinates [abscissa = 5, ordinate = 1]]
-s
+
 ```
+
+Also, you can run the few methods of [GameIntegrationExceptionTest](src/test/java/com/game/integration/GameIntegrationExceptionTest.java) to test the exception scenarii, when for example `Rovers` collide or move out of the `Plateau`. 
+
+As well all know as programmers, edge cases are as much as important as the normal flow in a program.
+
+
+For example, when running the *simulateRoverMovesOutPlateau* method, you should get a [GameException](src/main/java/com/game/domain/model/exception/GameException.java), showing:
+- the details of the `RoverMovedWithExceptionEvent` during which the exception occured
+- along with the root exception `IllegalRoverMoveException`, and its error message `[ERR-004] Rover with Y-position [3] is out of the Plateau with height [2]]`
+
+```java
+com.game.domain.model.exception.GameException: 
+RoverMovedWithExceptionEvent published at [2020-04-26T09:15:51.654] 
+with Rover Moved Event [RoverMovedEvent published at [2020-04-26T09:15:51.650] 
+with rover id [Rover [ROVER_1] attached to Plateau [b2740710-c027-4834-9858-6c4518b0b8be] with version [1]],
+ previous position [Coordinates [abscissa = 1, ordinate = 2]], 
+ current position [Coordinates [abscissa = 1, ordinate = 3]]], 
+ exception [com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [3] is out of the Plateau with height [2]]
+```
+
+Another possible exception to simulate would be to send commands to a Rover concurrently by two end users, which would lead to a [GameException](src/main/java/com/game/domain/model/exception/GameException.java) again, caused by [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) specified by an error code [ERR-005].
+
+```java
+Exception in thread "pool-1-thread-1" com.game.domain.model.exception.GameException:
+ [ERR-005] Someone is trying to update the Rover [Rover [ROVER_1] attached to Plateau [41b6214d-da46-461a-8eae-dbc4c726f09a] 
+ with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [EAST]] and version [3]] 
+ at the same time. Please try again.
+ ..
+ ..
+ Caused by: com.game.domain.model.exception.OptimisticLockingException: [ERR-005] Someone is trying to update the Rover [Rover [ROVER_1] attached to Plateau [41b6214d-da46-461a-8eae-dbc4c726f09a] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [EAST]] and version [3]] at the same time. Please try again.
+ ```
 
 ### Domain Driven Design 
 
@@ -162,26 +193,31 @@ Our domain model includes two `Application Services`
 
 Those services are `stateless` components and are needed every time we need to group various entity methods in a same meaningful business process.
 
-For example, [RoverServiceImpl](src/main/java/com/game/domain/model/service/rover/RoverServiceImpl.java) implements the methods *updateRoverWithPosition* and *updateRoverWithOrientation*, each of them loading, updating and finally saving the Rover. 
+For example, [RoverServiceImpl](src/main/java/com/game/domain/model/service/rover/RoverServiceImpl.java) implements the methods *updateRoverWithPosition* and *updateRoverWithOrientation*, each of them loading, checking its version, updating its position or its orientation and finally saving the Rover. 
 
-Those three distinct Rover's operations together represent an unique operation from a business perspective and thus are exposed as a `Domain Service` method to the `Application Service`.
+Those four distinct Rover's operations together represent an unique operation from a business perspective and thus are exposed as a `Domain Service` method to the `Application Service`.
 
  ```java
 @Override
-	
-	@Override
-	public void updateRoverWithPosition(RoverIdentifier id, TwoDimensionalCoordinates position) {
-		Rover rover = this.getRover(id);
+	public void updateRoverWithPosition(RoverIdentifierDto roverId, TwoDimensionalCoordinates position) {
+		Rover rover = loadAndCheckRover(roverId);
 		rover.setPosition(position);
 		this.updateRover(rover);
 	}
-	
+
 	@Override
-	public void updateRoverWithOrientation(RoverIdentifier id, Orientation orientation) {
-		Rover rover = this.getRover(id);
+	public void updateRoverWithOrientation(RoverIdentifierDto roverId, Orientation orientation) {
+		Rover rover = loadAndCheckRover(roverId);
 		rover.setOrientation(orientation);
 		this.updateRover(rover);
 	}
+	
+	private Rover loadAndCheckRover(RoverIdentifierDto roverId) {
+		Rover rover = this.getRover(roverId.getId());
+		rover.checkAgainstVersion(roverId.getVersion());
+		return rover;
+	}
+
  ```
 ##### Service Locator
 
@@ -1079,14 +1115,32 @@ Then the selected `Subscriber` will be asked to handle the `Event` via the metho
 
 To enforce this process, each subscriber should implement the interface [DomainEventSubscriber](src/main/java/com/game/domain/model/event/DomainEventSubscriber.java).
 
+Assigning an Id is important as if the client send several commands in the same thread, we do not want the same subscriber to be registered several times (even if theoretically the command should be idempotent, the version number checking for optimistic locking would break)
+
 ```java
 
-public interface DomainEventSubscriber<T> {
+public interface DomainEventSubscriber<T,U> {
 
 	public void handleEvent(T event);
 
 	public Class<T> subscribedToEventType();
+	
+	public U getId();
 
+}
+```
+
+The unique ID assignment is done via the abstract class [AbstractDomainEventSubscriber](src/main/java/com/game/domain/model/event/AbstractDomainEventSubscriber.java) which assigns by default the subscriber's class simple name.
+
+```java
+public abstract class AbstractDomainEventSubscriber<T> implements DomainEventSubscriber<T, String> {
+	
+	protected String id = this.getClass().getSimpleName();
+
+	@Override
+	public String getId(){
+		return id;
+	}
 }
 ```
 
@@ -1734,4 +1788,51 @@ RoverMovedEvent published at [2020-04-25T10:44:32.795] with rover id [Name [ROVE
 PlateauSwitchedLocationEvent published at [2020-04-25T10:44:32.795] with plateau id [a85b82a9-cdfd-4388-aa47-376b06920e42], position released [Coordinates [abscissa = 1, ordinate = 4]], position occupied [Coordinates [abscissa = 0, ordinate = 4]]
  ```
  
- To prevent this concurrency issue, we implement the so-called Optimistic Locking pattern, which guards against this kind of concurrency problem.
+ To prevent this concurrency issue, we implement the so-called `Optimistic Locking` pattern, which guards against this kind of concurrency problem without any lock, but by checking possible conflict changes.
+ 
+ We set a **version** attribute to each `Entity`, and this version attribute would be incremented every time a *state-altering* command is executed anywhere inside the Application.
+ 
+More precisely, when for example the `Rover` has just received a `Command` and is ready to publish the corresponding `Domain Event`, we set the rover's current version attribute into the `Event` via the object [RoverIdentifierDto](src/main/java/com/game/domain/model/entity/rover/RoverIdentifierDto.java).
+ 
+For example, when the Rover is publishing a `RoverTurnedEvent`, its roverId property is populated via the rover id and its current version.
+
+ ```java
+
+	public void turnLeft() {
+
+		RoverTurnedEvent event = new RoverTurnedEvent.Builder().withRoverId(new RoverIdentifierDto(getId(), getVersion())).withPreviousOrientation(orientation)
+				.withCurrentOrientation(orientation.turnLeft()).build();
+
+		applyAndPublishEvent(event, turnRover);
+
+	}
+	
+```
+Then when it is time to save the `Rover`, the Rover checks its version attribute against the one persisted in the `Rover Repository` via the method **checkAgainstVersion**. If nobody has changed the `Rover` in the meantime, the version numbers should match
+
+ ```java
+ 
+ public class RoverServiceImpl implements RoverService {
+
+...
+@Override
+	public void updateRoverWithOrientation(RoverIdentifierDto roverId, Orientation orientation) {
+		Rover rover = this.getRover(roverId.getId());
+		rover.checkAgainstVersion(roverId.getVersion());
+		rover.setOrientation(orientation);
+		this.updateRover(rover);
+	}
+...
+```
+If it not the case, then a [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) is thrown to the end user with a specific error message and error code.
+
+ ```java
+
+public void checkAgainstVersion(int currentVersion) {
+		if (currentVersion == this.getVersion()) {
+			this.setVersion(this.getVersion() + 1);
+		} else {
+			throw new GameException(new OptimisticLockingException(String.format(GameExceptionLabels.CONCURRENT_MODIFICATION_ERROR_MESSAGE, this)));
+		}
+	}
+```

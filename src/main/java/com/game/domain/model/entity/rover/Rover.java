@@ -17,7 +17,9 @@ import com.game.domain.model.event.rover.RoverMovedEvent;
 import com.game.domain.model.event.rover.RoverMovedEvent.Builder;
 import com.game.domain.model.event.rover.RoverMovedWithExceptionEvent;
 import com.game.domain.model.event.rover.RoverTurnedEvent;
+import com.game.domain.model.exception.GameException;
 import com.game.domain.model.exception.GameExceptionLabels;
+import com.game.domain.model.exception.OptimisticLockingException;
 import com.game.domain.model.validation.EntityDefaultValidationNotificationHandler;
 import com.game.domain.model.validation.RoverMovedPositionValidationNotificationHandler;
 import com.game.domain.model.validation.ValidationNotificationHandler;
@@ -142,6 +144,14 @@ public class Rover extends IdentifiedPublisherDomainEntity<Rover, RoverIdentifie
 	private Builder buildRoverMovedEvent(TwoDimensionalCoordinates previousPosition) {
 		return new RoverMovedEvent.Builder().withRoverId(new RoverIdentifierDto(getId(), getVersion()))
 				.withPreviousPosition(previousPosition);
+	}
+	
+	public void checkAgainstVersion(int currentVersion) {
+		if (currentVersion == this.getVersion()) {
+			this.setVersion(this.getVersion() + 1);
+		} else {
+			throw new GameException(new OptimisticLockingException(String.format(GameExceptionLabels.CONCURRENT_MODIFICATION_ERROR_MESSAGE, this)));
+		}
 	}
 
 	public TwoDimensionalCoordinates getPosition() {
