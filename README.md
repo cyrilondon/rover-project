@@ -28,7 +28,7 @@ In this exercise, we would like to present a step-by-step process driven by the 
 
 All those practices are implemented manually and do not depend on any built-in framework except for unit testing (you can notice that the only dependencies present in the maven [pom.xml](pom.xml) are [Test NG](https://testng.org/doc/) and [AssertJ](https://assertj.github.io/doc/) for facilitating Unit testing assertions.
 
-Furthemore, in addition to the initial requirements, this implementation offers the following extra-features:
+Furthermore, in addition to the initial requirements, this implementation offers the following extra-features:
 
 - possibility to play on many plateaus at the same time.
 - persistence of current state of all plateaus and attached rovers.
@@ -37,6 +37,7 @@ Furthemore, in addition to the initial requirements, this implementation offers 
 - possibility to send commands from any client (not limited to file parsing).
 - possibility to create a relativistic plateau, i.e. whose dimensions obey Einstein's special relativity rules (more accurate for observers/NASA engineers moving close to speed of light).
 - possibility to send commands in parallel, even for the same rover (concurrency handled by optimistic locking)
+- possibility for the plateau to make the rover move with a step greater than one (default value)
 
 
 ## Quick start
@@ -98,14 +99,14 @@ PlateauSwitchedLocationEvent published at [2020-04-22T08:26:59.482806900] with p
 
 ```
 
-Also, you can run the few methods of [GameIntegrationExceptionTest](src/test/java/com/game/integration/GameIntegrationExceptionTest.java) to test the exception scenarii, when for example `Rovers` collide or move out of the `Plateau`. 
-
 As well all know as programmers, edge cases are as much as important as the normal flow in a program.
+
+That's why you can test as well a few exception scenarii, when for example `Rovers` collide or move out of the `Plateau` by running the different methods of [GameIntegrationExceptionTest](src/test/java/com/game/integration/GameIntegrationExceptionTest.java).
 
 
 For example, when running the *simulateRoverMovesOutPlateau* method, you should get a [GameException](src/main/java/com/game/domain/model/exception/GameException.java), showing:
-- the details of the `RoverMovedWithExceptionEvent` during which the exception occured
-- along with the root exception `IllegalRoverMoveException`, and its error message `[ERR-004] Rover with Y-position [3] is out of the Plateau with height [2]]`
+- the details of the [RoverMovedWithExceptionEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedWithExceptionEvent.java) during which the exception occured
+- along with the root exception [IllegalRoverMoveException](src/main/java/com/game/domain/model/exception/IllegalRoverMoveException.java), and its error message `[ERR-004] Rover with Y-position [3] is out of the Plateau with height [2]]`
 
 ```java
 com.game.domain.model.exception.GameException: 
@@ -117,7 +118,7 @@ with rover id [Rover [ROVER_1] attached to Plateau [b2740710-c027-4834-9858-6c45
  exception [com.game.domain.model.exception.IllegalRoverMoveException: [ERR-004] Rover with Y-position [3] is out of the Plateau with height [2]]
 ```
 
-Another possible exception to simulate would be to send commands to a Rover concurrently by two end users, which would lead to a [GameException](src/main/java/com/game/domain/model/exception/GameException.java) again, caused by [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) specified by an error code [ERR-005].
+Another possible exception to simulate would be to send commands to a `Rover` concurrently by two end users, which would lead to a [GameException](src/main/java/com/game/domain/model/exception/GameException.java) again, caused by [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) specified by an error code `[ERR-005]`.
 
 ```java
 Exception in thread "pool-1-thread-1" com.game.domain.model.exception.GameException:
@@ -128,6 +129,23 @@ Exception in thread "pool-1-thread-1" com.game.domain.model.exception.GameExcept
  ..
  Caused by: com.game.domain.model.exception.OptimisticLockingException: [ERR-005] Someone is trying to update the Rover [Rover [ROVER_1] attached to Plateau [41b6214d-da46-461a-8eae-dbc4c726f09a] with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [EAST]] and version [3]] at the same time. Please try again.
  ```
+ 
+Finally, if you want to have a better understanding of the application, you can go through the following documentation as well, focusing on those different topics:
+
+- Domain-Driven Design
+
+- Hexagonal Architecture
+
+- Event-Driven Architecture
+
+- Test Driven Design
+
+- Validation and Exception Handling
+
+- Concurrency and Optimistic Locking
+
+- Design Patterns
+
 
 ### Domain Driven Design 
 
@@ -1794,7 +1812,7 @@ PlateauSwitchedLocationEvent published at [2020-04-25T10:44:32.795] with plateau
  
 More precisely, when for example the `Rover` has just received a `Command` and is ready to publish the corresponding `Domain Event`, we set the rover's current version attribute into the `Event` via the object [RoverIdentifierDto](src/main/java/com/game/domain/model/entity/rover/RoverIdentifierDto.java).
  
-For example, when the Rover is publishing a `RoverTurnedEvent`, its roverId property is populated via the rover id and its current version.
+For example, when the Rover is publishing a `RoverTurnedEvent`, its `roverId` property is populated via the rover identifier along with its current version.
 
  ```java
 
@@ -1808,7 +1826,7 @@ For example, when the Rover is publishing a `RoverTurnedEvent`, its roverId prop
 	}
 	
 ```
-Then when it is time to save the `Rover`, the Rover checks its version attribute against the one persisted in the `Rover Repository` via the method **checkAgainstVersion**. If nobody has changed the `Rover` in the meantime, the version numbers should match
+Then when it is time to save the `Rover`, the Rover checks its version attribute against the one persisted in the `Rover Repository` via the method *checkAgainstVersion*. If nobody has changed the `Rover` in the meantime, the version numbers should match.
 
  ```java
  
@@ -1824,7 +1842,7 @@ Then when it is time to save the `Rover`, the Rover checks its version attribute
 	}
 ...
 ```
-If it not the case, then a [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) is thrown to the end user with a specific error message and error code.
+If it is not the case, a [OptimisticLockingException](src/main/java/com/game/domain/model/exception/OptimisticLockingException.java) is thrown to the end user with a specific error message and error code.
 
  ```java
 
@@ -1836,3 +1854,140 @@ public void checkAgainstVersion(int currentVersion) {
 		}
 	}
 ```
+
+### Design Patterns
+
+We have used a few Gang of Four design patterns along the way. Below is the non-exhaustive list:
+
+**Visitor**: used by [GameServiceImpl](src/main/java/com/game/domain/application/service/GameServiceImpl.java) when executing a `Command` or `List of Commands`. This helpful to call the right *execute* method without any `instanceof` instructions.
+
+ ```java
+	@Override
+	public void execute(List<ApplicationCommand> commands) {
+		GameServiceCommandVisitor commandVisitor = new GameServiceCommandVisitor(this);
+		commands.forEach(command -> command.acceptVisitor(commandVisitor));
+	}
+```
+
+**Observer**: used by [DomainEventPublisherSubscriber](src/main/java/com/game/domain/model/event/DomainEventPublisherSubscriber.java) to register `Event Subscribers` in the `Application Service` and call their *handleEvent* method once the `Event` is published by the Aggregate.
+
+**Template Method**: used classically (before Java 8) in the [EntityValidator](src/main/java/com/game/domain/model/validation/EntityValidator.java) to specify the successive steps of the validation process (which can not be overridden as marked as `final`), but by allowing for a distinct implementation of step, here *doValidate* by the subclasses.
+
+ ```java
+
+/**
+	 * Example of Template method pattern.
+	 * The overall method process is defined here and can not be overridden as marked as final.
+	 * Subclasses can only override the protected {@link doValidate} method.
+	 * @see https://en.wikipedia.org/wiki/Template_method_pattern
+	 */
+	public final T validate() {
+		doValidate();
+		notificationHandler.checkValidationResult();
+		afterValidate();
+		return entity();
+	}
+	
+	/**
+	 * Method to be overridden by the subclasses
+	 */
+	protected  abstract void doValidate();
+	
+	/**
+	 * Callback after validation if needed
+	 */
+	protected  void afterValidate() {
+		// do nothing by default
+	}
+ ```
+Used as well in a more modern form by using java 8 functions, by example in [EntityBaseDomainEventPublisher](src/main/java/com/game/domain/model/entity/EntityBaseDomainEventPublisher.java), by specifying the order of the functions taken as parameters, but which have to be defined by the caller at runtime.
+
+```java
+
+public class EntityBaseDomainEventPublisher extends BaseDomainEventPublisher {
+
+	public void applyAndPublishEvent(DomainEvent event, Function<DomainEvent, DomainEvent> function,
+			BiFunction<Exception, DomainEvent, DomainEvent> exceptionFunction) {
+		try {
+			function.andThen(publishAndStore).apply(event);
+		} catch (Exception exception) {
+			DomainEvent exceptionEvent = null;
+			try {
+				exceptionEvent = exceptionFunction.apply(exception, event);
+				publishEventFunction.apply(exceptionEvent);
+				// needed as whatever the exceptionFunction is supposed to do
+				// (throwing an exception or not) we want to store the event
+			} finally {
+				eventStoreFunction.apply(exceptionEvent);
+			}
+		}
+	}
+ ```
+ **Strategy**: used by the [EntityValidator](src/main/java/com/game/domain/model/validation/EntityValidator.java) which delegates the validation responsibility to a [ValidationNotificationHandler](src/main/java/com/game/domain/model/validation/ValidationNotificationHandler.java) component, which allows to enable the selection of the validation algorithm at runtime.
+ 
+ ```java
+ public final T validate() {
+		doValidate();
+		notificationHandler.checkValidationResult();
+		afterValidate();
+		return entity();
+	}
+```
+	 
+**Decorator**: used by the [RelativisticTwoDimensions](src/main/java/com/game/domain/model/entity/dimensions/RelativisticTwoDimensions.java) Value Object which decorates a classical Dimensions Value Object at runtime and assigns a different algorithm to calculate the object's width and height (in this case multiplying by the `Lorentz factor`)
+
+```java
+
+public RelativisticTwoDimensions(int speed, TwoDimensions dimensions) {
+		this(dimensions);
+		this.observerSpeed = speed;
+		this.lorentzFactor = calculateLorentzFactor(observerSpeed);
+	}
+
+	private RelativisticTwoDimensions(TwoDimensions dimensions) {
+		this.dimensions = dimensions;
+	}
+	
+	@Override
+	public int getWidth() {
+		return (int)(lorentzFactor * dimensions.getWidth());
+	}
+
+	@Override
+	public int getHeight() {
+		return (int)(lorentzFactor * dimensions.getHeight());
+	}
+
+```
+**Singleton**: used by the [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java) as well as the [GameContext](src/main/java/com/game/domain/application/context/GameContext.java), as only one unique instance is needed for the game. In both cases, eager instantiation has been implemented.
+
+```java
+
+private static GameContext GAME_CONTEXT = new GameContext();
+
+
+	private GameContext() {
+		configure();
+	}
+	
+	public static GameContext getInstance() {
+		return GAME_CONTEXT;
+	}
+
+	/**
+	 * Configure the game with the on-demand implementations
+	 */
+	private void configure() {
+		ServiceLocator locator = new ServiceLocator();
+		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
+		PlateauService plateauService = new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl());
+		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, plateauService);
+		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(plateauService , new InMemoryRoverRepositoryImpl()));
+		locator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
+		ServiceLocator.load(locator);
+	}
+	
+```
+
+**Builder**: Used in many classes as soon as the constructor parameters are ambiguous or too numerous.
+
