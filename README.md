@@ -920,6 +920,9 @@ public class RoverMovedEvent implements DomainEvent {
 	}
 	
 ```
+The below diagrams shows up all the Events published and handled in our application
+
+<img src="src/main/resources/Event_Diagram.png" />
 
 One of the simplest and most effective ways to publish `Domain Events` without coupling to components outside the domain model is to create a lightweight [Observer](https://en.wikipedia.org/wiki/Observer_pattern), or a `Publish/Subscribe`, which is acknowledged as another name for the same pattern. 
 
