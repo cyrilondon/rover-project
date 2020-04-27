@@ -113,8 +113,9 @@ public class GameContext {
 	 * Adding a plateau to the game will initialize the game
 	 *  Rovers are then allowed to be added/initialized as well
 	 */
-	 public void addPlateau(Plateau plateau) {
+	 public Plateau addPlateau(Plateau plateau) {
 		 plateauMap.putIfAbsent(plateau.getId(), ArgumentCheck.preNotNull(plateau, GameExceptionLabels.MISSING_PLATEAU_CONFIGURATION));
+		 return plateau;
 	}
 
 	public void reset() {

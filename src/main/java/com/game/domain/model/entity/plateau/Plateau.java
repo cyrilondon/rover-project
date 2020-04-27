@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.game.core.validation.ArgumentCheck;
-import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.IdentifiedPublisherDomainEntity;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
@@ -39,7 +38,6 @@ public class Plateau extends IdentifiedPublisherDomainEntity<Plateau, UUID> impl
 	
 	public final Function<DomainEvent, DomainEvent> initializePlateau = event -> {
 		validate(new EntityDefaultValidationNotificationHandler());
-		addPlateauToContext();
 		return event;
 	};
 
@@ -116,19 +114,6 @@ public class Plateau extends IdentifiedPublisherDomainEntity<Plateau, UUID> impl
 
 	public int getHeight() {
 		return dimensions.getHeight();
-	}
-	
-
-	/**
-	 * Once initialized, we want to keep track of the Plateau as in-memory singleton
-	 * instance during the game lifetime i.e no need to go back to the Plateau
-	 * repository each time it is needed (this in contrary to what happens for the
-	 * rover objects which are fetched each time from the Rover Repository)
-	 * 
-	 * @param plateau
-	 */
-	private void addPlateauToContext() {
-		GameContext.getInstance().addPlateau(this);
 	}
 
 }

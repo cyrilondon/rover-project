@@ -44,13 +44,12 @@ public class RoverServiceImpl implements RoverService {
 	public void initializeRover(RoverIdentifier id, TwoDimensionalCoordinates coordinates, Orientation orientation) {
 		
 		// load plateau first to check that it is present in the system.
-		Plateau plateau;
+		Plateau plateau = null;
 		try {
-			plateau = plateauService.loadPlateau(id.getPlateauId());
+			plateau = GameContext.getInstance().addPlateau(plateauService.loadPlateau(id.getPlateauId()));
 		} catch (Exception e) {
 			throw new RoverInitializationException(GameExceptionLabels.INITIALIZE_ROVER_NOT_ALLOWED, e);
 		}
-		GameContext.getInstance().addPlateau(plateau);
 		
 		RoverInitializedEvent event = new RoverInitializedEvent.Builder().withRoverId(id).withPosition(coordinates).withOrientation(orientation).build();
 		Rover rover = new Rover(id, coordinates, orientation);
