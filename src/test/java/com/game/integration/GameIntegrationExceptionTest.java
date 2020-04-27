@@ -33,8 +33,9 @@ public class GameIntegrationExceptionTest {
 		GameIntegrationExceptionTest integrationTest = new GameIntegrationExceptionTest();
 		// uncomment one of those lines to see the exception stacktrace
 		try {
+			//integrationTest.simulateWrongRoverInitialization();
+			//integrationTest.simulateInitializeRoverWithSameName();
 			//integrationTest.simulateRoversCollision();
-			//integrationTest.simulateRoverInitialization();
 			//integrationTest.simulateRoverMovesOutPlateau();
 			integrationTest.simulateConcurrentCommands();
 		} catch (Exception e) {
@@ -42,6 +43,40 @@ public class GameIntegrationExceptionTest {
 		}
 		
 		printInfos();
+		
+	}
+	
+	
+	//com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Plateau identifiant
+	private void simulateWrongRoverInitialization() {
+		ApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX+1)
+				.withAbscissa(1).withOrdinate(2).withOrientation('N').build();
+		gameService.execute(command);
+	}
+	
+	
+	//com.game.domain.model.exception.RoverInitializationException: [ERR-001] Rover with same Identifier [Name [ROVER_1]
+	//- Plateau UUID [58797f88-186f-46ca-9c82-a88ed7c106a3]] exists already on the Plateau. Its re-initialization is not allowed
+	private void simulateInitializeRoverWithSameName() {
+		UUID plateauId = UUID.randomUUID();
+		// ********* Given **********
+		// initialization plateau command (5,5)
+		List<ApplicationCommand> commands = new ArrayList<>();
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(5)
+				.withOrdinate(5).build());
+
+		// rover1 commands
+		// Rover 1 initialization (1,2) and Orientation 'N' 
+		String rover1Name = GameContext.ROVER_NAME_PREFIX + 1;
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover1Name)
+				.withAbscissa(1).withOrdinate(2).withOrientation('N').build());
+
+		// rover1 commands
+		// Rover 1 initialization (1,2) and Orientation 'N' 
+		commands.add(new RoverInitializeCommand.Builder().withPlateauUuid(plateauId).withName(rover1Name)
+				.withAbscissa(2).withOrdinate(4).withOrientation('N').build());
+		
+		gameService.execute(commands);
 		
 	}
 
@@ -104,14 +139,6 @@ public class GameIntegrationExceptionTest {
 			gameService.execute(commands);
 		
 		}
-	
-	//com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Plateau identifiant
-	private void simulateRoverInitialization() {
-		ApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX+1)
-				.withAbscissa(1).withOrdinate(2).withOrientation('N').build();
-		gameService.execute(command);
-	}
-	
 	
 	//com.game.domain.model.exception.GameException: [ERR-005] Someone is trying to update the Rover [Rover [ROVER_1] attached to Plateau [957c2446-2ebb-4deb-87fe-d20c532516f5] 
 	//with [Coordinates [abscissa = 1, ordinate = 4]] and [Orientation [EAST]] and version [3]] at the same time. Please try again.

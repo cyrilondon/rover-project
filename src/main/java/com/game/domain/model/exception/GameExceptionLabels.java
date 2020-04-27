@@ -36,6 +36,8 @@ public class GameExceptionLabels {
 	public static final String MISSING_PLATEAU_CONFIGURATION = "Missing Plateau configuration";
 
 	public static final String INITIALIZE_ROVER_NOT_ALLOWED = "It is not allowed to initialize a Rover. Please initialize the Plateau first.";
+	
+	public static final String ROVER_ALREADY_EXISTING = "Rover with same Identifier [%s] exists already on the Plateau. Its re-initialization is not allowed";
 
 	public static final String ENTITY_VALIDATION_ERROR_CODE = "ERR-001";
 

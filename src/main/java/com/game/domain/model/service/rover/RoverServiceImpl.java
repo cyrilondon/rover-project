@@ -51,6 +51,11 @@ public class RoverServiceImpl implements RoverService {
 			throw new RoverInitializationException(GameExceptionLabels.INITIALIZE_ROVER_NOT_ALLOWED, e);
 		}
 		
+		// check if a rover with same name exists already on this plateau
+		if (this.getAllRoversOnPlateau(id.getPlateauId()).stream().anyMatch(rover -> rover.getId().equals(id))) {
+			throw new RoverInitializationException(String.format(GameExceptionLabels.ROVER_ALREADY_EXISTING, id));
+		}
+		
 		RoverInitializedEvent event = new RoverInitializedEvent.Builder().withRoverId(id).withPosition(coordinates).withOrientation(orientation).build();
 		Rover rover = new Rover(id, coordinates, orientation);
 		rover.applyAndPublishEvent(event, rover.initializeRover, rover.initializeRoverWithException);
