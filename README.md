@@ -1964,6 +1964,26 @@ public RelativisticTwoDimensions(int speed, TwoDimensions dimensions) {
 	}
 
 ```
+
+**Factory Method**: used by [PlateauFactory](src/main/java/com/game/domain/model/service/plateau/PlateauFactory.java) to create a classical vs relativistic Plateau
+
+```java
+public static Plateau createPlateau(UUID uuid, TwoDimensionalCoordinates dimensions, int speed) {
+		
+		Plateau plateau = null;
+		if (speed < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
+			plateau = new Plateau(uuid, new TwoDimensions(
+					new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate())));
+		} else {
+			plateau = new Plateau(uuid, new RelativisticTwoDimensions(speed, new TwoDimensions(
+					(new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate())))));
+		}
+		
+		return plateau;
+		
+	}
+```
+
 **Singleton**: used by the [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java) as well as the [GameContext](src/main/java/com/game/domain/application/context/GameContext.java), as only one unique instance is needed for the game. In both cases, eager instantiation has been implemented.
 
 ```java

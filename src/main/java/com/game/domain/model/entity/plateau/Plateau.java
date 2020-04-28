@@ -115,5 +115,9 @@ public class Plateau extends IdentifiedPublisherDomainEntity<Plateau, UUID> impl
 	public int getHeight() {
 		return dimensions.getHeight();
 	}
+	
+	public TwoDimensionalSpace getDimensions() {
+		return dimensions;
+	}
 
 }

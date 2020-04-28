@@ -2,11 +2,7 @@ package com.game.domain.model.service.plateau;
 
 import java.util.UUID;
 
-import com.game.domain.application.context.GameContext;
-import com.game.domain.model.entity.dimensions.RelativisticTwoDimensions;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
-import com.game.domain.model.entity.dimensions.TwoDimensionalSpace;
-import com.game.domain.model.entity.dimensions.TwoDimensions;
 import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.event.plateau.PlateauInitializedEvent;
 import com.game.domain.model.repository.PlateauRepository;
@@ -27,22 +23,10 @@ public class PlateauServiceImpl implements PlateauService {
 	@Override
 	public Plateau initializePlateau(UUID uuid, TwoDimensionalCoordinates dimensions, int speed) {
 		
-		TwoDimensionalSpace eventDimensions = null;
-		
-		Plateau plateau = null;
-		if (speed < GameContext.MINIMAL_RELATIVISTIC_SPEED) {
-			plateau = new Plateau(uuid, new TwoDimensions(
-					new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate())));
-			eventDimensions = new TwoDimensions(new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate()));
-		} else {
-			plateau = new Plateau(uuid, new RelativisticTwoDimensions(speed, new TwoDimensions(
-					(new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate())))));
-			eventDimensions = new RelativisticTwoDimensions(speed, new TwoDimensions(
-					(new TwoDimensionalCoordinates(dimensions.getAbscissa(), dimensions.getOrdinate()))));
-		}
+		Plateau plateau = PlateauFactory.createPlateau(uuid, dimensions, speed);
 		
 		PlateauInitializedEvent event = new PlateauInitializedEvent.Builder().withPlateauId(uuid)
-				.withDimensions(eventDimensions).build();
+				.withDimensions(plateau.getDimensions()).build();
 		
 		plateau.applyAndPublishEvent(event, plateau.initializePlateau, plateau.initializePlateauWithException);
 
