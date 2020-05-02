@@ -15,6 +15,7 @@ import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.application.service.GameService;
 import com.game.domain.model.entity.plateau.Plateau;
+import com.game.resource.plateau.dto.PlateauDto;
 import com.game.resource.plateau.dto.PlateauInitializeCommandDto;
 
 /**
@@ -47,15 +48,17 @@ public class PlateauResource {
 				.withHeight(commandDto.getHeight()).build();
 		
 		gameService.execute(command);
+		
 	}
 	
 	@GET
 	@Path("{uuid}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Plateau getPlateau(@PathParam("uuid") UUID  uuid) {
+	public PlateauDto getPlateau(@PathParam("uuid") UUID  uuid) {
 		
 			PlateauGetCommand command = new PlateauGetCommand(uuid);
-			return gameService.execute(command);
+			Plateau plateau = gameService.execute(command);
+			return new PlateauDto(plateau.getId().toString(), plateau.getWidth(), plateau.getHeight());
 	}
 
 }

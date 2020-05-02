@@ -49,10 +49,17 @@ public class PlateauResourceTest {
 	public void testInitializePlateau() {
 
 		// Preparing json message
-		String UUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
-		String entity = String.format("{\"uuid\": \"%s\", \"width\": 5, \"height\": 5}", UUID);
+		String plateauUUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
+		String entity = String.format("{\"uuid\": \"%s\", \"width\": 5, \"height\": 5}", plateauUUID);
 
+		// rest call to initialize a Plateau with UUID= plateauUUID and width=height=5
 		target.path("v1/plateau/initialize").request().put(Entity.entity(entity, MediaType.APPLICATION_JSON));
+
+		// rest call to get the Plateau with UUID = plateauUUID
+		String response = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(String.class);
+		String expectedResponse = "{\"height\":5,\"uuid\":\"13567a5d-a21c-495e-80a3-d12adaf8585c\",\"width\":5}";
+
+		assertEquals(expectedResponse, response);	
 
 	}
 
