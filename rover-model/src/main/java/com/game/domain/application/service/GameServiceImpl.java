@@ -58,7 +58,7 @@ public class GameServiceImpl implements GameService {
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedWithExceptionEventSubscriber());
 		
 		GameContext.getInstance().getPlateauService().initializePlateau(command.getPlateauUuid(),
-				new TwoDimensionalCoordinates(command.getAbscissa(), command.getOrdinate()),
+				new TwoDimensionalCoordinates(command.getWidth(), command.getHeight()),
 				command.getObserverSpeed());
 	}
 

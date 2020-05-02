@@ -9,14 +9,14 @@ public class PlateauInitializeCommand implements ApplicationCommand {
 
 	private UUID plateauId;
 
-	private int abscissa, ordinate;
+	private int width, height;
 
 	private int observerSpeed;
 
 	private PlateauInitializeCommand(Builder builder) {
 		this.plateauId = builder.plateauId;
-		this.abscissa = builder.abscissa;
-		this.ordinate = builder.ordinate;
+		this.width = builder.abscissa;
+		this.height = builder.ordinate;
 		this.observerSpeed = builder.observerSpeed;
 	}
 
@@ -33,12 +33,12 @@ public class PlateauInitializeCommand implements ApplicationCommand {
 			return this;
 		}
 
-		public Builder withAbscissa(int x) {
+		public Builder withWidth(int x) {
 			this.abscissa = x;
 			return this;
 		}
 
-		public Builder withOrdinate(int y) {
+		public Builder withHeight(int y) {
 			this.ordinate = y;
 			return this;
 		}
@@ -58,12 +58,12 @@ public class PlateauInitializeCommand implements ApplicationCommand {
 		return plateauId;
 	}
 
-	public int getAbscissa() {
-		return abscissa;
+	public int getWidth() {
+		return width;
 	}
 
-	public int getOrdinate() {
-		return ordinate;
+	public int getHeight() {
+		return height;
 	}
 
 	public int getObserverSpeed() {

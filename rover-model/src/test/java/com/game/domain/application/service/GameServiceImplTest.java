@@ -66,8 +66,8 @@ public class GameServiceImplTest extends BaseUnitTest {
 	@Test
 	public void testInitializePlateau() {
 		UUID uuid  = UUID.randomUUID();
-		gameService.execute(new PlateauInitializeCommand.Builder().withId(uuid).withAbscissa(WIDTH)
-				.withOrdinate(HEIGHT).build());
+		gameService.execute(new PlateauInitializeCommand.Builder().withId(uuid).withWidth(WIDTH)
+				.withHeight(HEIGHT).build());
 		assertThat(plateau.getWidth()).isEqualTo(WIDTH);
 		assertThat(plateau.getHeight()).isEqualTo(HEIGHT);
 		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(2);

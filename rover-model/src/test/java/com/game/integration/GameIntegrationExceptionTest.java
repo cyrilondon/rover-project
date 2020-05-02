@@ -62,8 +62,8 @@ public class GameIntegrationExceptionTest {
 		// ********* Given **********
 		// initialization plateau command (5,5)
 		List<ApplicationCommand> commands = new ArrayList<>();
-		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(5)
-				.withOrdinate(5).build());
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
+				.withHeight(5).build());
 
 		// rover1 commands
 		// Rover 1 initialization (1,2) and Orientation 'N' 
@@ -90,8 +90,8 @@ public class GameIntegrationExceptionTest {
 		// ********* Given **********
 		// initialization plateau command (5,5)
 		List<ApplicationCommand> commands = new ArrayList<>();
-		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(5)
-				.withOrdinate(5).build());
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
+				.withHeight(5).build());
 
 		// rover1 commands
 		// Rover 1 initialization (1,2) and Orientation 'N' 
@@ -124,8 +124,8 @@ public class GameIntegrationExceptionTest {
 			// ********* Given **********
 			// initialization plateau command (2,2)
 			List<ApplicationCommand> commands = new ArrayList<>();
-			commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(2)
-					.withOrdinate(2).build());
+			commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(2)
+					.withHeight(2).build());
 
 			// rover1 commands
 			// Rover 1 initialization (1,2) and Orientation 'N' 
@@ -152,8 +152,8 @@ public class GameIntegrationExceptionTest {
 		// ********* Given **********
 		// initialization plateau command (5,5)
 		List<ApplicationCommand> commands = new ArrayList<>();
-		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withAbscissa(5)
-				.withOrdinate(5).build());
+		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
+				.withHeight(5).build());
 
 		// rover1 commands
 		// Rover 1 initialization (1,2) and Orientation 'N' 

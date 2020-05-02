@@ -14,10 +14,10 @@ public class PlateauInitializeCommandTest {
 	public void testBuilder() {
 		int x = 3, y = 4;
 		UUID uuid = UUID.randomUUID();
-		PlateauInitializeCommand command = new PlateauInitializeCommand.Builder().withId(uuid).withAbscissa(x)
-				.withOrdinate(y).build();
-		assertThat(command.getAbscissa()).isEqualTo(x);
-		assertThat(command.getOrdinate()).isEqualTo(y);
+		PlateauInitializeCommand command = new PlateauInitializeCommand.Builder().withId(uuid).withWidth(x)
+				.withHeight(y).build();
+		assertThat(command.getWidth()).isEqualTo(x);
+		assertThat(command.getHeight()).isEqualTo(y);
 		assertThat(command.getPlateauUuid()).isEqualTo(uuid);
 	}
 
