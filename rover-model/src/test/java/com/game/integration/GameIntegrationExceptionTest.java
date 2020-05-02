@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
@@ -49,7 +50,7 @@ public class GameIntegrationExceptionTest {
 	
 	//com.game.domain.model.exception.IllegalArgumentGameException: [ERR-000] Broken precondition: Missing Plateau identifiant
 	private void simulateWrongRoverInitialization() {
-		ApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX+1)
+		VoidApplicationCommand command = new RoverInitializeCommand.Builder().withName(GameContext.ROVER_NAME_PREFIX+1)
 				.withAbscissa(1).withOrdinate(2).withOrientation('N').build();
 		gameService.execute(command);
 	}
@@ -61,7 +62,7 @@ public class GameIntegrationExceptionTest {
 		UUID plateauId = UUID.randomUUID();
 		// ********* Given **********
 		// initialization plateau command (5,5)
-		List<ApplicationCommand> commands = new ArrayList<>();
+		List<VoidApplicationCommand> commands = new ArrayList<>();
 		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
 				.withHeight(5).build());
 
@@ -89,7 +90,7 @@ public class GameIntegrationExceptionTest {
 		UUID plateauId = UUID.randomUUID();
 		// ********* Given **********
 		// initialization plateau command (5,5)
-		List<ApplicationCommand> commands = new ArrayList<>();
+		List<VoidApplicationCommand> commands = new ArrayList<>();
 		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
 				.withHeight(5).build());
 
@@ -123,7 +124,7 @@ public class GameIntegrationExceptionTest {
 			UUID plateauId = UUID.randomUUID();
 			// ********* Given **********
 			// initialization plateau command (2,2)
-			List<ApplicationCommand> commands = new ArrayList<>();
+			List<VoidApplicationCommand> commands = new ArrayList<>();
 			commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(2)
 					.withHeight(2).build());
 
@@ -151,7 +152,7 @@ public class GameIntegrationExceptionTest {
 		UUID plateauId = UUID.randomUUID();
 		// ********* Given **********
 		// initialization plateau command (5,5)
-		List<ApplicationCommand> commands = new ArrayList<>();
+		List<VoidApplicationCommand> commands = new ArrayList<>();
 		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
 				.withHeight(5).build());
 

@@ -6,12 +6,15 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.game.domain.application.command.plateau.PlateauGetCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.application.service.GameService;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.resource.plateau.dto.PlateauInitializeCommandDto;
 
 /**
@@ -31,7 +34,7 @@ public class PlateauResource {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getIt() {
-		return "Got a Plateau!";
+		return "Got Plateau Resource!";
 	}
 
 	@PUT
@@ -44,6 +47,15 @@ public class PlateauResource {
 				.withHeight(commandDto.getHeight()).build();
 		
 		gameService.execute(command);
+	}
+	
+	@GET
+	@Path("{uuid}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Plateau getPlateau(@PathParam("uuid") UUID  uuid) {
+		
+			PlateauGetCommand command = new PlateauGetCommand(uuid);
+			return gameService.execute(command);
 	}
 
 }

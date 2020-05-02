@@ -2,10 +2,10 @@ package com.game.domain.application.command.plateau;
 
 import java.util.UUID;
 
-import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.service.GameServiceCommandVisitor;
 
-public class PlateauInitializeCommand implements ApplicationCommand {
+public class PlateauInitializeCommand implements VoidApplicationCommand {
 
 	private UUID plateauId;
 
@@ -71,8 +71,9 @@ public class PlateauInitializeCommand implements ApplicationCommand {
 	}
 
 	@Override
-	public void acceptVisitor(GameServiceCommandVisitor visitor) {
+	public Void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
+		return null;
 	}
 
 }

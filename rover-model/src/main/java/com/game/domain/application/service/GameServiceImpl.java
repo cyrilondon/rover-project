@@ -4,12 +4,16 @@ import java.util.Collections;
 import java.util.List;
 
 import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.ReturnApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
+import com.game.domain.application.command.plateau.PlateauGetCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
+import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
@@ -38,16 +42,22 @@ import com.game.domain.model.service.rover.RoverServiceImpl;
  * </ol>
  */
 public class GameServiceImpl implements GameService {
-
+	
 	@Override
-	public void execute(List<ApplicationCommand> commands) {
+	public void execute(List<VoidApplicationCommand> commands) {
 		GameServiceCommandVisitor commandVisitor = new GameServiceCommandVisitor(this);
-		commands.forEach(command -> command.acceptVisitor(commandVisitor));
+        commands.forEach(command -> command.acceptVisitor(commandVisitor));		
 	}
 
 	@Override
-	public void execute(ApplicationCommand command) {
+	public void execute(VoidApplicationCommand command) {
 		this.execute(Collections.singletonList(command));
+	}
+
+	@Override
+	public <T> T execute(ReturnApplicationCommand<T> command) {
+		GameServiceCommandVisitor commandVisitor = new GameServiceCommandVisitor(this);
+		return command.acceptVisitor(commandVisitor);
 	}
 
 	void execute(PlateauInitializeCommand command) {
@@ -106,5 +116,12 @@ public class GameServiceImpl implements GameService {
 		GameContext.getInstance().getRoverService().turnRover(command.getRoverId(), command.getTurn());
 
 	}
+	
+	Plateau execute(PlateauGetCommand command) {
+
+		// delegates to plateau service
+		return GameContext.getInstance().getPlateauService().loadPlateau(command.getId());
+
+	}	
 
 }

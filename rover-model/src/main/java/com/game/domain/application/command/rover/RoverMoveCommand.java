@@ -1,6 +1,6 @@
 package com.game.domain.application.command.rover;
 
-import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.service.GameServiceCommandVisitor;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 
@@ -9,7 +9,7 @@ import com.game.domain.model.entity.rover.RoverIdentifier;
  * by a certain number of moves
  *
  */
-public class RoverMoveCommand implements ApplicationCommand {
+public class RoverMoveCommand implements VoidApplicationCommand {
 
 	private RoverIdentifier roverId;
 	
@@ -29,8 +29,9 @@ public class RoverMoveCommand implements ApplicationCommand {
 	}
 
 	@Override
-	public void acceptVisitor(GameServiceCommandVisitor visitor) {
+	public Void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
+		return null;
 	}
 	
 }

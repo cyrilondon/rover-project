@@ -2,7 +2,8 @@ package com.game.domain.application.service;
 
 import java.util.List;
 
-import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.ReturnApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 
 /**
  * "Primary" port interface as described by Alistair CockBurn in his original
@@ -14,15 +15,21 @@ import com.game.domain.application.command.ApplicationCommand;
 public interface GameService extends ApplicationService {
 	
 	/**
-	 * Execute a list of commands
+	 * Execute a list of void commands (insert/update/delete)
 	 * @param commands
 	 */
-	void execute(List<ApplicationCommand> commands);
+	void execute(List<VoidApplicationCommand> commands);
 	
 	/**
-	 * Execute a single command
+	 * Execute a single void command (insert/update/delete)
 	 * @param command
 	 */
-	void execute(ApplicationCommand command);
+	void execute(VoidApplicationCommand command);
+	
+	/**
+	 * Execute a single return command
+	 * @param command
+	 */
+	 <T> T execute(ReturnApplicationCommand<T> command);
 
 }

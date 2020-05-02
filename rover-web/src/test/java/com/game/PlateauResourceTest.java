@@ -42,14 +42,14 @@ public class PlateauResourceTest {
 	@Test
 	public void testGetIt() {
 		String responseMsg = target.path("plateau").request().get(String.class);
-		assertEquals("Got a Plateau!", responseMsg);
+		assertEquals("Got Plateau Resource!", responseMsg);
 	}
 
 	@Test
 	public void testInitializePlateau() {
 
 		// Preparing json message
-		String UUID = "53567a5d-a21c-495e-80a3-d12adaf8585c";
+		String UUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
 		String entity = String.format("{\"uuid\": \"%s\", \"width\": 5, \"height\": 5}", UUID);
 
 		target.path("v1/plateau/initialize").request().put(Entity.entity(entity, MediaType.APPLICATION_JSON));

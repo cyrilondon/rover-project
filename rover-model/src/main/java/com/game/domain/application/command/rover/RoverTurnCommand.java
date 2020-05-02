@@ -1,11 +1,11 @@
 package com.game.domain.application.command.rover;
 
-import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.service.GameServiceCommandVisitor;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 
-public class RoverTurnCommand implements ApplicationCommand  {
+public class RoverTurnCommand implements VoidApplicationCommand  {
 	
 	RoverTurnInstruction turn;
 	
@@ -25,8 +25,9 @@ public class RoverTurnCommand implements ApplicationCommand  {
 	}
 
 	@Override
-	public void acceptVisitor(GameServiceCommandVisitor visitor) {
+	public Void acceptVisitor(GameServiceCommandVisitor visitor) {
 		visitor.visit(this);
+		return null;
 	}
 
 }

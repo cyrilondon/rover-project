@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.game.domain.application.command.ApplicationCommand;
+import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
@@ -36,12 +36,12 @@ public class GameFileAdapter {
 	 * @param file
 	 * @return
 	 */
-	private List<ApplicationCommand> getCommandsFromFile(File file) {
+	private List<VoidApplicationCommand> getCommandsFromFile(File file) {
 		
 		UUID plateauId = UUID.randomUUID();
 		// ********* Given **********
 		// initialization plateau command (5,5)
-		List<ApplicationCommand> commands = new ArrayList<>();
+		List<VoidApplicationCommand> commands = new ArrayList<>();
 		commands.add(new PlateauInitializeCommand.Builder().withObserverSpeed(0).withId(plateauId).withWidth(5)
 				.withHeight(5).build());
 
