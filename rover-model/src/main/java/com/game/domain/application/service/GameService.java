@@ -7,7 +7,7 @@ import com.game.domain.application.command.VoidApplicationCommand;
 
 /**
  * "Primary" port interface as described by Alistair CockBurn in his original
- * paper, i.e. port on the right side of the hexagon.
+ * paper, i.e. port on the left side of the hexagon.
  * https://alistair.cockburn.us/hexagonal-architecture/ 
  * The application client will interact with this interface only
  *

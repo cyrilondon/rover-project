@@ -1,15 +1,18 @@
 package com.game.resource.plateau;
 
+import java.net.URI;
 import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import com.game.Main;
 import com.game.domain.application.command.plateau.PlateauGetCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
 import com.game.domain.application.context.GameContext;
@@ -38,16 +41,22 @@ public class PlateauResource {
 		return "Got Plateau Resource!";
 	}
 
-	@PUT
+	@POST
 	@Path("/initialize")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void initializePlateau(PlateauInitializeCommandDto commandDto) {
+	public Response initializePlateau(PlateauInitializeCommandDto commandDto) {
 
+		// map the client Dto command to application command PlateauInitializeCommand 
 		PlateauInitializeCommand command = new PlateauInitializeCommand.Builder()
 				.withId(UUID.fromString(commandDto.getUuid())).withWidth(commandDto.getWidth())
 				.withHeight(commandDto.getHeight()).build();
 		
+		// call the Application Primary Port for creation/initialization
 		gameService.execute(command);
+		
+		// return the Response with status 201 = created + location header with UUID of the created resource/plateau
+		URI createdUri = URI.create(Main.BASE_URI + "v1/plateau/" + commandDto.getUuid());
+		return Response.created(createdUri).build();
 		
 	}
 	
@@ -58,6 +67,7 @@ public class PlateauResource {
 		
 			PlateauGetCommand command = new PlateauGetCommand(uuid);
 			Plateau plateau = gameService.execute(command);
+			
 			return new PlateauDto(plateau.getId().toString(), plateau.getWidth(), plateau.getHeight());
 	}
 

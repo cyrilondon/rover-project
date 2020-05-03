@@ -5,6 +5,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
@@ -34,13 +35,13 @@ public class BaseUnitTest {
 		server.shutdown();
 	}
 	
-	protected void initializePlateau(String UUID) {
+	protected Response initializePlateau(String UUID) {
 		// Preparing json message
 	
 		String entity = String.format("{\"uuid\": \"%s\", \"width\": 5, \"height\": 5}", UUID);
 
 		// rest call to initialize a Plateau with UUID= plateauUUID and width=height=5
-		target.path("v1/plateau/initialize").request().put(Entity.entity(entity, MediaType.APPLICATION_JSON));
+		return target.path("v1/plateau/initialize").request().post(Entity.entity(entity, MediaType.APPLICATION_JSON));
 	}
 
 
