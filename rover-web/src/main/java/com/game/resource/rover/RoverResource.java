@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,12 +16,15 @@ import javax.ws.rs.core.Response;
 import com.game.Main;
 import com.game.domain.application.command.rover.RoverGetCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
+import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.application.service.GameService;
 import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
+import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.resource.rover.dto.RoverDto;
 import com.game.resource.rover.dto.RoverInitializeCommandDto;
+import com.game.resource.rover.dto.RoverTurnCommandDto;
 
 /**
  * Root resource (exposed at "v1/rover" path)
@@ -47,7 +51,7 @@ public class RoverResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response initializeRover(RoverInitializeCommandDto commandDto) {
 
-		// map the client Dto command to application command PlateauInitializeCommand 
+		// map the client Dto command to application command RoverInitializeCommand 
 		RoverInitializeCommand command = new RoverInitializeCommand.Builder()
 				.withPlateauUuid(commandDto.getPlateauUuid()).withName(commandDto.getName())
 				.withAbscissa(commandDto.getAbscissa()).withOrdinate(commandDto.getOrdinate())
@@ -63,7 +67,22 @@ public class RoverResource {
 		return Response.created(createdUri).build();
 
 	}
+	
+	@PUT
+	@Path("/turn")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void turnRover(RoverTurnCommandDto commandDto) {
 
+		// map the client Dto command to application command RoverTurnCommand 
+		RoverIdentifier roverId = new RoverIdentifier(commandDto.getPlateauUuid(), commandDto.getName());
+		RoverTurnInstruction turnInstruction = RoverTurnInstruction.get(commandDto.getTurn());
+		RoverTurnCommand command = new RoverTurnCommand(roverId, turnInstruction);
+
+		// call the Application Primary Port for creation/initialization
+		gameService.execute(command);
+
+	}
+	
 	@GET
 	@Path("{name}/{plateauId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -75,5 +94,5 @@ public class RoverResource {
 		return new RoverDto(rover.getId().getName(), rover.getId().getPlateauId().toString(),
 				rover.getOrientation().getValue(), rover.getXPosition(), rover.getYPosition());
 	}
-
+	
 }

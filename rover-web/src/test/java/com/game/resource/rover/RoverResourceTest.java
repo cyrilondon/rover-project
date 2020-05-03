@@ -48,14 +48,24 @@ public class RoverResourceTest extends BaseUnitTest {
 		// check the Response status = 201 for newly created Resource
 		assertEquals(201, response.getStatus());
 		// check the Location URI response header
-		//http://localhost:8080/game/v1/rover/ROVER_TEST/13567a5e-a21c-495e-80a3-d12adaf8585c
-		assertEquals(response.getHeaderString(HttpHeaders.LOCATION),
-				new StringBuilder(Main.BASE_URI).append("v1/rover/").append(roverName).append("/").append(plateauUUID).toString());
+		// http://localhost:8080/game/v1/rover/ROVER_TEST/13567a5e-a21c-495e-80a3-d12adaf8585c
+		assertEquals(response.getHeaderString(HttpHeaders.LOCATION), new StringBuilder(Main.BASE_URI)
+				.append("v1/rover/").append(roverName).append("/").append(plateauUUID).toString());
+		
 
-		// rest call to get the Plateau with UUID = plateauUUID
+		// MAke the rover turn with L command
+		String turnEntity = String.format("{\"plateauUuid\": \"%s\", \"name\": \"%s\", \"turn\": \"%s\"}", plateauUUID,
+				roverName, "L");
+		Response responseTurn = target.path("v1/rover/turn").request()
+				.put(Entity.entity(turnEntity, MediaType.APPLICATION_JSON));
+		assertEquals(204, responseTurn.getStatus());
+		
+
+		// rest call to get the Rover with RoverName=ROVER_TEST and UUID = plateauUUID
+		// with check that the Rover has orientation W because of the previous L command
 		String getResponse = target.path(String.format("v1/rover/%s/%s", roverName, plateauUUID)).request()
 				.get(String.class);
-		String expectedResponse = "{\"abscissa\":2,\"name\":\"ROVER_TEST\",\"ordinate\":3,\"orientation\":\"N\",\"plateauUuid\":\"13567a5e-a21c-495e-80a3-d12adaf8585c\"}";
+		String expectedResponse = "{\"abscissa\":2,\"name\":\"ROVER_TEST\",\"ordinate\":3,\"orientation\":\"W\",\"plateauUuid\":\"13567a5e-a21c-495e-80a3-d12adaf8585c\"}";
 
 		assertEquals(expectedResponse, getResponse);
 
