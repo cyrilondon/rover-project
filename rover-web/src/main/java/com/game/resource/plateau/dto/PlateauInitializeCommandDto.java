@@ -1,8 +1,5 @@
 package com.game.resource.plateau.dto;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class PlateauInitializeCommandDto {
 	
 	String uuid;

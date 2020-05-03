@@ -1,5 +1,10 @@
 package com.game.resource.plateau.dto;
 
+/**
+ * Plateau DTO sent back to the user.
+ * We use a DTO as we do NOT want the Model to 'leak' to the outside world
+ *
+ */
 public class PlateauDto {
 
 	String uuid;

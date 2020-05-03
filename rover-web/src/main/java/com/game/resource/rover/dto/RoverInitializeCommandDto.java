@@ -2,9 +2,6 @@ package com.game.resource.rover.dto;
 
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class RoverInitializeCommandDto {
 	
 	public RoverInitializeCommandDto() {}
