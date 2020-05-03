@@ -45,7 +45,7 @@ public interface PlateauService extends DomainService {
 	 * @param plateauUuid
 	 * @return
 	 */
-	Plateau loadPlateau(UUID plateauUuid);
+	Plateau getPlateau(UUID plateauUuid);
 
 	void updatePlateau(Plateau plateau);
 

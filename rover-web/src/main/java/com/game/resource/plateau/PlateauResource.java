@@ -19,7 +19,7 @@ import com.game.resource.plateau.dto.PlateauDto;
 import com.game.resource.plateau.dto.PlateauInitializeCommandDto;
 
 /**
- * Root resource (exposed at "plateau" path)
+ * Root resource (exposed at "v1/plateau" path)
  */
 @Path("v1/plateau")
 public class PlateauResource {
@@ -52,9 +52,9 @@ public class PlateauResource {
 	}
 	
 	@GET
-	@Path("{uuid}")
+	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public PlateauDto getPlateau(@PathParam("uuid") UUID  uuid) {
+	public PlateauDto getPlateau(@PathParam("id") UUID  uuid) {
 		
 			PlateauGetCommand command = new PlateauGetCommand(uuid);
 			Plateau plateau = gameService.execute(command);

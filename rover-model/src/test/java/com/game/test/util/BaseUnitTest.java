@@ -278,7 +278,7 @@ public class BaseUnitTest {
 		}
 
 		@Override
-		public Plateau loadPlateau(UUID plateauUuid) {
+		public Plateau getPlateau(UUID plateauUuid) {
 			if (BaseUnitTest.this.plateau == null)
 				throw new PlateauNotFoundException(plateauUuid);
 			return BaseUnitTest.this.plateau;

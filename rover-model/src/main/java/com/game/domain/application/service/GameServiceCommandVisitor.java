@@ -2,10 +2,12 @@ package com.game.domain.application.service;
 
 import com.game.domain.application.command.plateau.PlateauGetCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
+import com.game.domain.application.command.rover.RoverGetCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.model.entity.plateau.Plateau;
+import com.game.domain.model.entity.rover.Rover;
 
 public class GameServiceCommandVisitor {
 	
@@ -33,6 +35,10 @@ public class GameServiceCommandVisitor {
 	
 	public void visit(RoverTurnCommand command) {
 		gameService.execute(command);
+	}
+
+	public Rover visit(RoverGetCommand roverGetCommand) {
+		return gameService.execute(roverGetCommand);
 	}
 
 }

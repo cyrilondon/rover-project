@@ -3,11 +3,11 @@ package com.game.domain.application.service;
 import java.util.Collections;
 import java.util.List;
 
-import com.game.domain.application.command.ApplicationCommand;
 import com.game.domain.application.command.ReturnApplicationCommand;
 import com.game.domain.application.command.VoidApplicationCommand;
 import com.game.domain.application.command.plateau.PlateauGetCommand;
 import com.game.domain.application.command.plateau.PlateauInitializeCommand;
+import com.game.domain.application.command.rover.RoverGetCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
 import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
@@ -15,6 +15,7 @@ import com.game.domain.application.context.GameContext;
 import com.game.domain.model.entity.dimensions.TwoDimensionalCoordinates;
 import com.game.domain.model.entity.plateau.Plateau;
 import com.game.domain.model.entity.rover.Orientation;
+import com.game.domain.model.entity.rover.Rover;
 import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauInitializedEventSubscriber;
@@ -118,10 +119,14 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	Plateau execute(PlateauGetCommand command) {
-
 		// delegates to plateau service
-		return GameContext.getInstance().getPlateauService().loadPlateau(command.getId());
-
+		return GameContext.getInstance().getPlateauService().getPlateau(command.getId());
 	}	
+	
+	
+	Rover execute(RoverGetCommand command) {
+		// delegates to plateau service
+		return GameContext.getInstance().getRoverService().getRover(command.getRoverIdentifier());
+	}
 
 }

@@ -31,7 +31,7 @@ public class RoverServiceImpl implements RoverService {
 	private RoverRepository roverRepository;
 	
 	public final Function<RoverIdentifier, Void> addPlateauToContext = id -> {
-		GameContext.getInstance().addPlateau(plateauService.loadPlateau(id.getPlateauId()));
+		GameContext.getInstance().addPlateau(plateauService.getPlateau(id.getPlateauId()));
 		return null;
 	};
 
@@ -46,7 +46,7 @@ public class RoverServiceImpl implements RoverService {
 		// load plateau first to check that it is present in the system.
 		Plateau plateau = null;
 		try {
-			plateau = GameContext.getInstance().addPlateau(plateauService.loadPlateau(id.getPlateauId()));
+			plateau = GameContext.getInstance().addPlateau(plateauService.getPlateau(id.getPlateauId()));
 		} catch (Exception e) {
 			throw new RoverInitializationException(GameExceptionLabels.INITIALIZE_ROVER_NOT_ALLOWED, e);
 		}

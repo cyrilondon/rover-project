@@ -13,7 +13,7 @@ public class RoverInitializedEventSubscriber extends AbstractDomainEventSubscrib
 	public void handleEvent(RoverInitializedEvent event) {
 
 		// 1. loads the Plateau
-		GameContext.getInstance().getPlateauService().loadPlateau(event.getRoverId().getPlateauId());
+		GameContext.getInstance().getPlateauService().getPlateau(event.getRoverId().getPlateauId());
 
 		GameContext.getInstance().getRoverService().getRoverRepository()
 				.add(new Rover(event.getRoverId(), event.getPosition(),

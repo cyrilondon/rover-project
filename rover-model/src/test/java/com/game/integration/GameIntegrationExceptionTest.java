@@ -174,7 +174,7 @@ public class GameIntegrationExceptionTest {
 			// register the subscriber for the given type of event = RoverMovedEvent as we dont go through GameService
 			DomainEventPublisherSubscriber.instance().subscribe(new RoverTurnedEventSubscriber());
 		    try {
-		    	GameContext.getInstance().addPlateau(plateauService.loadPlateau(roverId1.getPlateauId()));
+		    	GameContext.getInstance().addPlateau(plateauService.getPlateau(roverId1.getPlateauId()));
 		    	// stop thread for 1s
 		        TimeUnit.MILLISECONDS.sleep(1000);
 		        // it will break here as the current Rover version is 0

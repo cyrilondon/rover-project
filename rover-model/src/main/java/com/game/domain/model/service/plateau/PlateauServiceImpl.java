@@ -39,7 +39,7 @@ public class PlateauServiceImpl implements PlateauService {
 	}
 
 	@Override
-	public Plateau loadPlateau(UUID plateauUuid) {
+	public Plateau getPlateau(UUID plateauUuid) {
 		return plateauRepository.load(plateauUuid);
 	}
 
@@ -55,14 +55,14 @@ public class PlateauServiceImpl implements PlateauService {
 
 	@Override
 	public void updatePlateauWithFreeLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = this.loadPlateau(uuid);
+		Plateau plateau = this.getPlateau(uuid);
 		plateau.setLocationFree(coordinates);
 		this.updatePlateau(plateau);
 	}
 
 	@Override
 	public void updatePlateauWithOccupiedLocation(UUID uuid, TwoDimensionalCoordinates coordinates) {
-		Plateau plateau = this.loadPlateau(uuid);
+		Plateau plateau = this.getPlateau(uuid);
 		plateau.setLocationOccupied(coordinates);
 		this.updatePlateau(plateau);
 	}
@@ -70,7 +70,7 @@ public class PlateauServiceImpl implements PlateauService {
 	@Override
 	public void updatePlateauWithLocations(UUID plateauUUID, TwoDimensionalCoordinates freeLocation,
 			TwoDimensionalCoordinates busyLocation) {
-		Plateau plateau = this.loadPlateau(plateauUUID);
+		Plateau plateau = this.getPlateau(plateauUUID);
 		plateau.setLocationFree(freeLocation);
 		plateau.setLocationOccupied(busyLocation);
 		this.updatePlateau(plateau);
