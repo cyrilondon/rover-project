@@ -13,11 +13,11 @@ import org.junit.After;
 import org.junit.Before;
 
 public class BaseUnitTest {
-	
+
 	protected HttpServer server;
-	
+
 	protected WebTarget target;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		// start the server
@@ -34,15 +34,18 @@ public class BaseUnitTest {
 	public void tearDown() throws Exception {
 		server.shutdown();
 	}
-	
+
 	protected Response initializePlateau(String UUID) {
+		return initializePlateau(UUID, 5, 5);
+	}
+
+	protected Response initializePlateau(String UUID, int width, int height) {
+		
 		// Preparing json message
-	
-		String entity = String.format("{\"uuid\": \"%s\", \"width\": 5, \"height\": 5}", UUID);
+		String entity = String.format("{\"uuid\": \"%s\", \"width\": %d, \"height\": %d}", UUID, width, height);
 
 		// rest call to initialize a Plateau with UUID= plateauUUID and width=height=5
 		return target.path("v1/plateau/initialize").request().post(Entity.entity(entity, MediaType.APPLICATION_JSON));
 	}
-
 
 }

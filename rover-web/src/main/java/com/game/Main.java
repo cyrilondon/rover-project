@@ -22,7 +22,7 @@ public class Main {
     public static HttpServer startServer() {
         // create a resource config that scans for JAX-RS resources and providers
         // in com.game package
-        final ResourceConfig rc = new ResourceConfig().packages("com.game.resource");
+        final ResourceConfig rc = new ResourceConfig().packages("com.game.resource", "com.game.exception");
 
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI

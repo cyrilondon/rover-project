@@ -172,7 +172,7 @@ Three things important to note here:
 
 ```java
 @POST
-@Path("/initialize")
+@Path("initialize")
 @Consumes(MediaType.APPLICATION_JSON)
 public Response initializePlateau(PlateauInitializeCommandDto commandDto) {
 
@@ -309,7 +309,7 @@ Let us execute the corresponding Curl command, by filling the required `Rover Na
 curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST53567a5d-a21c-495e-80a3-d12adaf8585c
 ```
 
-We get the expected Rover instance in Json format
+We get the expected [RoverDto](src/main/java/com/game/resource/rover/dto/RoverDto.java) instance in `Json` format
 
 ```java
 C:\Users\cyril>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c
@@ -333,7 +333,74 @@ C:\Users\cyril>curl -v  GET -H "Content-Type: application/json" http://localhost
 * Connection #1 to host localhost left intact
 ```
 
+## Exception Handling
 
+A RESTful API service may throw exception in many cases.
 
+It’s important to handle them properly, so that we can provide a right HTTP response to the client, in particular a right status code (4xx or 5xx errors) and a correct entity.
 
+Before talking about exception mapper, we first need to understand the concept of provider. Providers in JAX-RS are responsible for various cross-cutting concerns such as filtering requests, converting representations into Java objects, mapping exceptions to responses, etc. 
+
+By default, a single instance of each provider class is instantiated for each JAX-RS application, aka singletons.
+
+Interface `ExceptionMapper<E extends Throwable>` defines a contract for a provider that maps Java exceptions `E` to `javax.ws.rs.core.Response`. Same as other providers, exception mappers can be either pre-packaged in the JAX-RS runtime or supplied by an application. 
+
+In order to create our own exception mapper, we need to create a class which implements interface `ExceptionMapper`.
+
+Here's an example of [EntityNotFoundMapper](src/main/java/com/game/exception/EntityNotFoundMapper.java) for mapping [EntityNotFoundException](../rover-model/src/main/java/com/game/domain/model/exception/EntityNotFoundException.java) in our  application:
+
+```java
+@Provider
+public class EntityNotFoundMapper implements ExceptionMapper<EntityNotFoundException> {
+
+	@Override
+	public Response toResponse(EntityNotFoundException exception) {
+		return Response.status(404).entity(exception.getMessage()).type("text/plain").build();
+	}
+
+}
+```
+
+The above class is annotated with `@Provider`, this declares that the class is of interest to the JAX-RS runtime. 
+
+Such a class may be added to the set of classes of the Application instance that is configured. In our case, it is done in our [Main](src/main/java/com/game/Main.java) class, by adding the package `com.game.exception` where reside all the exception mappers, to the `ResourceConfig` object.
+
+```java
+  public static HttpServer startServer() {
+    // create a resource config that scans for JAX-RS resources and providers
+    // in com.game package
+    final ResourceConfig rc = new ResourceConfig().packages("com.game.resource", "com.game.exception");
+
+    // create and start a new instance of grizzly http server
+    // exposing the Jersey application at BASE_URI
+    return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+}
+```
+
+When an application throws an `com.game.domain.model.exception.EntityNotFoundException`, the `toResponse` method of the `EntityNotFoundMapper` instance will be invoked. 
+
+Let us test this behaviour by invoking the GET method for an not existing Plateau
+
+```java
+curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/
+```
+We get the expected Application Error Message in our Response `[ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository`
+
+```java
+C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/
+* Rebuilt URL to: GET/
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> GET /game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/ HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+>
+< HTTP/1.1 404 Not Found
+< Content-Type: text/plain
+< Content-Length: 113
+<
+[ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository
+* Connection #1 to host localhost left intact
+```
 		
