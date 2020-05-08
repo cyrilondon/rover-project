@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import com.game.Main;
 import com.game.domain.application.command.rover.RoverGetCommand;
 import com.game.domain.application.command.rover.RoverInitializeCommand;
+import com.game.domain.application.command.rover.RoverMoveCommand;
 import com.game.domain.application.command.rover.RoverTurnCommand;
 import com.game.domain.application.context.GameContext;
 import com.game.domain.application.service.GameService;
@@ -24,6 +25,7 @@ import com.game.domain.model.entity.rover.RoverIdentifier;
 import com.game.domain.model.entity.rover.RoverTurnInstruction;
 import com.game.resource.rover.dto.RoverDto;
 import com.game.resource.rover.dto.RoverInitializeCommandDto;
+import com.game.resource.rover.dto.RoverMoveCommandDto;
 import com.game.resource.rover.dto.RoverTurnCommandDto;
 
 /**
@@ -47,11 +49,11 @@ public class RoverResource {
 	}
 
 	@POST
-	@Path("/initialize")
+	@Path("initialize")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response initializeRover(RoverInitializeCommandDto commandDto) {
 
-		// map the client Dto command to application command RoverInitializeCommand 
+		// map the web Dto command to application command RoverInitializeCommand 
 		RoverInitializeCommand command = new RoverInitializeCommand.Builder()
 				.withPlateauUuid(commandDto.getPlateauUuid()).withName(commandDto.getName())
 				.withAbscissa(commandDto.getAbscissa()).withOrdinate(commandDto.getOrdinate())
@@ -69,16 +71,30 @@ public class RoverResource {
 	}
 	
 	@PUT
-	@Path("/turn")
+	@Path("turn")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void turnRover(RoverTurnCommandDto commandDto) {
 
-		// map the client Dto command to application command RoverTurnCommand 
+		// map the web Dto command to application command RoverTurnCommand 
 		RoverIdentifier roverId = new RoverIdentifier(commandDto.getPlateauUuid(), commandDto.getName());
 		RoverTurnInstruction turnInstruction = RoverTurnInstruction.get(commandDto.getTurn());
 		RoverTurnCommand command = new RoverTurnCommand(roverId, turnInstruction);
 
-		// call the Application Primary Port for creation/initialization
+		// call the Application Primary Port for turn
+		gameService.execute(command);
+
+	}
+	
+	@PUT
+	@Path("move")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void moveRover(RoverMoveCommandDto commandDto) {
+
+		// map the web Dto command to application command RoverMoveCommand 
+		RoverIdentifier roverId = new RoverIdentifier(commandDto.getPlateauUuid(), commandDto.getName());
+		RoverMoveCommand command = new RoverMoveCommand(roverId, commandDto.getMoves());
+
+		// call the Application Primary Port for the move
 		gameService.execute(command);
 
 	}

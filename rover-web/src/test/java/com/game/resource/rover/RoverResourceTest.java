@@ -51,21 +51,27 @@ public class RoverResourceTest extends BaseUnitTest {
 		// http://localhost:8080/game/v1/rover/ROVER_TEST/13567a5e-a21c-495e-80a3-d12adaf8585c
 		assertEquals(response.getHeaderString(HttpHeaders.LOCATION), new StringBuilder(Main.BASE_URI)
 				.append("v1/rover/").append(roverName).append("/").append(plateauUUID).toString());
-		
 
-		// MAke the rover turn with L command
+		// Make the rover turn with L command
 		String turnEntity = String.format("{\"plateauUuid\": \"%s\", \"name\": \"%s\", \"turn\": \"%s\"}", plateauUUID,
-				roverName, "L");
+				roverName, "R");
 		Response responseTurn = target.path("v1/rover/turn").request()
 				.put(Entity.entity(turnEntity, MediaType.APPLICATION_JSON));
 		assertEquals(204, responseTurn.getStatus());
-		
+
+		// Make the rover move with 2 steps
+		String moveEntity = String.format("{\"plateauUuid\": \"%s\", \"name\": \"%s\", \"moves\": %d}", plateauUUID,
+				roverName, 2);
+		Response responseMoves = target.path("v1/rover/move").request()
+				.put(Entity.entity(moveEntity, MediaType.APPLICATION_JSON));
+		assertEquals(204, responseMoves.getStatus());
 
 		// rest call to get the Rover with RoverName=ROVER_TEST and UUID = plateauUUID
-		// with check that the Rover has orientation W because of the previous L command
+		// with check that the Rover has orientation E because of the previous R command
+		// and abscissa = 4 because of the previous move command of 2
 		String getResponse = target.path(String.format("v1/rover/%s/%s", roverName, plateauUUID)).request()
 				.get(String.class);
-		String expectedResponse = "{\"abscissa\":2,\"name\":\"ROVER_TEST\",\"ordinate\":3,\"orientation\":\"W\",\"plateauUuid\":\"13567a5e-a21c-495e-80a3-d12adaf8585c\"}";
+		String expectedResponse = "{\"abscissa\":4,\"name\":\"ROVER_TEST\",\"ordinate\":3,\"orientation\":\"E\",\"plateauUuid\":\"13567a5e-a21c-495e-80a3-d12adaf8585c\"}";
 
 		assertEquals(expectedResponse, getResponse);
 

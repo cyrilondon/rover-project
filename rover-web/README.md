@@ -221,5 +221,119 @@ As expected, we get a `201 Created` response status as well as the `Location` he
 
 JAX-RS rocks! ;-)
 
+Now let's have a look at our [RoverResource](src/main/java/com/game/resource/rover/RoverResource.java)
+
+The way to create a Resource should be now familiar:
+ 
+ - we map the web DTO command to the Application command
+ - we delegate the command execution to the primary `Port interface` [GameService](../rover-model/src/main/java/com/game/domain/application/service/GameService.java)
+ - we return a JAX-RS `Response` object with Status=201 and newly created resource URI on the `Location` header
+
+```java
+@POST
+@Path("initialize")
+@Consumes(MediaType.APPLICATION_JSON)
+public Response initializeRover(RoverInitializeCommandDto commandDto) {
+
+	// map the web Dto command to application command RoverInitializeCommand 
+	RoverInitializeCommand command = new RoverInitializeCommand.Builder()
+			.withPlateauUuid(commandDto.getPlateauUuid()).withName(commandDto.getName())
+			.withAbscissa(commandDto.getAbscissa()).withOrdinate(commandDto.getOrdinate())
+			.withOrientation(commandDto.getOrientation().charAt(0)).build();
+
+	// call the Application Primary Port for creation/initialization
+	gameService.execute(command);
+
+	// return the Response with status 201 = created + location header with UUID of
+	// the created resource/rover
+	URI createdUri = URI.create(new StringBuilder(Main.BASE_URI).append("v1/rover/").append(commandDto.getName())
+			.append("/").append(commandDto.getPlateauUuid()).toString());
+	return Response.created(createdUri).build();
+
+}
+	
+```
+You can test this resource with a simple Curl command
+
+```java
+curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": 2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
+```
+As expected, we receive a HTTP 201 Status along with the URI of the newly created `Rover` under the `Location` header:
+
+`Location: http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c`
+
+```java
+C:\Users\cyril>curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": 2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
+* Rebuilt URL to: POST/
+* Could not resolve host: POST
+* Closing connection 0
+curl: (6) Could not resolve host: POST
+*   Trying ::1...
+* TCP_NODELAY set
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> POST /game/v1/rover/initialize HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 127
+>
+* upload completely sent off: 127 out of 127 bytes
+< HTTP/1.1 201 Created
+< Location: http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c
+< Content-Length: 0
+<
+* Connection #1 to host localhost left intact
+```
+To make sure the `Rover` has been made persistent in our Application, we can call the following `getRover` method, uniquely identified by `@Path("{name}/{plateauId}")`
+
+```java
+@GET
+@Path("{name}/{plateauId}")
+@Produces(MediaType.APPLICATION_JSON)
+public RoverDto getRover(@PathParam("name") String name, @PathParam("plateauId") String plateauId) {
+
+	RoverIdentifier roverIdentifier = new RoverIdentifier(UUID.fromString(plateauId), name);
+	RoverGetCommand command = new RoverGetCommand(roverIdentifier);
+	Rover rover = gameService.execute(command);
+	return new RoverDto(rover.getId().getName(), rover.getId().getPlateauId().toString(),
+			rover.getOrientation().getValue(), rover.getXPosition(), rover.getYPosition());
+}
+```
+
+Let us execute the corresponding Curl command, by filling the required `Rover Name` and `Plateau Uuid` parameter values
+
+```java
+curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST53567a5d-a21c-495e-80a3-d12adaf8585c
+```
+
+We get the expected Rover instance in Json format
+
+```java
+C:\Users\cyril>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c
+* Rebuilt URL to: GET/
+* TCP_NODELAY set
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> GET /game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+>
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Content-Length: 118
+<
+{"abscissa":2,"name":"ROVER_TEST","ordinate":3,"orientation":"N","plateauUuid":"53567a5d-a21c-495e-80a3-d12adaf8585c"}
+
+* Connection #1 to host localhost left intact
+```
+
+
+
 
 		
