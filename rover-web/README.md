@@ -59,9 +59,9 @@ The container extension module dependency to be added in our [pom.xml](pom.xml) 
 
 ```java
 	<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-grizzly2-http</artifactId>
-		</dependency>
+		<groupId>org.glassfish.jersey.containers</groupId>
+		<artifactId>jersey-container-grizzly2-http</artifactId>
+	</dependency>
 ```
 
 Starting a Grizzly server to run a JAX-RS or Jersey application is one of the most lightweight and easy ways how to expose a functional RESTful services application. 
@@ -75,22 +75,22 @@ Looking at the [Main](src/main/java/com/game/Main.java) class, we have to do mai
 - start a Grizzly server instance by calling the corresponding factory `GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), ResourceConfig)`;
 
 ```java
- // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8080/game/";
-
-    /**
-     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-     * @return Grizzly HTTP server.
-     */
-    public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in com.game package
-        final ResourceConfig rc = new ResourceConfig().packages("com.game.resource");
-
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-    }
+	// Base URI the Grizzly HTTP server will listen on
+	public static final String BASE_URI = "http://localhost:8080/game/";
+	
+	/**
+	 * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+	 * @return Grizzly HTTP server.
+	 */
+	public static HttpServer startServer() {
+		// create a resource config that scans for JAX-RS resources and providers
+		// in com.game package
+		final ResourceConfig rc = new ResourceConfig().packages("com.game.resource");
+		
+		// create and start a new instance of grizzly http server
+		// exposing the Jersey application at BASE_URI
+		return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+	}
 ```
 
 ## JAX-RS Resources
@@ -379,12 +379,12 @@ Such a class may be added to the set of classes of the Application instance that
 
 When an application throws an `com.game.domain.model.exception.EntityNotFoundException`, the `toResponse` method of the `EntityNotFoundMapper` instance will be invoked. 
 
-Let us test this behaviour by invoking the GET method for an not existing Plateau
+Let us test this behaviour by invoking the GET method for an NOT existing Plateau
 
 ```java
 curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/
 ```
-We get the expected Application Error Message in our Response `[ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository`
+We get the expected HTTP Error Code 404 and the Application Error Message in our Response `[ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository`, i.the right Application Error Code with the expected Application error message.
 
 ```java
 C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/
@@ -403,4 +403,106 @@ C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json
 [ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository
 * Connection #1 to host localhost left intact
 ```
-		
+We can do the same for a NON existing Rover, by executing the following Curl
+
+
+```java
+curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c/	
+```
+
+With no surprise, we get the expected error code 404 and message `[ERR-002] Entity [Rover] with Id [Name [ROVER_TEST] - Plateau UUID [53567a5d-a21c-495e-80a3-d12adaf8585c]] not found in the Application Repository`
+
+```java
+C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c/
+* Rebuilt URL to: GET/
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> GET /game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c/ HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+>
+< HTTP/1.1 404 Not Found
+< Content-Type: text/plain
+< Content-Length: 146
+<
+[ERR-002] Entity [Rover] with Id [Name [ROVER_TEST] - Plateau UUID [53567a5d-a21c-495e-80a3-d12adaf8585c]] not found in the Application Repository
+* Connection #1 to host localhost left intact
+```
+
+We have to map all our exceptions to specific error code.
+
+To map all the exceptions occured during the validation process, we create a specific [EntityValidationExceptionMapper](src/main/java/com/game/exception/EntityValidationExceptionMapper.java) for mapping [EntityValidationException](../rover-model/src/main/java/com/game/domain/model/exception/EntityValidationException.java) in our  application.
+
+Note that in this case, we set the Response status as 500
+
+```java
+@Provider
+public class EntityValidationExceptionMapper implements ExceptionMapper<EntityValidationException> {
+
+	@Override
+	public Response toResponse(EntityValidationException exception) {
+		return Response.status(500).entity(exception.getMessage()).type("text/plain").build();
+	}
+
+}
+```
+
+Then if we try to initialize a Plateau with a negative width, as for example by the given Curl
+
+```java
+curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"width\": -5, \"height\": 5}" http://localhost:8080/game/v1/plateau/initialize
+```
+we receive the expected Http Error Code = 500 and error message `[ERR-001] Plateau width [-5] should be strictly positive`
+
+```java
+C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"width\": -5, \"height\": 5}" http://localhost:8080/game/v1/plateau/initialize
+* Rebuilt URL to: POST/
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> POST /game/v1/plateau/initialize HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 74
+>
+* upload completely sent off: 74 out of 74 bytes
+< HTTP/1.1 500 Internal Server Error
+< Content-Type: text/plain
+< Connection: close
+< Content-Length: 56
+<
+[ERR-001] Plateau width [-5] should be strictly positive
+* Closing connection 1
+```
+Equivalently, if we try to initialize a `Rover` without any `Plateau`, with the Curl
+
+```java
+curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": -2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
+```
+
+We the expected Http 500 Response Code along with the error message `[ERR-001] It is not allowed to initialize a Rover. Please initialize the Plateau first.`
+
+```java
+C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": -2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
+* Rebuilt URL to: POST/
+* Connected to localhost (127.0.0.1) port 8080 (#1)
+> POST /game/v1/rover/initialize HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.55.1
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 128
+>
+* upload completely sent off: 128 out of 128 bytes
+< HTTP/1.1 500 Internal Server Error
+< Content-Type: text/plain
+< Connection: close
+< Content-Length: 87
+<
+[ERR-001] It is not allowed to initialize a Rover. Please initialize the Plateau first.
+* Closing connection 1
+```
+
+
+
