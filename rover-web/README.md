@@ -530,7 +530,7 @@ A `Client` contains several target(...) methods that allow for creation of `WebT
 
 In this case we're using `target(String uri)` version. The uri passed to the method as a String is the URI of the targeted web resource, in our case `"http://localhost:8080/game/"`.
 
-** Identifying resource on WebTarget **
+**Identifying resource on WebTarget**
 
 We now have a webTarget pointing at `"http://localhost:8080/game/"` URI that represents a context root of our RESTful application.
 
@@ -543,7 +543,7 @@ Actually, a `WebTarget` instance can be used to derive other web targets. Use th
 return target.path("v1/plateau/initialize").request().post(Entity.entity(entity, MediaType.APPLICATION_JSON));
 ```
 
-** Invoking a HTTP Request **
+**Invoking a HTTP Request**
 
 Let's now focus on invoking a GET HTTP request on the created web targets. To start building a new HTTP request invocation, we need to create a new `Invocation.Builder`. 
 
