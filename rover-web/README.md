@@ -581,11 +581,36 @@ Note that in the code above, it skips the generic Response processing and direct
 
 At last a proper `MessageBodyReader<T>` is located to read the response content bytes from the response stream into a Java `String` instance
 
-If you want to get a `Response` object as a result, you have to invoke the `<T> T readEntity(Class<T> type)` method as per below
+If you want to get a `Response` object as a result, and still want to read the result as a String, you have to invoke the `<T> T readEntity(Class<T> type)` method as per below
 
 ```java
 // rest call to get the Plateau with UUID = plateauUUID
 Response getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
 assertEquals(200, getResponse.getStatus());
 assertEquals(expectedStringResponse, getResponse.readEntity(String.class));
+```
+
+Something important to be aware of: the choice to receive a String or a Response object will lead to a different way of catching a potential exception as well.
+
+Please compare the below code where we have to explicitly catch a `javax.ws.rs.NotFoundException`
+
+```java
+try {
+	target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(String.class);
+} catch (NotFoundException e) {
+	// Jersey test client creates a brand new Exception with lost information
+	// cf org.glassfish.jersey.client.JerseyInvocation.convertToException
+	// this will NOT happen in a Curl for example where we get the full root cause information
+	assertEquals("HTTP 404 Not Found", e.getMessage());
+}
+```
+
+with this version when we are expecting a `Response` object
+
+```java
+// rest call to get the Plateau with UUID = plateauUUID but no initialization
+Response response = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
+assertEquals(response.getStatusInfo().getStatusCode(), 404);
+assertEquals(response.getStatusInfo().getReasonPhrase(), "Not Found");
+
 ```
