@@ -23,7 +23,7 @@ public class PlateauResourceTest extends BaseUnitTest {
 	}
 
 	@Test
-	public void testInitializePlateauAndGet() {
+	public void testInitializeGetWithString() {
 		String plateauUUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
 		Response response = initializePlateau(plateauUUID);
 		// check the Response status = 201 for newly created Resource
@@ -38,22 +38,19 @@ public class PlateauResourceTest extends BaseUnitTest {
 
 		assertEquals(expectedResponse, getResponse);
 	}
-
+	
 	@Test
-	public void testInitializeGet() {
+	public void testInitializeGetWithesponse() {
 		String plateauUUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
-		Response response = initializePlateau(plateauUUID);
-		// check the Response status = 201 for newly created Resource
-		assertEquals(201, response.getStatus());
-		// check the Location URI response header
-		// http://localhost:8080/game/v1/plateau/13567a5d-a21c-495e-80a3-d12adaf8585c
-		assertEquals(response.getHeaderString(HttpHeaders.LOCATION), Main.BASE_URI + "v1/plateau/" + plateauUUID);
-
+		initializePlateau(plateauUUID);
+		
 		// rest call to get the Plateau with UUID = plateauUUID
-		String getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(String.class);
-		String expectedResponse = "{\"height\":5,\"uuid\":\"13567a5d-a21c-495e-80a3-d12adaf8585c\",\"width\":5}";
+		Response getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
+		String expectedStringResponse = "{\"height\":5,\"uuid\":\"13567a5d-a21c-495e-80a3-d12adaf8585c\",\"width\":5}";
 
-		assertEquals(expectedResponse, getResponse);
+		assertEquals(200, getResponse.getStatus());
+		assertEquals(expectedStringResponse, getResponse.readEntity(String.class));
+	
 	}
 
 	/**

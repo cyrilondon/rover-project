@@ -52,8 +52,8 @@ You can go through the following documentation sections for a more in-depth unde
 
 - [Grizzly Container](#grizzly-container)
 - [JAX-RS Resources](#jax-rs-resources)
-- [Exception-Handling](#exception-handling)
-- [Testing](#testing)
+- [Exception Handling](#exception-handling)
+- [Testing with the Client API](#testing-with-the-client-api)
 
 ## Grizzly Container
 
@@ -386,7 +386,7 @@ C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json
 [ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository
 * Connection #1 to host localhost left intact
 ```
-*Remark*: The way this exception could be caught and handled from a Java Client will be covered more in details in the [Testing](#testing) section.
+*Remark*: The way this exception could be caught and handled from a Java Client will be covered more in details in the [Testing](#testing-with-the-client-api) section.
 
 We can test the same Exception Mapper for a non existing Rover, by executing the following Curl:
 
@@ -479,7 +479,76 @@ C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/jso
 * Closing connection 1
 ```
 
-## Testing
+## Testing with the client API
 
+So far, we have tested our Web Services via Curl commands, which is fine but does not provide any automation facility.
 
+This is therefore time to switch to `Unit Testing`, and to test our Web Services by Java client code.
+
+This section introduces the JAX-RS Client API, which is a fluent Java based API for communication with RESTful Web services. 
+
+This standard API that is also part of Java EE 7 is designed to make it very easy to consume a Web service exposed via HTTP protocol and enables developers to concisely and efficiently implement portable client-side solutions that leverage existing and well established client-side HTTP connector implementations. 
+
+Many existing Java-based client APIs, such as the `Apache HTTP client API` or `HttpUrlConnection` supplied with the JDK place too much focus on the Client-Server constraint for the exchanges of request and responses rather than a resource, identified by a **URI**, and the use of a fixed set of HTTP methods. 
+
+A resource in the JAX-RS client API is an instance of the Java class [WebTarget](https://docs.oracle.com/javaee/7/api/javax/ws/rs/client/WebTarget.html). and encapsulates an URI. The fixed set of HTTP methods can be invoked based on the `WebTarget`. The representations are Java types, instances of which, may contain links that new instances of `WebTarget` may be created from. 
+
+**Creating and configuring a Client instance** 
+
+To create a `Client` before each test, we use one of the static `ClientBuilder` factory methods. Here's the most simple example:
+
+```java
+Client client = ClientBuilder.newClient(ClientConfig);
+```
+
+`ClientConfig` implements `Configurable` and therefore it offers methods to register providers (e.g. features or individual entity providers, filters or interceptors) and setup properties.
+
+You can find this code in our parent Unit Testing class [BaseUnitTest](src/test/java/com/game/BaseUnitTest.java)
+
+```java
+   @Before
+	public void setUp() throws Exception {
+		// start the server
+		server = Main.startServer();
+		// create the client
+		ClientConfig clientConfig = new ClientConfig();
+		clientConfig.register(org.glassfish.jersey.jsonb.JsonBindingFeature.class);
+		Client c = ClientBuilder.newClient(clientConfig);
+
+	}
+```
+In our case, we register a `JsonBindingFeature` feature, which is used to bind the Json parameter objects to Dto commands.
+
+**Targeting a web resource**
+
+Once we have a `Client` instance, we can create a `WebTarget` from it. 
+
+```java
+    WebTarget target = c.target(Main.BASE_URI);
+```
+A `Client` contains several target(...) methods that allow for creation of `WebTarget` instance. 
+
+In this case we're using `target(String uri)` version. The uri passed to the method as a String is the URI of the targeted web resource, in our case `"http://localhost:8080/game/"`.
+
+** Identifying resource on WebTarget **
+
+We now have a webTarget pointing at `"http://localhost:8080/game/"` URI that represents a context root of our RESTful application.
+
+How can we reach our Plateau initialize resource exposed on the URI `"http://localhost:8080/game/v1/plateau/initialize"`?
+
+Actually, a `WebTarget` instance can be used to derive other web targets. Use the following code to define a path to the resource:`target.path("v1/plateau/initialize")`
+
+```java
+// rest call to initialize a Plateau with UUID= plateauUUID and width=height=5
+return target.path("v1/plateau/initialize").request().post(Entity.entity(entity, MediaType.APPLICATION_JSON));
+```
+
+** Invoking a HTTP Request **
+
+Let's now focus on invoking a GET HTTP request on the created web targets. To start building a new HTTP request invocation, we need to create a new `Invocation.Builder`. 
+
+```java
+Invocation.Builder invocationBuilder =
+        target.path("v1/plateau/initialize").request()
+```
 
