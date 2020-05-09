@@ -1,3 +1,5 @@
+ [![Build Status](https://travis-ci.com/cyrilondon/rover-project.svg?branch=master)](https://travis-ci.com/cyrilondon/rover-project)
+
 # ROVER Project
 A squad of robotic rovers are to be landed by NASA on a plateau on Mars. 
 
