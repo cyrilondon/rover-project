@@ -552,3 +552,40 @@ Invocation.Builder invocationBuilder =
         target.path("v1/plateau/initialize").request()
 ```
 
+In case we do not want to do any batch processing on our HTTP request invocations prior to invoking them, there is a convenient approach that we can use to invoke our requests directly from an `Invocation.Builder` instance. This approach is demonstrated in the next Java code listing. 
+
+```java
+Response response = invocationBuilder.get();
+```
+We can find this code in [PlateauResourceTest](src/test/java/com/game/resource/plateau/PlateauResourceTest.java) by example for the ping request
+
+```java
+@Test
+public void testGetIt() {
+	String responseMsg = target.path("v1/plateau").request().get(String.class);
+	assertEquals("Got Plateau Resource!", responseMsg);
+}
+```
+or for the getPlateau resource
+
+```java
+// rest call to get the Plateau with UUID = plateauUUID
+String getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(String.class);
+String expectedResponse = "{\"height\":5,\"uuid\":\"13567a5d-a21c-495e-80a3-d12adaf8585c\",\"width\":5}";
+
+assertEquals(expectedResponse, getResponse);
+
+```
+
+Note that in the code above, it skips the generic Response processing and directly requests an entity in the last `get(String.class)` method call. This shortcut method let's you specify that (in case the response was returned successfully with a HTTP 2xx status code) the response entity should be returned as Java `String` type. 
+
+At last a proper `MessageBodyReader<T>` is located to read the response content bytes from the response stream into a Java `String` instance
+
+If you want to get a `Response` object as a result, you have to invoke the `<T> T readEntity(Class<T> type)` method as per below
+
+```java
+// rest call to get the Plateau with UUID = plateauUUID
+Response getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
+assertEquals(200, getResponse.getStatus());
+assertEquals(expectedStringResponse, getResponse.readEntity(String.class));
+```
