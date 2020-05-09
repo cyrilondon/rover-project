@@ -137,7 +137,7 @@ Let us consider below an extract of the GameServiceImpl's method *execute(RoverM
  
  - it takes a [RoverMoveCommand](src/main/java/com/game/domain/application/command/rover/RoverMoveCommand.java) and will map this command object to meaningful services arguments, like the rover identifier and the number of moves.
  
- - it registers a few `Domain Event` subscribers (more on this in the section `Event-Driven Architecture`).
+ - it registers a few `Domain Event` subscribers (more on this in the section [Event-Driven Architecture](#event-driven-architecture)).
  
  - it finally delegates the action to move the rover a certain number of times to the [RoverServiceImpl](src/main/java/com/game/domain/model/service/rover/RoverServiceImpl.java) via the method *moveRoverNumberOfTimes(roverId, numberOfMoves)*
  
@@ -246,7 +246,7 @@ As we don't want to use any external framework, it is much easier to use the `Se
 
 More precisely, the `Service Locator` is used by a [GameContext](src/main/java/com/game/domain/application/context/GameContext.java) which emulates an `Application Context` as provided by Spring for example.
 
-The `Service Locator` provides a very useful *load* method which is of first interest for testing purpose as expained in Martin Fowler's article and as we are detailing in the section dedicated to Unit Testing.
+The `Service Locator` provides a very useful *load* method which is of first interest for testing purpose as expained in Martin Fowler's article and as we are detailing in the section dedicated to [Unit Testing](#test-driven-design).
 
  ```java
  
@@ -288,7 +288,7 @@ Concerning the Plateau, things become a little bit more interesting. If we had s
 
 As identifiable `Entities`, both [Rover](src/main/java/com/game/domain/model/entity/rover/Rover.java) and  [Plateau](src/main/java/com/game/domain/model/entity/plateau/Plateau.java) inherits from [IdentifiedPublisherDomainEntity](src/main/java/com/game/domain/model/entity/IdentifiedPublisherDomainEntity.java), which itself implements the interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java).
 
-Actually, it inherits indirectly from `Entity` via  [ConcurrencySafeEntity](src/main/java/com/game/domain/model/entity/ConcurrencySafeEntity.java) interface but will dig into this subject later on in the section dedicated to concurrency and optimistic locking. 
+Actually, it inherits indirectly from `Entity` via  [ConcurrencySafeEntity](src/main/java/com/game/domain/model/entity/ConcurrencySafeEntity.java) interface but will dig into this subject later on in the section dedicated to [Concurrency and Optimistic Locking](#concurrency-and-optimistic-locking). 
 
 
  ```java
@@ -317,7 +317,7 @@ public abstract class IdentifiedPublisherDomainEntity<T, U> extends BaseDomainEv
 
  ```
 
-The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to enforce each entity class to define and expose its identity, and an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the `Exception Handling` section).
+The interface [Entity](src/main/java/com/game/domain/model/entity/Entity.java) exposes the *getId()* method to enforce each entity class to define and expose its identity, and an `Entity` is also responsible to **validate itself** via the *validate* method (more on this on the [Validation and Exception Handling](#validation-and-exception-handling) section).
 
 
  ```java
@@ -338,7 +338,7 @@ public interface Entity<T, U> {
 
  ```
  
- **Remark**: as we rely on an `Event-Driven Architecture`, the `Entity` has to **apply to itself events and then publish those events** to the rest of the Domain (more on this in the next section dedicated to the `Event Driven Architecture`. This is the reason why we are not implementing directly the [Entity](src/main/java/com/game/domain/model/entity/Entity.java) interface but we are extending the `IdentifiedPublisherDomainEntity` instead.
+ **Remark**: as we rely on an `Event-Driven Architecture`, the `Entity` has to **apply to itself events and then publish those events** to the rest of the Domain (more on this in the next section dedicated to the [Event-Driven Architecture](#event-driven-architecture). This is the reason why we are not implementing directly the [Entity](src/main/java/com/game/domain/model/entity/Entity.java) interface but we are extending the `IdentifiedPublisherDomainEntity` instead.
 
 Once we know each `Entity` has to be assigned an Identity, we have to define more precisely the nature of its identifier.
 
@@ -611,7 +611,7 @@ public enum Orientation implements GameEnum<String> {
  
  So that calling the *turn* method on the `Rover` will just delegate the required behavior to the underlying `Orientation`
  
-More precisely, as we will see further down in the section `Event-Driven Architecture` this will be possible by building a `Domain Event` with the new orientation  *orientation.turnXXX* and applying this `Event` to the `Rover`
+More precisely, as we will see further down in the section [Event-Driven Architecture](#event-driven-architecture), this will be possible by building a `Domain Event` with the new orientation  *orientation.turnXXX* and applying this `Event` to the `Rover`
 
  ```java
 
@@ -710,7 +710,7 @@ This principle apply to `Domain Driven Design Repository`. Placing an `Entity` i
 
 Generally speaking, there is a one-to-one relationship between an `Entity` and a `Repository`.
 
-A fundamental feature of a pure domain model resides in that it should be **persistent ignorant**; i.e. it should be immune to changes required by the needs of any underlying persistence framework. We will dive deeper into this subject in the below section dedicated to `Hexagonal Architecture`.
+A fundamental feature of a pure domain model resides in that it should be **persistent ignorant**; i.e. it should be immune to changes required by the needs of any underlying persistence framework. We will dive deeper into this subject in the below section dedicated to [Hexagonal Architecture](#hexagonal-architecture).
 
 ### Hexagonal Architecture
 
