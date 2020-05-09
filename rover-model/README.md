@@ -3,7 +3,14 @@
 
 ## Quick start
 
-1. Download and install [maven](http://maven.apache.org/install.html).
+1. The `rover-model` directory contains a standard Maven project structure:
+ 	 
+   Project build and management configuration is described in the `pom.xml` located in the project root directory.
+ 	
+   Project sources are located under `src/main/java`.
+ 	
+   Project test sources are located under `src/test/java`.
+
 2. Go to the root of the project and type `mvn clean package`. This will build the project, run the Unit Tests along with the [GameIntegration](src/main/java/com/game/adapter/file/GameIntegration.java) `Main` method.
 
 You should see something similar to below extract:

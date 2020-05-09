@@ -7,7 +7,7 @@
 	<groupId>com.cyrilondon</groupId>
 	<artifactId>rover-model</artifactId>
 	<version>HEAD</version>
-	<name>Rover game </name>
+	<name>Rover Model Project</name>
 
 	<dependencies>
 		<dependency>

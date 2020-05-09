@@ -15,10 +15,7 @@ It is of first importance that all `Adapters` (pink boxes) point towards the `Mo
 
 ## Quick start
 
-1. Download and install [Maven](http://maven.apache.org/install.html).
-2. Clone, build and install the [Rover Domain Model](../rover-model).
-3. Clone the current git project
-4. The `rover-web` directory contains a standard Maven project structure:
+1. The `rover-web` directory contains a standard Maven project structure:
  	 
    Project build and management configuration is described in the `pom.xml` located in the project root directory.
  	
@@ -26,7 +23,7 @@ It is of first importance that all `Adapters` (pink boxes) point towards the `Mo
  	
    Project test sources are located under `src/test/java`.
  	
-5. Run the following maven command: `mvn exec:java`
+2. Run the following maven command: `mvn exec:java`
 
    This will run the [Main](src/main/java/com/game/Main.java) class responsible for bootstrapping the [Grizzly](https://javaee.github.io/grizzly/) container as well as configuring and deploying the project's JAX-RS application to the container.
 

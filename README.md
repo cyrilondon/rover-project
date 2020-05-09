@@ -45,8 +45,10 @@ Furthermore, in addition to the initial requirements, this implementation offers
 ## Quick start
 
 1. Download and install [maven](http://maven.apache.org/install.html).
-2. Go to the [model project](rover-model/) and try to understanding it first, by cloning and reading the related documentation.
-3. Go to the [web project](rover-web), start the server and send commands.
+2. Clone the project via the command `git clone https://github.com/cyrilondon/rover-project.git`
+3. Under `rover-project` folder,  execute `mvn test` to compile and test the sub-modules (optional)
+4. Go to the [model project](rover-model/) and try to understanding it first, by cloning and reading the related documentation.
+5. Go to the [web project](rover-web), start the server and send commands.
 
 Have fun!
 

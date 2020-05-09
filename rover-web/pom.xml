@@ -7,8 +7,8 @@
 	<groupId>com.cyrilondon</groupId>
 	<artifactId>rover-web</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
-	<name>rover-web</name>
+	<version>HEAD</version>
+	<name>Rover Web Project</name>
 
 	<dependencyManagement>
 		<dependencies>
