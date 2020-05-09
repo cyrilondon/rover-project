@@ -49,7 +49,16 @@ You can retrieve the WADL content by executing a `curl http://localhost:8080/gam
 
 You should get back an XML document in describing your deployed RESTful application in a WADL format. To learn more about working with WADL, check the [Chapter 18, WADL Support](https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/wadl.html) chapter. 
 
-## Grizzly container
+## Detailed Documentation
+
+You can go through the following documentation sections for a more in-depth understanding of the code.
+
+- [Grizzly Container](#grizzly-container)
+- [JAX-RS Resources](#jax-rs-resources)
+- [Exception-Handling](#exception-handling)
+- [Testing](#testing)
+
+## Grizzly Container
 
 Our `Jersey` application needs to be deployed in a web container, as it exposes Restful services.
 
@@ -78,19 +87,20 @@ Looking at the [Main](src/main/java/com/game/Main.java) class, we have to do mai
 	// Base URI the Grizzly HTTP server will listen on
 	public static final String BASE_URI = "http://localhost:8080/game/";
 	
-	/**
-	 * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-	 * @return Grizzly HTTP server.
-	 */
-	public static HttpServer startServer() {
-		// create a resource config that scans for JAX-RS resources and providers
-		// in com.game package
-		final ResourceConfig rc = new ResourceConfig().packages("com.game.resource");
-		
-		// create and start a new instance of grizzly http server
-		// exposing the Jersey application at BASE_URI
-		return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-	}
+	
+    /**
+     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+     * @return Grizzly HTTP server.
+     */
+    public static HttpServer startServer() {
+      // create a resource config that scans for JAX-RS resources  in com.game.resource package
+      // as well as for providers for exception mapping in com.game.provider
+      final ResourceConfig rc = new ResourceConfig().packages("com.game.resource", "com.game.provider");
+
+      // create and start a new instance of grizzly http server
+      // exposing the Jersey application at BASE_URI
+      return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+    }
 ```
 
 ## JAX-RS Resources
@@ -137,21 +147,16 @@ To test it, you can do a curl on the given URL `curl -v http://localhost:8080/ga
 
 ```java
 C:\Users\cyril>curl -v http://localhost:8080/game/v1/plateau
-*   Trying ::1...
-* TCP_NODELAY set
-*   Trying 127.0.0.1...
-* TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)
 > GET /game/v1/plateau HTTP/1.1
 > Host: localhost:8080
 > User-Agent: curl/7.55.1
 > Accept: */*
->
 < HTTP/1.1 200 OK
 < Content-Type: text/plain
 < Content-Length: 21
-<
-Got Plateau Resource!* Connection #0 to host localhost left intact
+Got Plateau Resource!
+* Connection #0 to host localhost left intact
 ```
 
 If you are lucky, you get a `200 OK` HTTP Response Code as well as the expected text `Got Plateau Resource!`.
@@ -160,7 +165,7 @@ Let us have a look at the method `initializePlateau` by which we can initialize 
 
 By defining the Path's value equal to `/initialize` we want to deploy a resource that responds to the URI path template `http://localhost:8080/game/v1/plateau/initialize/`
 
-Just for information, a `@Path` value isn’t required to have leading or trailing slashes (/). The JAX-RS runtime parses URI path templates the same whether or not they have leading or trailing spaces.
+Just for information, a `@Path` value isn’t required to have leading or trailing slashes (/). The JAX-RS runtime parses URI path templates the same whether or not they have leading or trailing spaces. We don't use leading slashes in our example.
 
 Three things important to note here:
 
@@ -191,7 +196,7 @@ public Response initializePlateau(PlateauInitializeCommandDto commandDto) {
 }
 ```
 
-You can do a curl with the following URI and data
+You can call this method by executing a Curl with the following URI and data
 
 ```java
 curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"width\": 5, \"height\": 5}" http://localhost:8080/game/v1/plateau/initialize
@@ -200,7 +205,6 @@ curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c
  
 ```java
 *   Trying 127.0.0.1...
-* TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#1)
 > POST /game/v1/plateau/initialize HTTP/1.1
 > Host: localhost:8080
@@ -208,16 +212,12 @@ curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c
 > Accept: */*
 > Content-Type: application/json
 > Content-Length: 73
->
 * upload completely sent off: 73 out of 73 bytes
 < HTTP/1.1 201 Created
 < Location: http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c
-< Content-Length: 0
-<
-* Connection #1 to host localhost left intact
 ```
 
-As expected, we get a `201 Created` response status as well as the `Location` header set to: `http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c`.
+As expected, we get a `201 Created` Response status as well as the `Location` header set to: `http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c`.
 
 JAX-RS rocks! ;-)
 
@@ -225,9 +225,9 @@ Now let's have a look at our [RoverResource](src/main/java/com/game/resource/rov
 
 The way to create a Resource should be now familiar:
  
- - we map the web DTO command to the Application command
+ - we map the web `DTO command` to the `Application command`
  - we delegate the command execution to the primary `Port interface` [GameService](../rover-model/src/main/java/com/game/domain/application/service/GameService.java)
- - we return a JAX-RS `Response` object with Status=201 and newly created resource URI on the `Location` header
+ - we return a JAX-RS `Response` object with `Status=201` and newly created resource URI on the `Location` header
 
 ```java
 @POST
@@ -244,7 +244,7 @@ public Response initializeRover(RoverInitializeCommandDto commandDto) {
 	// call the Application Primary Port for creation/initialization
 	gameService.execute(command);
 
-	// return the Response with status 201 = created + location header with UUID of
+	// return the Response with status 201 = created + location header with URI of
 	// the created resource/rover
 	URI createdUri = URI.create(new StringBuilder(Main.BASE_URI).append("v1/rover/").append(commandDto.getName())
 			.append("/").append(commandDto.getPlateauUuid()).toString());
@@ -253,7 +253,7 @@ public Response initializeRover(RoverInitializeCommandDto commandDto) {
 }
 	
 ```
-You can test this resource with a simple Curl command
+As usual, you can test this resource with a simple Curl command:
 
 ```java
 curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": 2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
@@ -264,13 +264,6 @@ As expected, we receive a HTTP 201 Status along with the URI of the newly create
 
 ```java
 C:\Users\cyril>curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": 2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
-* Rebuilt URL to: POST/
-* Could not resolve host: POST
-* Closing connection 0
-curl: (6) Could not resolve host: POST
-*   Trying ::1...
-* TCP_NODELAY set
-*   Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#1)
 > POST /game/v1/rover/initialize HTTP/1.1
@@ -279,13 +272,11 @@ curl: (6) Could not resolve host: POST
 > Accept: */*
 > Content-Type: application/json
 > Content-Length: 127
->
-* upload completely sent off: 127 out of 127 bytes
+
 < HTTP/1.1 201 Created
 < Location: http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c
 < Content-Length: 0
-<
-* Connection #1 to host localhost left intact
+
 ```
 To make sure the `Rover` has been made persistent in our Application, we can call the following `getRover` method, uniquely identified by `@Path("{name}/{plateauId}")`
 
@@ -303,43 +294,38 @@ public RoverDto getRover(@PathParam("name") String name, @PathParam("plateauId")
 }
 ```
 
-Let us execute the corresponding Curl command, by filling the required `Rover Name` and `Plateau Uuid` parameter values
+Let us execute the corresponding Curl command, by filling the required `Rover Name` and `Plateau Uuid` parameter values as per below:
 
 ```java
 curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST53567a5d-a21c-495e-80a3-d12adaf8585c
 ```
 
-We get the expected [RoverDto](src/main/java/com/game/resource/rover/dto/RoverDto.java) instance in `Json` format
+We get the expected [RoverDto](src/main/java/com/game/resource/rover/dto/RoverDto.java) instance in `Json` format: 
+`{"abscissa":2,"name":"ROVER_TEST","ordinate":3,"orientation":"N","plateauUuid":"53567a5d-a21c-495e-80a3-d12adaf8585c"}`
 
 ```java
 C:\Users\cyril>curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c
-* Rebuilt URL to: GET/
-* TCP_NODELAY set
-*   Trying 127.0.0.1...
-* TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#1)
 > GET /game/v1/rover/ROVER_TEST/53567a5d-a21c-495e-80a3-d12adaf8585c HTTP/1.1
 > Host: localhost:8080
 > User-Agent: curl/7.55.1
 > Accept: */*
 > Content-Type: application/json
->
 < HTTP/1.1 200 OK
 < Content-Type: application/json
 < Content-Length: 118
 <
 {"abscissa":2,"name":"ROVER_TEST","ordinate":3,"orientation":"N","plateauUuid":"53567a5d-a21c-495e-80a3-d12adaf8585c"}
 
-* Connection #1 to host localhost left intact
 ```
 
 ## Exception Handling
 
 A RESTful API service may throw exception in many cases.
 
-It’s important to handle them properly, so that we can provide a right HTTP response to the client, in particular a right status code (4xx or 5xx errors) and a correct entity.
+It’s important to handle them properly, so that we can provide a right `HTTP response` to the client, in particular a right status code (4xx or 5xx errors) and a correct entity.
 
-Before talking about exception mapper, we first need to understand the concept of provider. Providers in JAX-RS are responsible for various cross-cutting concerns such as filtering requests, converting representations into Java objects, mapping exceptions to responses, etc. 
+Before talking about exception mapper, we first need to understand the concept of provider. `Providers` in JAX-RS are responsible for various cross-cutting concerns such as filtering requests, converting representations into Java objects, mapping exceptions to responses, etc. 
 
 By default, a single instance of each provider class is instantiated for each JAX-RS application, aka singletons.
 
@@ -347,7 +333,7 @@ Interface `ExceptionMapper<E extends Throwable>` defines a contract for a provid
 
 In order to create our own exception mapper, we need to create a class which implements interface `ExceptionMapper`.
 
-Here's an example of [EntityNotFoundMapper](src/main/java/com/game/exception/EntityNotFoundMapper.java) for mapping [EntityNotFoundException](../rover-model/src/main/java/com/game/domain/model/exception/EntityNotFoundException.java) in our  application:
+Here's an example of [EntityNotFoundMapper](src/main/java/com/game/exception/EntityNotFoundMapper.java) for mapping [EntityNotFoundException](../rover-model/src/main/java/com/game/domain/model/exception/EntityNotFoundException.java) thrown from our application model:
 
 ```java
 @Provider
@@ -379,7 +365,7 @@ Such a class may be added to the set of classes of the Application instance that
 
 When an application throws an `com.game.domain.model.exception.EntityNotFoundException`, the `toResponse` method of the `EntityNotFoundMapper` instance will be invoked. 
 
-Let us test this behaviour by invoking the GET method for an NOT existing Plateau
+Let us test this behavior by invoking the GET method for an NOT existing Plateau
 
 ```java
 curl -v  GET -H "Content-Type: application/json" http://localhost:8080/game/v1/plateau/53567a5d-a21c-495e-80a3-d12adaf8585c/
@@ -432,9 +418,9 @@ C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json
 
 We have to map all our exceptions to specific error code.
 
-To map all the exceptions occured during the validation process, we create a specific [EntityValidationExceptionMapper](src/main/java/com/game/exception/EntityValidationExceptionMapper.java) for mapping [EntityValidationException](../rover-model/src/main/java/com/game/domain/model/exception/EntityValidationException.java) in our  application.
+In particular, to map the exceptions which occurred during the validation process, we create a specific [EntityValidationExceptionMapper](src/main/java/com/game/exception/EntityValidationExceptionMapper.java) for mapping [EntityValidationException](../rover-model/src/main/java/com/game/domain/model/exception/EntityValidationException.java) in our  application.
 
-Note that in this case, we set the Response status as 500
+Note that in this case, we set the Response status as 500, as it should be considered as an Internal Server Error.
 
 ```java
 @Provider
@@ -453,7 +439,7 @@ Then if we try to initialize a Plateau with a negative width, as for example by 
 ```java
 curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"width\": -5, \"height\": 5}" http://localhost:8080/game/v1/plateau/initialize
 ```
-we receive the expected Http Error Code = 500 and error message `[ERR-001] Plateau width [-5] should be strictly positive`
+we receive the expected `Http Error Code = 500` and error message `[ERR-001] Plateau width [-5] should be strictly positive`. Keep in mind that all our validation errors in the model are assigned an `Error Code = ERR-001`
 
 ```java
 C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/json" -d "{\"uuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"width\": -5, \"height\": 5}" http://localhost:8080/game/v1/plateau/initialize
@@ -461,19 +447,13 @@ C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/jso
 * Connected to localhost (127.0.0.1) port 8080 (#1)
 > POST /game/v1/plateau/initialize HTTP/1.1
 > Host: localhost:8080
-> User-Agent: curl/7.55.1
-> Accept: */*
 > Content-Type: application/json
-> Content-Length: 74
->
-* upload completely sent off: 74 out of 74 bytes
+
 < HTTP/1.1 500 Internal Server Error
 < Content-Type: text/plain
-< Connection: close
-< Content-Length: 56
-<
+
 [ERR-001] Plateau width [-5] should be strictly positive
-* Closing connection 1
+
 ```
 Equivalently, if we try to initialize a `Rover` without any `Plateau`, with the Curl
 
@@ -481,7 +461,7 @@ Equivalently, if we try to initialize a `Rover` without any `Plateau`, with the 
 curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": -2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
 ```
 
-We the expected Http 500 Response Code along with the error message `[ERR-001] It is not allowed to initialize a Rover. Please initialize the Plateau first.`
+We the expected `Http 500 Response Code` along with the error message `[ERR-001] It is not allowed to initialize a Rover. Please initialize the Plateau first.`
 
 ```java
 C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/json" -d "{\"plateauUuid\": \"53567a5d-a21c-495e-80a3-d12adaf8585c\", \"name\": \"ROVER_TEST\", \"abscissa\": -2, \"ordinate\": 3, \"orientation\": \"N\"}" http://localhost:8080/game/v1/rover/initialize
@@ -490,19 +470,17 @@ C:\cyril\rover-project\rover-web>curl -v  POST -H "Content-Type: application/jso
 > POST /game/v1/rover/initialize HTTP/1.1
 > Host: localhost:8080
 > User-Agent: curl/7.55.1
-> Accept: */*
 > Content-Type: application/json
-> Content-Length: 128
 >
-* upload completely sent off: 128 out of 128 bytes
 < HTTP/1.1 500 Internal Server Error
 < Content-Type: text/plain
-< Connection: close
 < Content-Length: 87
 <
 [ERR-001] It is not allowed to initialize a Rover. Please initialize the Plateau first.
 * Closing connection 1
 ```
+
+## Testing
 
 
 

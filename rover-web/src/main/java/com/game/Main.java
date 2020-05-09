@@ -20,9 +20,9 @@ public class Main {
      * @return Grizzly HTTP server.
      */
     public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in com.game package
-        final ResourceConfig rc = new ResourceConfig().packages("com.game.resource", "com.game.exception");
+        // create a resource config that scans for JAX-RS resources  in com.game package
+    	// as well as for providers for exception mapping in com.game.provider
+        final ResourceConfig rc = new ResourceConfig().packages("com.game.resource", "com.game.provider");
 
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
