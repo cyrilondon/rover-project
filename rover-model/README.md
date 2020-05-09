@@ -95,19 +95,19 @@ Exception in thread "pool-1-thread-1" com.game.domain.model.exception.GameExcept
  
 Finally, if you want to have a better understanding of the application, you can go through the following documentation as well, focusing on those different topics:
 
-- Domain-Driven Design
+- [Domain-Driven Design](#domain-driven-design)
 
-- Hexagonal Architecture
+- [Hexagonal Architecture](#hexagonal-architecture)
 
-- Event-Driven Architecture
+- [Event-Driven Architecture](#event-driven-architecture)
 
-- Test Driven Design
+- [Validation and Exception Handling](#validation-and-exception-handling)
 
-- Validation and Exception Handling
+- [Concurrency and Optimistic Locking](#concurrency-and-optimistic-locking)
 
-- Concurrency and Optimistic Locking
+- [Test Driven Design](#test-driven-design)
 
-- Design Patterns
+- [Design Patterns](#design-patterns)
 
 
 ### Domain Driven Design 
@@ -1226,208 +1226,6 @@ We have therefore established a clear segregation of responsibilities:
 - Each `Event` is clearly assigned a single responsibility in a very clear and delimited context of a particular `Entity`.
 
 
-
-### Test driven
-
-From a testing perspective, our goal before to start to code the application was very clear:
-
-- We did not want to use any framework, i.e. no framework for dependency injection and not even a framework for mock testing. The only pre-built framework we have on-boarded is purely 100% dedicated to unit testing assertions: [Test NG](https://testng.org/doc/)
-
-
-- We expected however a high unit testing coverage rate, at least at 90% of the application should have been tested.
-
-- The components which need to be tested in particular: Entities, Domain Services, Application Service.
-
-**Entities**
-
-In our Event-Driven architecture, an `Entity` is endowed with a very specific feature: it publishes `Domain Events`.
-
-Say we would like for example to test the Rover's *move* method and to write ideally this kind of test:
-
-
-```java
-@Test
-	public void testMoveNorthOneTime() {
-		Rover rover = initializeRover(Orientation.NORTH);
-		rover.move();
-		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
-		assertThat(rover.getXPosition()).isEqualTo(3);
-		assertThat(rover.getYPosition()).isEqualTo(5);
-		assertThat(roverInitializedEvents.size()).isEqualTo(0);
-		assertThat(roverMovedEvents.size()).isEqualTo(1);
-		List<DomainEvent> eventsList = GameContext.getInstance().getEventStore().getAllEvents();
-		assertThat(eventsList.size()).isEqualTo(2);
-		DomainEvent eventStored = eventsList.get(0);
-		assertThat(eventStored).isInstanceOf(RoverMovedEvent.class);
-	}
-```
-
-That is, we want to test that an `Event` of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) has been sent and handled by whatever `Event Handler` which matches the type `RoverMovedEvent`.
-
-Nothing is simpler: we just create some Mock Event Subscribers which for example just add the `Event` to a `List`. All possible mock subscribers are made available in the Test utility class [BaseUnitTest](src/test/java/com/game/test/util/BaseUnitTest.java).
-
-In this example, the `MockRoverMovedEventSubscriber` stubs a real `Event Subscriber` by just adding the handled event to a `roverMovedEvents` list.
-
-```java
-
-	public class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
-
-		@Override
-		public void handleEvent(RoverMovedEvent event) {
-			roverMovedEvents.add(event);
-		}
-
-		@Override
-		public Class<RoverMovedEvent> subscribedToEventType() {
-			return RoverMovedEvent.class;
-		}
-	}
-	
-```
-
-**Domain Services**
-
-The `Services` use two types of components in our application:
-
-- the `Repositories` and in case of RoverService another application service `PlateauService`
-
-- the `Event Domain Publisher` (when initializing an `Entity`)
-
-The first two points are easily addressed as `Repositories` and `Domain Services` are injected by `Dependency Injection` via the constructor.
-
-
-```java
-
-	private PlateauService plateauService;
-
-	private RoverRepository roverRepository;
-
-	public RoverServiceImpl(PlateauService plateauService, RoverRepository roverRepository) {
-		this.plateauService = plateauService;
-		this.roverRepository = roverRepository;
-	}
-	
-```
-	
-so that injecting mock components are just a matter of instantiating them and  passing them in the constructor, see by example how the `RoverService` is instantiated in the [RoverServiceImplTest](src/test/java/com/game/domain/model/service/rover/RoverServiceImplTest.java)
-
-```java
-
-public class RoverServiceImplTest extends BaseUnitTest
-
-{
-
-RoverRepository mockRoverRepository = new MockRoverRepository();
-
-	RoverRepository mockRoverRepository = new MockRoverRepository();
-
-	/**
-	 * Inject our own Mock Plateau Service + Rover repository implementation here
-	 */
-	private RoverServiceImpl roverService = new RoverServiceImpl(new MockPlateauServiceImpl(), mockRoverRepository);
-
-```
-Concerning the `Event` publishing, we use the same mock publishers as described in the previous section for the `Entities`.
-
-**Application Services**
-
-Our application service [GameServiceImpl](src/main/java/com/game/domain/application/service/ApplicationService.java) needs to be tested as well. That is where our [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java) is of great benefit.
-
-It exposes the method *load* which allows to load the desired type of Service Locator, real or mock.
-
-```java
-public class ServiceLocator {
-
-
-	private static ServiceLocator soleInstance = new ServiceLocator();
-	
-
-	public static void load(ServiceLocator arg) {
-		soleInstance = arg;
-	}
-	
-}
-
-```
-
-We therefore use this useful feature to load the mock services in our test [GameServiceImpl](src/main/java/com/game/domain/application/service/ApplicationService.java)
-
-```java
-
-public class GameServiceImplTest {
-...
-
-   private void mockServiceLocator() {
-		ServiceLocator mockServiceLocator = new ServiceLocator();
-		mockServiceLocator.loadDomainService(ServiceLocator.ROVER_SERVICE, new MockRoverServiceImpl());
-		mockServiceLocator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new MockPlateauServiceImpl());
-		mockServiceLocator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
-		ServiceLocator.load(mockServiceLocator);
-	}
-...	
-}
-
-```
-Consider for example the following method *execute* to move a `Rover`:
-
-```java
-void execute(RoverMoveCommand command) {
-
-		// register the subscriber for the given type of event = RoverMovedEvent
-		DomainEventPublisherSubscriber.instance().subscribe(new RoverMovedEventSubscriber());
-
-		// register the subscriber in case of something went wrong during Rover moves
-		DomainEventPublisherSubscriber.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
-
-		// register the subscriber for the plateau
-		DomainEventPublisherSubscriber.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
-
-		// delegates to the rover service
-		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(),
-				command.getNumberOfMoves());
-
-	}
-
-```
-
-We have few things to check here:
-
-- that three subscribers have been registered
-
-- that the `RoverService` has been called via the method *move*
-
-```java
-@Test
-	public void testMoveRoverWithOrientation() {
-		UUID uuid = UUID.randomUUID();
-		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
-		gameService.execute(new RoverMoveCommand(new RoverIdentifier(uuid, roverName), 1));
-		assertThat(roversList).contains(
-				new Rover(new RoverIdentifier(uuid, roverName), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(3);
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverMovedEventSubscriber.class);
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(RoverMovedWithExceptionEventSubscriber.class);
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(2)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
-	}
-```
-
-The first check is quick and easy, as we just need to check the `DomainEventPublisherSubscriber.getSubscribers` instances.
-
-The second check is done via the mock service injected during the test setup, which adds the `Rover` to a List.
-
-```java
-
-public class MockRoverServiceImpl implements RoverService {
-
-		@Override
-		public void moveRoverNumberOfTimes(RoverIdentifier id, int numberOfTimes) {
-			BaseUnitTest.this.roversList.add(new Rover(new RoverIdentifier(id.getPlateauId(), id.getName()),
-					new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
-			if (id.getName().equals(GameContext.ROVER_NAME_PREFIX + 5))
-				throw new PlateauLocationAlreadySetException("Error");
-		}
-```
-
 ### Validation and Exception Handling
 
 The base class of our Exception hierarchy is the [GameException](src/main/java/com/game/domain/model/exception/GameException.java) which:
@@ -1820,6 +1618,208 @@ public void checkAgainstVersion(int currentVersion) {
 		}
 	}
 ```
+
+### Test driven Design
+
+From a testing perspective, our goal before to start to code the application was very clear:
+
+- We did not want to use any framework, i.e. no framework for dependency injection and not even a framework for mock testing. The only pre-built framework we have on-boarded is purely 100% dedicated to unit testing assertions: [Test NG](https://testng.org/doc/)
+
+
+- We expected however a high unit testing coverage rate, at least at 90% of the application should have been tested.
+
+- The components which need to be tested in particular: Entities, Domain Services, Application Service.
+
+**Entities**
+
+In our Event-Driven architecture, an `Entity` is endowed with a very specific feature: it publishes `Domain Events`.
+
+Say we would like for example to test the Rover's *move* method and to write ideally this kind of test:
+
+
+```java
+@Test
+	public void testMoveNorthOneTime() {
+		Rover rover = initializeRover(Orientation.NORTH);
+		rover.move();
+		assertThat(rover.getOrientation()).isEqualTo(Orientation.NORTH);
+		assertThat(rover.getXPosition()).isEqualTo(3);
+		assertThat(rover.getYPosition()).isEqualTo(5);
+		assertThat(roverInitializedEvents.size()).isEqualTo(0);
+		assertThat(roverMovedEvents.size()).isEqualTo(1);
+		List<DomainEvent> eventsList = GameContext.getInstance().getEventStore().getAllEvents();
+		assertThat(eventsList.size()).isEqualTo(2);
+		DomainEvent eventStored = eventsList.get(0);
+		assertThat(eventStored).isInstanceOf(RoverMovedEvent.class);
+	}
+```
+
+That is, we want to test that an `Event` of type [RoverMovedEvent](src/main/java/com/game/domain/model/event/rover/RoverMovedEvent.java) has been sent and handled by whatever `Event Handler` which matches the type `RoverMovedEvent`.
+
+Nothing is simpler: we just create some Mock Event Subscribers which for example just add the `Event` to a `List`. All possible mock subscribers are made available in the Test utility class [BaseUnitTest](src/test/java/com/game/test/util/BaseUnitTest.java).
+
+In this example, the `MockRoverMovedEventSubscriber` stubs a real `Event Subscriber` by just adding the handled event to a `roverMovedEvents` list.
+
+```java
+
+	public class MockRoverMovedEventSubscriber implements DomainEventSubscriber<RoverMovedEvent> {
+
+		@Override
+		public void handleEvent(RoverMovedEvent event) {
+			roverMovedEvents.add(event);
+		}
+
+		@Override
+		public Class<RoverMovedEvent> subscribedToEventType() {
+			return RoverMovedEvent.class;
+		}
+	}
+	
+```
+
+**Domain Services**
+
+The `Services` use two types of components in our application:
+
+- the `Repositories` and in case of RoverService another application service `PlateauService`
+
+- the `Event Domain Publisher` (when initializing an `Entity`)
+
+The first two points are easily addressed as `Repositories` and `Domain Services` are injected by `Dependency Injection` via the constructor.
+
+
+```java
+
+	private PlateauService plateauService;
+
+	private RoverRepository roverRepository;
+
+	public RoverServiceImpl(PlateauService plateauService, RoverRepository roverRepository) {
+		this.plateauService = plateauService;
+		this.roverRepository = roverRepository;
+	}
+	
+```
+	
+so that injecting mock components are just a matter of instantiating them and  passing them in the constructor, see by example how the `RoverService` is instantiated in the [RoverServiceImplTest](src/test/java/com/game/domain/model/service/rover/RoverServiceImplTest.java)
+
+```java
+
+public class RoverServiceImplTest extends BaseUnitTest
+
+{
+
+RoverRepository mockRoverRepository = new MockRoverRepository();
+
+	RoverRepository mockRoverRepository = new MockRoverRepository();
+
+	/**
+	 * Inject our own Mock Plateau Service + Rover repository implementation here
+	 */
+	private RoverServiceImpl roverService = new RoverServiceImpl(new MockPlateauServiceImpl(), mockRoverRepository);
+
+```
+Concerning the `Event` publishing, we use the same mock publishers as described in the previous section for the `Entities`.
+
+**Application Services**
+
+Our application service [GameServiceImpl](src/main/java/com/game/domain/application/service/ApplicationService.java) needs to be tested as well. That is where our [Service Locator](src/main/java/com/game/domain/model/service/locator/ServiceLocator.java) is of great benefit.
+
+It exposes the method *load* which allows to load the desired type of Service Locator, real or mock.
+
+```java
+public class ServiceLocator {
+
+
+	private static ServiceLocator soleInstance = new ServiceLocator();
+	
+
+	public static void load(ServiceLocator arg) {
+		soleInstance = arg;
+	}
+	
+}
+
+```
+
+We therefore use this useful feature to load the mock services in our test [GameServiceImpl](src/main/java/com/game/domain/application/service/ApplicationService.java)
+
+```java
+
+public class GameServiceImplTest {
+...
+
+   private void mockServiceLocator() {
+		ServiceLocator mockServiceLocator = new ServiceLocator();
+		mockServiceLocator.loadDomainService(ServiceLocator.ROVER_SERVICE, new MockRoverServiceImpl());
+		mockServiceLocator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, new MockPlateauServiceImpl());
+		mockServiceLocator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
+		ServiceLocator.load(mockServiceLocator);
+	}
+...	
+}
+
+```
+Consider for example the following method *execute* to move a `Rover`:
+
+```java
+void execute(RoverMoveCommand command) {
+
+		// register the subscriber for the given type of event = RoverMovedEvent
+		DomainEventPublisherSubscriber.instance().subscribe(new RoverMovedEventSubscriber());
+
+		// register the subscriber in case of something went wrong during Rover moves
+		DomainEventPublisherSubscriber.instance().subscribe(new RoverMovedWithExceptionEventSubscriber());
+
+		// register the subscriber for the plateau
+		DomainEventPublisherSubscriber.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
+
+		// delegates to the rover service
+		GameContext.getInstance().getRoverService().moveRoverNumberOfTimes(command.getRoverId(),
+				command.getNumberOfMoves());
+
+	}
+
+```
+
+We have few things to check here:
+
+- that three subscribers have been registered
+
+- that the `RoverService` has been called via the method *move*
+
+```java
+@Test
+	public void testMoveRoverWithOrientation() {
+		UUID uuid = UUID.randomUUID();
+		String roverName = GameContext.ROVER_NAME_PREFIX + 3;
+		gameService.execute(new RoverMoveCommand(new RoverIdentifier(uuid, roverName), 1));
+		assertThat(roversList).contains(
+				new Rover(new RoverIdentifier(uuid, roverName), new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(3);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverMovedEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(RoverMovedWithExceptionEventSubscriber.class);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(2)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);
+	}
+```
+
+The first check is quick and easy, as we just need to check the `DomainEventPublisherSubscriber.getSubscribers` instances.
+
+The second check is done via the mock service injected during the test setup, which adds the `Rover` to a List.
+
+```java
+
+public class MockRoverServiceImpl implements RoverService {
+
+		@Override
+		public void moveRoverNumberOfTimes(RoverIdentifier id, int numberOfTimes) {
+			BaseUnitTest.this.roversList.add(new Rover(new RoverIdentifier(id.getPlateauId(), id.getName()),
+					new TwoDimensionalCoordinates(2, 3), Orientation.WEST));
+			if (id.getName().equals(GameContext.ROVER_NAME_PREFIX + 5))
+				throw new PlateauLocationAlreadySetException("Error");
+		}
+```
+
 
 ### Design Patterns
 

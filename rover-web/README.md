@@ -389,7 +389,9 @@ C:\cyril\rover-project\rover-web>curl -v  GET -H "Content-Type: application/json
 [ERR-002] Entity [Plateau] with Id [53567a5d-a21c-495e-80a3-d12adaf8585c] not found in the Application Repository
 * Connection #1 to host localhost left intact
 ```
-We can do the same for a NON existing Rover, by executing the following Curl
+*Remark*: The way this exception could be caught and handled from a Java Client will be covered more in details in the [Testing](#testing) section.
+
+We can test the same Exception Mapper for a non existing Rover, by executing the following Curl:
 
 
 ```java
