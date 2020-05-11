@@ -1,5 +1,4 @@
  [![Build Status](https://travis-ci.com/cyrilondon/rover-project.svg?branch=master)](https://travis-ci.com/cyrilondon/rover-project)
- 
  ![Java CI with Maven](https://github.com/cyrilondon/rover-project/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
 
 # ROVER Project
