@@ -103,7 +103,7 @@ public class PlateauResourceTest extends BaseUnitTest {
 		// this will NOT happen in a Curl for example where we get the root cause information
 		assertEquals(response.getStatusInfo().getStatusCode(), 500);
 		assertEquals(response.getStatusInfo().getReasonPhrase(), "Internal Server Error");
-
+		assertEquals("[ERR-001] Plateau width [-3] should be strictly positive", response.readEntity(String.class));
 	}
 
 }
