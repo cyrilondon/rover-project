@@ -69,6 +69,7 @@ public class PlateauResourceTest extends BaseUnitTest {
 			// cf org.glassfish.jersey.client.JerseyInvocation.convertToException
 			// this will NOT happen in a Curl for example where we get the full root cause information
 			assertEquals("HTTP 404 Not Found", e.getMessage());
+			assertEquals(String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository", plateauUUID), (e.getResponse().readEntity(String.class)));
 		}
 	}
 	
@@ -85,7 +86,7 @@ public class PlateauResourceTest extends BaseUnitTest {
 		Response response = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
 		assertEquals(response.getStatusInfo().getStatusCode(), 404);
 		assertEquals(response.getStatusInfo().getReasonPhrase(), "Not Found");
-
+		assertEquals(String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository", plateauUUID), (response.readEntity(String.class)));
 	}
 
 	/**
