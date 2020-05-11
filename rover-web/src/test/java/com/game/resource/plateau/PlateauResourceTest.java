@@ -38,19 +38,19 @@ public class PlateauResourceTest extends BaseUnitTest {
 
 		assertEquals(expectedResponse, getResponse);
 	}
-	
+
 	@Test
 	public void testInitializeGetWithesponse() {
 		String plateauUUID = "13567a5d-a21c-495e-80a3-d12adaf8585c";
 		initializePlateau(plateauUUID);
-		
+
 		// rest call to get the Plateau with UUID = plateauUUID
 		Response getResponse = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
 		String expectedStringResponse = "{\"height\":5,\"uuid\":\"13567a5d-a21c-495e-80a3-d12adaf8585c\",\"width\":5}";
 
 		assertEquals(200, getResponse.getStatus());
 		assertEquals(expectedStringResponse, getResponse.readEntity(String.class));
-	
+
 	}
 
 	/**
@@ -67,13 +67,16 @@ public class PlateauResourceTest extends BaseUnitTest {
 		} catch (NotFoundException e) {
 			// Jersey test client creates a brand new Exception with lost information
 			// cf org.glassfish.jersey.client.JerseyInvocation.convertToException
-			// this will NOT happen in a Curl for example where we get the full root cause information
+			// this will NOT happen in a Curl for example where we get the full root cause
+			// information
 			assertEquals("HTTP 404 Not Found", e.getMessage());
-			assertEquals(String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository", plateauUUID), (e.getResponse().readEntity(String.class)));
+			assertEquals(
+					String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository",
+							plateauUUID),
+					(e.getResponse().readEntity(String.class)));
 		}
 	}
-	
-	
+
 	/**
 	 * We call getPlateau without initialization We expect a 404 Not Found Response
 	 * code
@@ -86,7 +89,8 @@ public class PlateauResourceTest extends BaseUnitTest {
 		Response response = target.path(String.format("v1/plateau/%s", plateauUUID)).request().get(Response.class);
 		assertEquals(response.getStatusInfo().getStatusCode(), 404);
 		assertEquals(response.getStatusInfo().getReasonPhrase(), "Not Found");
-		assertEquals(String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository", plateauUUID), (response.readEntity(String.class)));
+		assertEquals(String.format("[ERR-002] Entity [Plateau] with Id [%s] not found in the Application Repository",
+				plateauUUID), (response.readEntity(String.class)));
 	}
 
 	/**
@@ -100,7 +104,8 @@ public class PlateauResourceTest extends BaseUnitTest {
 		Response response = initializePlateau(plateauUUID, -3, 3);
 		// check the Response status = 500 for newly created Resource
 		// Jersey test client creates a brand new Exception with lost information
-		// this will NOT happen in a Curl for example where we get the root cause information
+		// this will NOT happen in a Curl for example where we get the root cause
+		// information
 		assertEquals(response.getStatusInfo().getStatusCode(), 500);
 		assertEquals(response.getStatusInfo().getReasonPhrase(), "Internal Server Error");
 		assertEquals("[ERR-001] Plateau width [-3] should be strictly positive", response.readEntity(String.class));
