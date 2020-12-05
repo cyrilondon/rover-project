@@ -86,7 +86,7 @@ public class GameServiceImplTest extends BaseUnitTest {
 		gameService.execute(initializeCommand);
 		assertThat(roversList.contains(new Rover(new RoverIdentifier(uuid, GameContext.ROVER_NAME_PREFIX + 1),
 				coordinates, Orientation.SOUTH))).isTrue();
-		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(3);
+		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().size()).isEqualTo(4);
 		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(0)).isInstanceOf(RoverInitializedEventSubscriber.class);
 		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(1)).isInstanceOf(RoverInitializedWithExceptionEventSubscriber.class);
 		assertThat(DomainEventPublisherSubscriber.getSubscribers().get().get(2)).isInstanceOf(PlateauSwitchedLocationEventSubscriber.class);

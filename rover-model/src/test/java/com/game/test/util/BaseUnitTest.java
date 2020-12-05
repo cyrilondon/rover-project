@@ -30,6 +30,7 @@ import com.game.domain.model.exception.IllegalRoverMoveException;
 import com.game.domain.model.exception.PlateauLocationAlreadySetException;
 import com.game.domain.model.exception.PlateauNotFoundException;
 import com.game.domain.model.exception.RoverInitializationException;
+import com.game.domain.model.repository.ReadRoverRepository;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.plateau.PlateauService;
 import com.game.domain.model.service.rover.RoverService;
@@ -353,6 +354,11 @@ public class BaseUnitTest {
 
 		@Override
 		public RoverRepository getRoverRepository() {
+			return null;
+		}
+
+		@Override
+		public ReadRoverRepository getReadRoverRepository() {
 			return null;
 		}
 

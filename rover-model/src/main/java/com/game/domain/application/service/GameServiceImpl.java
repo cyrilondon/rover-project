@@ -21,6 +21,7 @@ import com.game.domain.model.event.DomainEventPublisherSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauInitializedEventSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.plateau.PlateauSwitchedLocationEventSubscriber;
+import com.game.domain.model.event.subscriber.rover.RoverInitializedEventReadSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverInitializedWithExceptionEventSubscriber;
 import com.game.domain.model.event.subscriber.rover.RoverMovedEventSubscriber;
@@ -67,7 +68,7 @@ public class GameServiceImpl implements GameService {
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedEventSubscriber());
 		
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauInitializedWithExceptionEventSubscriber());
-		
+				
 		GameContext.getInstance().getPlateauService().initializePlateau(command.getPlateauUuid(),
 				new TwoDimensionalCoordinates(command.getWidth(), command.getHeight()),
 				command.getObserverSpeed());
@@ -84,6 +85,9 @@ public class GameServiceImpl implements GameService {
 		// register the subscriber for the plateau to mark it as occupied for the rover
 		// position
 		DomainEventPublisherSubscriber.instance().subscribe(new PlateauSwitchedLocationEventSubscriber());
+		
+		// for read/projected purpose
+		DomainEventPublisherSubscriber.instance().subscribe(new RoverInitializedEventReadSubscriber());
 
 		GameContext.getInstance().getRoverService().initializeRover(
 				new RoverIdentifier(command.getPlateauUuid(), command.getName()),

@@ -43,7 +43,7 @@ public class RoverServiceImplTest extends BaseUnitTest
 	/**
 	 * Inject our own Mock Rover repository implementation here
 	 */
-	private RoverServiceImpl roverService = new RoverServiceImpl(new MockPlateauServiceImpl(), mockRoverRepository);
+	private RoverServiceImpl roverService = new RoverServiceImpl(new MockPlateauServiceImpl(), mockRoverRepository, null);
 
 	@BeforeTest
 	public void setup() {

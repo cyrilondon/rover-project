@@ -41,6 +41,9 @@ public class GameIntegration {
 		
 		// print all the Events stored in the Event Store
 		GameContext.getInstance().getEventStore().getAllEvents().forEach(System.out::println);
+		
+		System.out.println("***************** Using Read/Projected Model ********************");
+		System.out.println("Number of rovers currently in play: " + GameContext.getInstance().getRoverService().getReadRoverRepository().getNumberOfEntities());
 	}
 
 }

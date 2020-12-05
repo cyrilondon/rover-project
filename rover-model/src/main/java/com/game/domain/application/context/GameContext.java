@@ -23,6 +23,7 @@ import com.game.domain.model.service.rover.RoverService;
 import com.game.domain.model.service.rover.RoverServiceImpl;
 import com.game.infrastructure.persistence.impl.InMemoryPlateauRepositoryImpl;
 import com.game.infrastructure.persistence.impl.InMemoryRoverRepositoryImpl;
+import com.game.infrastructure.persistence.read.impl.ReadRoverRepositoryImpl;
 
 /**
  * Application context whose responsibility is to keep track of the game state.
@@ -75,7 +76,7 @@ public class GameContext {
 		locator.loadApplicationService(ServiceLocator.GAME_SERVICE, new GameServiceImpl());
 		PlateauService plateauService = new PlateauServiceImpl(new InMemoryPlateauRepositoryImpl());
 		locator.loadDomainService(ServiceLocator.PLATEAU_SERVICE, plateauService);
-		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(plateauService , new InMemoryRoverRepositoryImpl()));
+		locator.loadDomainService(ServiceLocator.ROVER_SERVICE, new RoverServiceImpl(plateauService , new InMemoryRoverRepositoryImpl(), new ReadRoverRepositoryImpl()));
 		locator.loadEventStore(ServiceLocator.EVENT_STORE, new EventStoreImpl());
 		ServiceLocator.load(locator);
 	}

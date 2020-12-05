@@ -17,6 +17,7 @@ import com.game.domain.model.event.plateau.PlateauSwitchedLocationEvent;
 import com.game.domain.model.event.rover.RoverInitializedEvent;
 import com.game.domain.model.exception.GameExceptionLabels;
 import com.game.domain.model.exception.RoverInitializationException;
+import com.game.domain.model.repository.ReadRoverRepository;
 import com.game.domain.model.repository.RoverRepository;
 import com.game.domain.model.service.plateau.PlateauService;
 
@@ -30,14 +31,17 @@ public class RoverServiceImpl implements RoverService {
 
 	private RoverRepository roverRepository;
 	
+	private ReadRoverRepository readRoverRepository;
+	
 	public final Function<RoverIdentifier, Void> addPlateauToContext = id -> {
 		GameContext.getInstance().addPlateau(plateauService.getPlateau(id.getPlateauId()));
 		return null;
 	};
 
-	public RoverServiceImpl(PlateauService plateauService, RoverRepository roverRepository) {
+	public RoverServiceImpl(PlateauService plateauService, RoverRepository roverRepository, ReadRoverRepository readRoverRepository) {
 		this.plateauService = plateauService;
 		this.roverRepository = roverRepository;
+		this.readRoverRepository = readRoverRepository;
 	}
 
 	@Override
@@ -135,6 +139,11 @@ public class RoverServiceImpl implements RoverService {
 	@Override
 	public RoverRepository getRoverRepository() {
 		return roverRepository;
+	}
+
+	@Override
+	public ReadRoverRepository getReadRoverRepository() {
+		return readRoverRepository;
 	}
 	
 }
