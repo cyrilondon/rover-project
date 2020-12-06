@@ -108,6 +108,8 @@ Finally, if you want to have a better understanding of the application, you can 
 
 - [Event-Driven Architecture](#event-driven-architecture)
 
+- [CQRS Pattern](#cqrs-pattern)
+
 - [Validation and Exception Handling](#validation-and-exception-handling)
 
 - [Concurrency and Optimistic Locking](#concurrency-and-optimistic-locking)
@@ -1232,6 +1234,36 @@ We have therefore established a clear segregation of responsibilities:
 - the `Application Service` publish `Domain Events` and delegates the action to execute to the `Domain Services` but has no business responsibility
 - Each `Event` is clearly assigned a single responsibility in a very clear and delimited context of a particular `Entity`.
 
+### CQRS pattern
+
+Back in 2016 in his talk [A Decade of DDD, CQRS, Event Sourcing](https://dddeurope.com/2016/greg-young.html) Greg Young said the following:
+"You need to look at CQRS (Command Query Responsibility Segregation) not as being the main thing. CQRS was a product of its time and meant to be a stepping stone towards the ideas of Event Sourcing."
+Domain entities in event-sourced systems are stored as event streams, essentially each entity is a sequence of events from the persistence point of view.
+- Rebuilding the Aggregate instance from a Stream of historic events could be anti-performant. 
+- Domain events in event store alone do not allow reconstructing the entity state without knowing the logic that the entity uses to rehydrate its own state from events and this logic is in the code of the Domain Model.
+We need a way to project events to an alternative store, which we can easily query. It could be a relational or document database, or cache, or any other type of persistence that is applicable for a specific use case.
+The idea is that a software component called a `Projection` subscribes to the live event feed of the events database and when it receives an event, it could project the information in that event to a query model in a dedicated reporting database.
+
+In our case, we define a new event subscriber [RoverInitializedEventReadSubscriber](src/main/java/com/game/domain/model/event/subscriber/rover/RoverInitializedEventReadSubscriber.java) which reacts to each and every Rover initialization command to update the Rover read model (in our case, a simple LinkedList of Rover ids).
+
+```java
+
+public class RoverInitializedEventReadSubscriber extends AbstractDomainEventSubscriber<RoverInitializedEvent> {
+
+	@Override
+	public void handleEvent(RoverInitializedEvent event) {
+		GameContext.getInstance().getRoverService().getReadRoverRepository().add(event.getRoverId());
+	}
+
+	@Override
+	public Class<RoverInitializedEvent> subscribedToEventType() {
+		return RoverInitializedEvent.class;
+	}
+
+}
+```
+To get the number of Rovers on play, we won't need to query all the rover Domain events, replay all of them to reconstitute all the rover aggregates, it would be completely inefficient.
+We directly query the Projection/Read model.
 
 ### Validation and Exception Handling
 
